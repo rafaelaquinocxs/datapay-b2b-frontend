@@ -4,16 +4,27 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import DashboardLayout from "./components/DashboardLayout";
 import Home from "./pages/Home";
+import VisaoGeral from "./pages/VisaoGeral";
+import Conectores from "./pages/Conectores";
+import Inteligencia from "./pages/Inteligencia";
+import Segmentacao from "./pages/Segmentacao";
 
 function Router() {
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <DashboardLayout>
+      <Switch>
+        <Route path={"/"} component={Home} />
+        <Route path={"/visao-geral"} component={VisaoGeral} />
+        <Route path={"/conectores"} component={Conectores} />
+        <Route path={"/inteligencia"} component={Inteligencia} />
+        <Route path={"/segmentacao"} component={Segmentacao} />
+        <Route path={"/404"} component={NotFound} />
+        {/* Final fallback route */}
+        <Route component={NotFound} />
+      </Switch>
+    </DashboardLayout>
   );
 }
 
