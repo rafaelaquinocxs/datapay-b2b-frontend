@@ -17,46 +17,42 @@ interface DashboardLayoutProps {
 
 const menuItems = [
   {
-    icon: TrendingUp,
-    label: "Performance",
-    path: "/",
-    badge: "142",
-    badgeColor: "bg-purple-500",
-  },
-  {
     icon: LayoutDashboard,
-    label: "Visão Geral",
-    path: "/visao-geral",
-    badge: "2",
-    badgeColor: "bg-blue-500",
+    label: "Início",
+    path: "/",
   },
   {
     icon: Database,
-    label: "Conectores",
-    path: "/conectores",
+    label: "Meus Dados",
+    path: "/meus-dados",
+    badge: "3",
+    badgeColor: "bg-blue-500",
+  },
+  {
+    icon: Brain,
+    label: "Análise da IA",
+    path: "/analise-ia",
+    badge: "12",
+    badgeColor: "bg-purple-500",
+  },
+  {
+    icon: Users,
+    label: "Pesquisas",
+    path: "/pesquisas",
     badge: "5",
     badgeColor: "bg-green-500",
   },
   {
-    icon: Brain,
-    label: "Inteligência",
-    path: "/inteligencia",
+    icon: TrendingUp,
+    label: "Ações Inteligentes",
+    path: "/acoes",
     badge: "8",
-    badgeColor: "bg-cyan-500",
-  },
-  {
-    icon: Users,
-    label: "Segmentação",
-    path: "/segmentacao",
-    badge: "12",
-    badgeColor: "bg-pink-500",
+    badgeColor: "bg-orange-500",
   },
   {
     icon: BarChart3,
     label: "Resultados",
     path: "/resultados",
-    badge: "3",
-    badgeColor: "bg-orange-500",
   },
 ];
 

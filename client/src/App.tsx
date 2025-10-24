@@ -5,21 +5,23 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import DashboardLayout from "./components/DashboardLayout";
-import Home from "./pages/Home";
-import VisaoGeral from "./pages/VisaoGeral";
-import Conectores from "./pages/Conectores";
-import Inteligencia from "./pages/Inteligencia";
-import Segmentacao from "./pages/Segmentacao";
+import Inicio from "./pages/Inicio";
+import MeusDados from "./pages/MeusDados";
+import AnaliseIA from "./pages/AnaliseIA";
+import Pesquisas from "./pages/Pesquisas";
+import AcoesInteligentes from "./pages/AcoesInteligentes";
+import Resultados from "./pages/Resultados";
 
 function Router() {
   return (
     <DashboardLayout>
       <Switch>
-        <Route path={"/"} component={Home} />
-        <Route path={"/visao-geral"} component={VisaoGeral} />
-        <Route path={"/conectores"} component={Conectores} />
-        <Route path={"/inteligencia"} component={Inteligencia} />
-        <Route path={"/segmentacao"} component={Segmentacao} />
+        <Route path={"/"} component={Inicio} />
+        <Route path={"/meus-dados"} component={MeusDados} />
+        <Route path={"/analise-ia"} component={AnaliseIA} />
+        <Route path={"/pesquisas"} component={Pesquisas} />
+        <Route path={"/acoes"} component={AcoesInteligentes} />
+        <Route path={"/resultados"} component={Resultados} />
         <Route path={"/404"} component={NotFound} />
         {/* Final fallback route */}
         <Route component={NotFound} />
