@@ -139,7 +139,7 @@ export const appRouter = router({
       )
       .mutation(async ({ input }) => {
         // Criar empresa
-        const empresaId = await db.createEmpresa({
+        const empresa = await db.createEmpresa({
           nome: input.empresa.nome ?? null,
           email: input.empresa.email ?? null,
           telefone: input.empresa.telefone ?? null,
@@ -152,7 +152,7 @@ export const appRouter = router({
 
         // Criar diagnóstico
         const diagnosticoId = await db.createDiagnostico({
-          empresaId: Number(empresaId),
+          empresaId: empresa.id,
           respostas: input.diagnostico.respostas,
           scoreGeral: input.diagnostico.scoreGeral,
           scoreGovernanca: input.diagnostico.scoreGovernanca,
@@ -167,7 +167,7 @@ export const appRouter = router({
 
         return {
           success: true,
-          empresaId,
+          empresaId: empresa.id,
           diagnosticoId,
         };
       }),
