@@ -117,3 +117,22 @@ export const diagnosticos = mysqlTable("diagnosticos", {
 
 export type Diagnostico = typeof diagnosticos.$inferSelect;
 export type InsertDiagnostico = typeof diagnosticos.$inferInsert;
+
+/**
+ * Tabela para armazenar fontes de dados conectadas
+ */
+export const fontesDados = mysqlTable("fontes_dados", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresaId").notNull(),
+  nome: varchar("nome", { length: 255 }).notNull(),
+  tipo: varchar("tipo", { length: 50 }).notNull(), // 'csv', 'excel', 'api', 'totvs', 'sap', 'salesforce', 'vtex', 'linx'
+  status: varchar("status", { length: 50 }).default("conectado"), // 'conectado', 'sincronizando', 'erro', 'desconectado'
+  ultimaSincronizacao: timestamp("ultimaSincronizacao"),
+  totalRegistros: int("totalRegistros").default(0),
+  configuracao: json("configuracao"), // Credenciais API, caminho do arquivo, etc
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+
+export type FonteDados = typeof fontesDados.$inferSelect;
+export type InsertFonteDados = typeof fontesDados.$inferInsert;

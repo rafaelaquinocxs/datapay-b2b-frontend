@@ -372,6 +372,81 @@ export const appRouter = router({
         return respostas;
       }),
   }),
+
+  // Router para Fontes de Dados
+  fontesDados: router({
+    // Listar fontes de dados da empresa
+    listar: publicProcedure
+      .input(
+        z.object({
+          empresaId: z.number(),
+        })
+      )
+      .query(async ({ input }) => {
+        const fontes = await db.getFontesDadosByEmpresa(input.empresaId);
+        return fontes;
+      }),
+
+    // Adicionar nova fonte de dados
+    adicionar: publicProcedure
+      .input(
+        z.object({
+          empresaId: z.number(),
+          nome: z.string(),
+          tipo: z.string(),
+          configuracao: z.any().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const fonteId = await db.createFonteDados({
+          empresaId: input.empresaId,
+          nome: input.nome,
+          tipo: input.tipo,
+          status: "conectado",
+          totalRegistros: 0,
+          configuracao: input.configuracao || null,
+        });
+
+        return {
+          success: true,
+          fonteId,
+        };
+      }),
+
+    // Atualizar fonte de dados
+    atualizar: publicProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          status: z.string().optional(),
+          totalRegistros: z.number().optional(),
+          ultimaSincronizacao: z.date().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        await db.updateFonteDados(id, data);
+
+        return {
+          success: true,
+        };
+      }),
+
+    // Remover fonte de dados
+    remover: publicProcedure
+      .input(
+        z.object({
+          id: z.number(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        await db.deleteFonteDados(input.id);
+
+        return {
+          success: true,
+        };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

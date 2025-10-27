@@ -137,3 +137,38 @@
 - [x] Rota / agora é a landing page
 - [x] Rota /dashboard é o dashboard completo após login
 
+
+
+
+## 📊 Módulo "Meus Dados" - Implementação Completa
+
+### Backend
+- [x] Criar tabela `fontes_dados` no schema do banco
+- [x] API para listar fontes de dados da empresa
+- [x] API para adicionar fonte via upload (CSV/Excel)
+- [x] API para conectar fonte via API (credenciais)
+- [x] API para remover fonte
+- [x] API para atualizar status de sincronização
+- [x] Helpers de banco para fontes de dados
+- [ ] Parser de CSV/Excel (processamento real de arquivos)
+- [ ] Validação e armazenamento de dados importados
+
+### Frontend
+- [x] Implementar upload de arquivos CSV/Excel
+- [x] Formulário de conexão via API com credenciais
+- [x] Lista de fontes conectadas com status
+- [x] Botão para remover fonte
+- [x] Indicadores de status (conectado, sincronizando, erro)
+- [x] Modal de adicionar fonte com múltiplos tipos
+- [x] Suporte para 8 tipos de conexão (CSV, Excel, TOTVS, SAP, Salesforce, VTEX, Linx, API)
+- [ ] Visualização de dados importados (tabela de registros)
+
+## 🔌 Integração com ERPs/CRMs Brasileiros
+
+- [ ] Pesquisar e documentar APIs dos 5 principais ERPs/CRMs
+- [ ] TOTVS Protheus API
+- [ ] SAP Business One API
+- [ ] Salesforce API
+- [ ] VTEX API
+- [ ] Linx API
+

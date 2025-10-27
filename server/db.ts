@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa } from "../drizzle/schema";
+import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa, fontesDados, InsertFonteDados } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -260,3 +260,54 @@ export async function getRespostasByPesquisaId(pesquisaId: number) {
 
   return await db.select().from(respostasPesquisas).where(eq(respostasPesquisas.pesquisaId, pesquisaId));
 }
+
+
+
+// Helpers para Fontes de Dados
+export async function createFonteDados(fonte: InsertFonteDados) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(fontesDados).values(fonte);
+  return Number(result[0].insertId);
+}
+
+export async function getFontesDadosByEmpresa(empresaId: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return await db.select().from(fontesDados).where(eq(fontesDados.empresaId, empresaId));
+}
+
+export async function getFonteDadosById(id: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(fontesDados).where(eq(fontesDados.id, id));
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateFonteDados(id: number, data: Partial<InsertFonteDados>) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(fontesDados).set(data).where(eq(fontesDados.id, id));
+}
+
+export async function deleteFonteDados(id: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.delete(fontesDados).where(eq(fontesDados.id, id));
+}
+
