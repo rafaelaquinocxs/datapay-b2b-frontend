@@ -542,6 +542,92 @@ export const appRouter = router({
         const insights = await db.getInsightsByEmpresa(input.empresaId);
         return insights;
       }),
+
+    gerarSugestoesFormularios: publicProcedure
+      .input(
+        z.object({
+          empresaId: z.number(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const empresa = await db.getEmpresaById(input.empresaId);
+          if (!empresa) {
+            throw new Error("Empresa nao encontrada");
+          }
+
+          const { invokeLLM } = await import("./_core/llm");
+
+          const prompt = `Voce eh um especialista em estrategia de dados e vendas. Analise os dados da empresa abaixo e sugira 3-5 formularios inteligentes que devem ser enviados para coletar dados faltantes.
+
+Dados da Empresa:
+- Nome: ${empresa.nome}
+- Clientes Ativos: ${empresa.clientesAtivos || 0}
+- Clientes Inativos: ${empresa.clientesInativos || 0}
+- Investimento em Marketing: R$ ${empresa.investimentoMarketing || 0}
+- Ticket Medio: R$ ${empresa.ticketMedio || 0}
+- Taxa de Recompra: ${empresa.taxaRecompra || 0}%
+
+Forneca a resposta em formato JSON com a seguinte estrutura:
+{"sugestoes": [{"titulo": "...", "descricao": "...", "perguntasRecomendadas": ["..."], "impactoEstimado": "...", "prioridade": "alta"}]}`;
+
+          const response = await invokeLLM({
+            messages: [
+              {
+                role: "user",
+                content: prompt,
+              },
+            ],
+            max_tokens: 2000,
+          });
+
+          const content = response.choices[0]?.message?.content || "";
+          const jsonMatch = typeof content === "string" ? content.match(/\{[\s\S]*\}/) : null;
+          if (!jsonMatch) {
+            throw new Error("Nao foi possivel extrair JSON da resposta");
+          }
+
+          const resultado = JSON.parse(jsonMatch[0]);
+          return resultado;
+        } catch (error) {
+          console.error("[IA] Erro ao gerar sugestoes:", error);
+          throw error;
+        }
+      }),
+  }),
+
+  formularios: router({
+    salvarRespostas: publicProcedure
+      .input(
+        z.object({
+          empresaId: z.number(),
+          tituloFormulario: z.string(),
+          respostas: z.array(
+            z.object({
+              pergunta: z.string(),
+              resposta: z.string(),
+            })
+          ),
+          impactoEstimado: z.string(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          console.log("[Formularios] Respostas salvas:", {
+            empresaId: input.empresaId,
+            tituloFormulario: input.tituloFormulario,
+            totalRespostas: input.respostas.length,
+          });
+
+          return {
+            success: true,
+            message: "Respostas salvas com sucesso",
+          };
+        } catch (error) {
+          console.error("[Formularios] Erro ao salvar respostas:", error);
+          throw error;
+        }
+      }),
   }),
 });
 

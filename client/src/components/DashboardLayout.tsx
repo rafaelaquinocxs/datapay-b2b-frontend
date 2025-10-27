@@ -10,6 +10,7 @@ import {
   TrendingUp,
   FileBarChart,
   BookOpen,
+  Lightbulb,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +49,13 @@ const menuItems = [
     path: "/pesquisas",
     badge: "5",
     badgeColor: "bg-green-500",
+  },
+  {
+    icon: Lightbulb,
+    label: "Formulário Inteligente",
+    path: "/formulario-inteligente",
+    badge: "AI",
+    badgeColor: "bg-yellow-500",
   },
   {
     icon: TrendingUp,

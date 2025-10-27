@@ -21,6 +21,7 @@ import Registro from "./pages/Registro";
 import RespondePesquisa from "./pages/RespondePesquisa";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
+import FormularioInteligente from "./pages/FormularioInteligente";
 
 function Router() {
   return (
@@ -73,6 +74,13 @@ function Router() {
         <ProtectedRoute>
           <DashboardLayout>
             <Pesquisas />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/formulario-inteligente">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <FormularioInteligente />
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
