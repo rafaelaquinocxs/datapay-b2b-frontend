@@ -8,6 +8,7 @@ import {
   BarChart3,
   Settings,
   TrendingUp,
+  FileBarChart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +54,11 @@ const menuItems = [
     icon: BarChart3,
     label: "Resultados",
     path: "/resultados",
+  },
+  {
+    icon: FileBarChart,
+    label: "Relatórios",
+    path: "/relatorios",
   },
 ];
 

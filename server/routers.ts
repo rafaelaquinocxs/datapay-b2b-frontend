@@ -93,6 +93,77 @@ export const appRouter = router({
         const diagnostico = await db.getDiagnosticoById(input.id);
         return diagnostico;
       }),
+
+    exportar: publicProcedure
+      .input(
+        z.object({
+          empresaId: z.number().optional(),
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+        }).optional()
+      )
+      .query(async ({ input }) => {
+        // Buscar todos os diagnósticos
+        let diagnosticos = await db.getAllDiagnosticos();
+
+        // Aplicar filtros se fornecidos
+        if (input?.empresaId) {
+          diagnosticos = diagnosticos.filter(d => d.empresaId === input.empresaId);
+        }
+
+        if (input?.startDate) {
+          const start = new Date(input.startDate);
+          diagnosticos = diagnosticos.filter(d => new Date(d.createdAt) >= start);
+        }
+
+        if (input?.endDate) {
+          const end = new Date(input.endDate);
+          diagnosticos = diagnosticos.filter(d => new Date(d.createdAt) <= end);
+        }
+
+        // Buscar dados das empresas
+        const empresas = await db.getAllEmpresas();
+        const empresasMap = new Map(empresas.map(e => [e.id, e]));
+
+        // Enriquecer dados
+        const dadosEnriquecidos = diagnosticos.map(d => {
+          const empresa = empresasMap.get(d.empresaId);
+          
+          const getNivelMaturidade = (score: number): string => {
+            if (score >= 80) return 'Avançado';
+            if (score >= 60) return 'Intermediário';
+            if (score >= 40) return 'Básico';
+            return 'Inicial';
+          };
+
+          return {
+            diagnosticoId: d.id,
+            empresaId: d.empresaId,
+            nomeEmpresa: empresa?.nome || `Empresa #${d.empresaId}`,
+            emailEmpresa: empresa?.email,
+            clientesAtivos: empresa?.clientesAtivos,
+            investimentoMarketing: empresa?.investimentoMarketing,
+            ticketMedio: empresa?.ticketMedio,
+            scoreGeral: d.scoreGeral,
+            scoreGovernanca: d.scoreGovernanca,
+            scoreIntegracao: d.scoreIntegracao,
+            scoreAnalitica: d.scoreAnalitica,
+            scoreDecisao: d.scoreDecisao,
+            scoreRoi: d.scoreRoi,
+            desperdicioMensal: d.desperdicioMensal,
+            potencialMensal: d.potencialMensal,
+            impactoAnual: d.impactoAnual,
+            nivelMaturidade: getNivelMaturidade(d.scoreGeral),
+            dataDiagnostico: d.createdAt,
+          };
+        });
+
+        return {
+          success: true,
+          total: dadosEnriquecidos.length,
+          data: dadosEnriquecidos,
+        };
+      }),
   }),
 });
 

@@ -12,6 +12,7 @@ import Pesquisas from "./pages/Pesquisas";
 import AcoesInteligentes from "./pages/AcoesInteligentes";
 import Resultados from "./pages/Resultados";
 import Diagnostico from "./pages/Diagnostico";
+import Relatorios from "./pages/Relatorios";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -25,6 +26,7 @@ function Router() {
         <Route path={"/acoes"} component={AcoesInteligentes} />
         <Route path={"/resultados"} component={Resultados} />
         <Route path={"/diagnostico"} component={Diagnostico} />
+        <Route path={"/relatorios"} component={Relatorios} />
         <Route path={"/404"} component={NotFound} />
         {/* Final fallback route */}
         <Route component={NotFound} />

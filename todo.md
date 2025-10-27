@@ -36,3 +36,25 @@
 - [ ] Conectores de APIs (TOTVS, SAP, Salesforce, etc.)
 - [ ] Dashboard de administração
 
+
+
+## 📊 Relatório Power BI / Looker Studio
+
+- [x] Criar especificação do relatório interativo
+- [x] Gerar script SQL para extração de dados
+- [x] Criar guia de configuração do Looker Studio
+- [ ] Desenvolver template visual do dashboard (mockup)
+
+
+
+## 📈 Implementação de Relatórios no Dashboard
+
+- [x] Criar página de Relatórios no dashboard
+- [x] Adicionar iframe do Looker Studio
+- [x] Criar API para exportar dados dos diagnósticos
+- [x] Adicionar botão de exportação de dados (CSV)
+- [x] Adicionar item Relatórios no menu lateral
+- [x] Exibir estatísticas rápidas na página de relatórios
+- [x] Criar tabela de dados brutos
+- [x] Adicionar painel de configuração do banco
+
