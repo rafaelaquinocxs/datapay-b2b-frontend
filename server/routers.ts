@@ -4,6 +4,11 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+// Secret para JWT (em produção, usar variável de ambiente)
+const JWT_SECRET = process.env.JWT_SECRET || "datapay-secret-key-change-in-production";
 
 export const appRouter = router({
   system: systemRouter,
@@ -17,6 +22,91 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+
+    // Registro de nova empresa
+    registro: publicProcedure
+      .input(
+        z.object({
+          nome: z.string(),
+          email: z.string().email(),
+          senha: z.string().min(6),
+          telefone: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        // Verificar se email já existe
+        const empresaExistente = await db.getEmpresaByEmail(input.email);
+        if (empresaExistente) {
+          throw new Error("Email já cadastrado");
+        }
+
+        // Hash da senha
+        const passwordHash = await bcrypt.hash(input.senha, 10);
+
+        // Criar empresa
+        const novaEmpresa = await db.createEmpresa({
+          nome: input.nome,
+          email: input.email,
+          passwordHash,
+          telefone: input.telefone,
+          plano: "trialing",
+          assinaturaStatus: "trialing",
+        });
+
+        // Gerar token JWT
+        const token = jwt.sign(
+          { empresaId: novaEmpresa.id, email: novaEmpresa.email },
+          JWT_SECRET,
+          { expiresIn: "7d" }
+        );
+
+        return {
+          success: true,
+          token,
+          empresa: novaEmpresa,
+        };
+      }),
+
+    // Login
+    login: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email(),
+          senha: z.string(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        // Buscar empresa por email
+        const empresa = await db.getEmpresaByEmail(input.email);
+        if (!empresa || !empresa.passwordHash) {
+          throw new Error("Email ou senha inválidos");
+        }
+
+        // Verificar senha
+        const senhaValida = await bcrypt.compare(input.senha, empresa.passwordHash);
+        if (!senhaValida) {
+          throw new Error("Email ou senha inválidos");
+        }
+
+        // Gerar token JWT
+        const token = jwt.sign(
+          { empresaId: empresa.id, email: empresa.email },
+          JWT_SECRET,
+          { expiresIn: "7d" }
+        );
+
+        return {
+          success: true,
+          token,
+          empresa: {
+            id: empresa.id,
+            nome: empresa.nome,
+            email: empresa.email,
+            plano: empresa.plano,
+            assinaturaStatus: empresa.assinaturaStatus,
+          },
+        };
+      }),
   }),
 
   diagnostico: router({
@@ -163,6 +253,123 @@ export const appRouter = router({
           total: dadosEnriquecidos.length,
           data: dadosEnriquecidos,
         };
+      }),
+  }),
+
+  pesquisas: router({
+    // Buscar pesquisa por link público (rota pública)
+    buscarPorLink: publicProcedure
+      .input(
+        z.object({
+          linkPublico: z.string(),
+        })
+      )
+      .query(async ({ input }) => {
+        const pesquisa = await db.getPesquisaByLink(input.linkPublico);
+        
+        if (!pesquisa || pesquisa.status !== "ativa") {
+          throw new Error("Pesquisa não encontrada ou encerrada");
+        }
+
+        return pesquisa;
+      }),
+
+    // Enviar resposta de pesquisa (rota pública)
+    enviarResposta: publicProcedure
+      .input(
+        z.object({
+          pesquisaId: z.number(),
+          respostas: z.array(
+            z.object({
+              perguntaId: z.string(),
+              resposta: z.any(),
+            })
+          ),
+          nomeRespondente: z.string().optional(),
+          emailRespondente: z.string().optional(),
+          telefoneRespondente: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        // Criar resposta
+        const respostaId = await db.createRespostaPesquisa({
+          pesquisaId: input.pesquisaId,
+          respostas: input.respostas,
+          nomeRespondente: input.nomeRespondente,
+          emailRespondente: input.emailRespondente,
+          telefoneRespondente: input.telefoneRespondente,
+          pontuacao: null,
+          ipAddress: null,
+          userAgent: null,
+        });
+
+        // Incrementar contador de respostas
+        const pesquisa = await db.getPesquisaById(input.pesquisaId);
+        if (pesquisa) {
+          await db.updatePesquisa(input.pesquisaId, {
+            totalRespostas: (pesquisa.totalRespostas || 0) + 1,
+          });
+        }
+
+        return {
+          success: true,
+          respostaId,
+        };
+      }),
+
+    // Criar nova pesquisa (rota protegida)
+    criar: publicProcedure
+      .input(
+        z.object({
+          empresaId: z.number(),
+          titulo: z.string(),
+          descricao: z.string().optional(),
+          tipo: z.enum(["pesquisa", "quiz", "missao"]).default("pesquisa"),
+          perguntas: z.array(z.any()),
+          recompensaTipo: z.string().optional(),
+          recompensaValor: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        // Gerar link público único
+        const linkPublico = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
+        const novaPesquisa = await db.createPesquisa({
+          ...input,
+          linkPublico,
+          status: "ativa",
+          totalRespostas: 0,
+        });
+
+        return {
+          success: true,
+          pesquisa: novaPesquisa,
+          linkPublico: `/p/${linkPublico}`,
+        };
+      }),
+
+    // Listar pesquisas da empresa
+    listar: publicProcedure
+      .input(
+        z.object({
+          empresaId: z.number(),
+        })
+      )
+      .query(async ({ input }) => {
+        const pesquisas = await db.getPesquisasByEmpresaId(input.empresaId);
+        return pesquisas;
+      }),
+
+    // Obter respostas de uma pesquisa
+    obterRespostas: publicProcedure
+      .input(
+        z.object({
+          pesquisaId: z.number(),
+        })
+      )
+      .query(async ({ input }) => {
+        const respostas = await db.getRespostasByPesquisaId(input.pesquisaId);
+        return respostas;
       }),
   }),
 });

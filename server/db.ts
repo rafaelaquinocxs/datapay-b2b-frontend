@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico } from "../drizzle/schema";
+import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -97,7 +97,25 @@ export async function createEmpresa(empresa: InsertEmpresa) {
   }
 
   const result = await db.insert(empresas).values(empresa);
-  return result[0].insertId;
+  const insertId = Number(result[0].insertId);
+  
+  // Buscar a empresa recém-criada para retornar o objeto completo
+  const novaEmpresa = await getEmpresaById(insertId);
+  if (!novaEmpresa) {
+    throw new Error("Erro ao criar empresa");
+  }
+  
+  return novaEmpresa;
+}
+
+export async function getEmpresaByEmail(email: string) {
+  const db = await getDb();
+  if (!db) {
+    return undefined;
+  }
+
+  const result = await db.select().from(empresas).where(eq(empresas.email, email)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
 }
 
 export async function getEmpresaById(id: number) {
@@ -108,6 +126,15 @@ export async function getEmpresaById(id: number) {
 
   const result = await db.select().from(empresas).where(eq(empresas.id, id)).limit(1);
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateEmpresa(id: number, data: Partial<InsertEmpresa>) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(empresas).set(data).where(eq(empresas.id, id));
 }
 
 export async function getAllEmpresas() {
@@ -156,4 +183,80 @@ export async function getAllDiagnosticos() {
   }
 
   return await db.select().from(diagnosticos);
+}
+
+// Helpers para Pesquisas
+export async function createPesquisa(pesquisa: InsertPesquisa) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(pesquisas).values(pesquisa);
+  const insertId = Number(result[0].insertId);
+  
+  const novaPesquisa = await getPesquisaById(insertId);
+  if (!novaPesquisa) {
+    throw new Error("Erro ao criar pesquisa");
+  }
+  
+  return novaPesquisa;
+}
+
+export async function getPesquisaById(id: number) {
+  const db = await getDb();
+  if (!db) {
+    return undefined;
+  }
+
+  const result = await db.select().from(pesquisas).where(eq(pesquisas.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getPesquisaByLink(linkPublico: string) {
+  const db = await getDb();
+  if (!db) {
+    return undefined;
+  }
+
+  const result = await db.select().from(pesquisas).where(eq(pesquisas.linkPublico, linkPublico)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getPesquisasByEmpresaId(empresaId: number) {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  return await db.select().from(pesquisas).where(eq(pesquisas.empresaId, empresaId));
+}
+
+export async function updatePesquisa(id: number, data: Partial<InsertPesquisa>) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(pesquisas).set(data).where(eq(pesquisas.id, id));
+}
+
+// Helpers para Respostas de Pesquisas
+export async function createRespostaPesquisa(resposta: InsertRespostaPesquisa) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(respostasPesquisas).values(resposta);
+  return Number(result[0].insertId);
+}
+
+export async function getRespostasByPesquisaId(pesquisaId: number) {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  return await db.select().from(respostasPesquisas).where(eq(respostasPesquisas.pesquisaId, pesquisaId));
 }

@@ -31,13 +31,26 @@ export type InsertUser = typeof users.$inferInsert;
 export const empresas = mysqlTable("empresas", {
   id: int("id").autoincrement().primaryKey(),
   nome: varchar("nome", { length: 255 }),
-  email: varchar("email", { length: 320 }),
+  email: varchar("email", { length: 320 }).unique(),
+  passwordHash: text("passwordHash"), // Hash da senha para login
   telefone: varchar("telefone", { length: 50 }),
   clientesAtivos: int("clientesAtivos"),
   clientesInativos: int("clientesInativos"),
   investimentoMarketing: int("investimentoMarketing"),
   ticketMedio: int("ticketMedio"),
   taxaRecompra: int("taxaRecompra"),
+  
+  // Campos de assinatura
+  plano: varchar("plano", { length: 50 }), // 'starter', 'growth', 'scale'
+  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }),
+  assinaturaStatus: varchar("assinaturaStatus", { length: 50 }), // 'active', 'canceled', 'past_due', 'trialing'
+  assinaturaExpiraEm: timestamp("assinaturaExpiraEm"),
+  
+  // Campos de recuperação de senha
+  resetPasswordToken: varchar("resetPasswordToken", { length: 255 }),
+  resetPasswordExpires: timestamp("resetPasswordExpires"),
+  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -48,6 +61,44 @@ export type InsertEmpresa = typeof empresas.$inferInsert;
 /**
  * Tabela para armazenar os diagnósticos realizados
  */
+// Tabela de Pesquisas
+export const pesquisas = mysqlTable("pesquisas", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresa_id").notNull(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  descricao: text("descricao"),
+  tipo: varchar("tipo", { length: 50 }).notNull().default("pesquisa"), // pesquisa, quiz, missao
+  status: varchar("status", { length: 50 }).notNull().default("ativa"), // ativa, pausada, encerrada
+  perguntas: json("perguntas").notNull(), // Array de objetos com as perguntas
+  recompensaTipo: varchar("recompensa_tipo", { length: 50 }), // pontos, desconto, brinde
+  recompensaValor: varchar("recompensa_valor", { length: 255 }),
+  linkPublico: varchar("link_publico", { length: 255 }).notNull().unique(),
+  totalRespostas: int("total_respostas").notNull().default(0),
+  criadoEm: timestamp("criado_em").notNull().defaultNow(),
+  atualizadoEm: timestamp("atualizado_em").notNull().defaultNow().onUpdateNow(),
+});
+
+export type Pesquisa = typeof pesquisas.$inferSelect;
+export type InsertPesquisa = typeof pesquisas.$inferInsert;
+
+// Tabela de Respostas de Pesquisas
+export const respostasPesquisas = mysqlTable("respostas_pesquisas", {
+  id: int("id").primaryKey().autoincrement(),
+  pesquisaId: int("pesquisa_id").notNull(),
+  nomeRespondente: varchar("nome_respondente", { length: 255 }),
+  emailRespondente: varchar("email_respondente", { length: 255 }),
+  telefoneRespondente: varchar("telefone_respondente", { length: 50 }),
+  respostas: json("respostas").notNull(), // Array de objetos com as respostas
+  pontuacao: int("pontuacao"),
+  recompensaResgatada: int("recompensa_resgatada").notNull().default(0), // 0 = false, 1 = true
+  ipAddress: varchar("ip_address", { length: 50 }),
+  userAgent: text("user_agent"),
+  criadoEm: timestamp("criado_em").notNull().defaultNow(),
+});
+
+export type RespostaPesquisa = typeof respostasPesquisas.$inferSelect;
+export type InsertRespostaPesquisa = typeof respostasPesquisas.$inferInsert;
+
 export const diagnosticos = mysqlTable("diagnosticos", {
   id: int("id").autoincrement().primaryKey(),
   empresaId: int("empresaId").notNull(),

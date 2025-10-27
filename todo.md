@@ -58,3 +58,68 @@
 - [x] Criar tabela de dados brutos
 - [x] Adicionar painel de configuração do banco
 
+
+
+
+## 🔐 Sistema de Autenticação Completo
+
+- [x] Página de Login com email e senha
+- [x] Página de Registro de nova conta
+- [x] APIs de autenticação (login, registro)
+- [x] Hash de senha com bcryptjs
+- [x] Geração de token JWT
+- [ ] Recuperação de senha (email)
+- [ ] Página de Perfil do usuário
+- [ ] Gestão de conta (editar dados, trocar senha)
+- [ ] Proteção de rotas (middleware de autenticação)
+
+## 💳 Gateway de Pagamento
+
+- [ ] Integração com Stripe
+- [ ] Página de Pricing com 3 planos (Starter, Growth, Scale)
+- [ ] Checkout de assinatura
+- [ ] Painel de cobrança (faturas, histórico)
+- [ ] Webhook para atualizar status de assinatura
+- [ ] Cancelamento e upgrade de planos
+
+## 📱 Pesquisas via Link Externo (Mobile-First)
+
+- [ ] Criar página pública de pesquisa (sem login)
+- [ ] Design mobile-first responsivo
+- [ ] Link compartilhável único por pesquisa
+- [ ] Coleta de respostas e salvamento no banco
+- [ ] Sistema de gamificação (pontos, badges)
+- [ ] Página de obrigado após envio
+- [ ] Dashboard para visualizar respostas
+
+## 📊 Melhorias no Relatório
+
+- [ ] Remover dependência do Looker Studio
+- [ ] Implementar gráficos nativos (Recharts/Chart.js)
+- [ ] Conectar com dados reais do banco
+- [ ] Exportação de relatório em PDF
+- [ ] Filtros avançados (data, empresa, score)
+
+## 🏢 Multi-tenancy
+
+- [ ] Isolamento de dados por empresa/tenant
+- [ ] Cada usuário vê apenas seus dados
+- [ ] Sistema de permissões (admin, usuário)
+- [ ] Seletor de empresa (para usuários com múltiplas empresas)
+
+## 🌐 Landing Page de Vendas
+
+- [ ] Hero section com proposta de valor
+- [ ] Seção de benefícios
+- [ ] Seção de como funciona
+- [ ] Pricing com CTAs
+- [ ] Depoimentos/cases de sucesso
+- [ ] Footer com links
+- [ ] Botão "Começar Gratuitamente"
+
+## 👥 Sistema de Usuários Finais (APÓS TUDO ACIMA)
+
+- [ ] Portal para usuários finais
+- [ ] Gamificação completa
+- [ ] Sistema de recompensas
+

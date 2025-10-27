@@ -4,6 +4,8 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./components/DashboardLayout";
 import Inicio from "./pages/Inicio";
 import MeusDados from "./pages/MeusDados";
@@ -13,25 +15,81 @@ import AcoesInteligentes from "./pages/AcoesInteligentes";
 import Resultados from "./pages/Resultados";
 import Diagnostico from "./pages/Diagnostico";
 import Relatorios from "./pages/Relatorios";
+import Login from "./pages/Login";
+import Registro from "./pages/Registro";
+import PesquisaPublica from "./pages/PesquisaPublica";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
-    <DashboardLayout>
-      <Switch>
-        <Route path={"/"} component={Diagnostico} />
-        <Route path={"/meus-dados"} component={MeusDados} />
-        <Route path={"/analise-ia"} component={AnaliseIA} />
-        <Route path={"/pesquisas"} component={Pesquisas} />
-        <Route path={"/acoes"} component={AcoesInteligentes} />
-        <Route path={"/resultados"} component={Resultados} />
-        <Route path={"/diagnostico"} component={Diagnostico} />
-        <Route path={"/relatorios"} component={Relatorios} />
-        <Route path={"/404"} component={NotFound} />
-        {/* Final fallback route */}
-        <Route component={NotFound} />
-      </Switch>
-    </DashboardLayout>
+    <Switch>
+      {/* Rotas públicas (sem autenticação) */}
+      <Route path="/login" component={Login} />
+      <Route path="/registro" component={Registro} />
+      <Route path="/diagnostico" component={Diagnostico} />
+      <Route path="/p/:linkPublico" component={PesquisaPublica} />
+      <Route path="/404" component={NotFound} />
+
+      {/* Rotas protegidas (requerem autenticação) */}
+      <Route path="/">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <Inicio />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/inicio">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <Inicio />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/meus-dados">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <MeusDados />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/analise-ia">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <AnaliseIA />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/pesquisas">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <Pesquisas />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/acoes">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <AcoesInteligentes />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/resultados">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <Resultados />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/relatorios">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <Relatorios />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+
+      {/* Fallback */}
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
@@ -47,10 +105,12 @@ function App() {
         defaultTheme="light"
         // switchable
       >
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
