@@ -14,10 +14,11 @@ import Resultados from "./pages/Resultados";
 import Diagnostico from "./pages/Diagnostico";
 
 function Router() {
+  // make sure to consider if you need authentication for certain routes
   return (
     <DashboardLayout>
       <Switch>
-        <Route path={"/"} component={Inicio} />
+        <Route path={"/"} component={Diagnostico} />
         <Route path={"/meus-dados"} component={MeusDados} />
         <Route path={"/analise-ia"} component={AnaliseIA} />
         <Route path={"/pesquisas"} component={Pesquisas} />

@@ -13,6 +13,15 @@
 
 ## 🚧 Em Desenvolvimento
 
+- [x] Redirecionar página inicial para o diagnóstico
+- [x] Adicionar banco de dados (MySQL via Drizzle ORM)
+- [x] Salvar respostas do diagnóstico no banco
+- [x] Salvar dados das empresas no banco
+- [x] Sistema de autenticação básico (Manus OAuth)
+- [x] APIs tRPC para diagnóstico
+
+## ✅ Concluído Recentemente
+
 - [x] Módulo de Diagnóstico de Maturidade em Dados
   - [x] Página inicial do diagnóstico
   - [x] Questionário interativo (5 dimensões, 20 perguntas)

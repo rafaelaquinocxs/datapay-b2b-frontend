@@ -1,6 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { trpc } from "@/lib/trpc";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   TrendingUp,
   TrendingDown,
@@ -29,6 +32,8 @@ export default function RelatorioDiagnostico({
   respostas,
   dadosEmpresa,
 }: RelatorioDiagnosticoProps) {
+  const [salvando, setSalvando] = useState(false);
+  const salvarDiagnosticoMutation = trpc.diagnostico.salvar.useMutation();
   // Calcular scores por dimensão
   const calcularScoreDimensao = (dimensao: string) => {
     const perguntasDimensao = Object.entries(respostas).filter(([id]) => {
@@ -83,6 +88,52 @@ export default function RelatorioDiagnostico({
   };
 
   const nivelGeral = getNivelMaturidade(scoreGeral);
+
+  // Salvar automaticamente ao carregar o relatório
+  useEffect(() => {
+    const salvarAutomaticamente = async () => {
+      if (salvando) return;
+      
+      setSalvando(true);
+      try {
+        // Converter respostas de Record<number, number> para Record<string, number>
+        const respostasConvertidas = Object.fromEntries(
+          Object.entries(respostas).map(([k, v]) => [k.toString(), v])
+        );
+
+        await salvarDiagnosticoMutation.mutateAsync({
+          empresa: {
+            clientesAtivos: parseInt(dadosEmpresa.clientesAtivos),
+            clientesInativos: dadosEmpresa.clientesInativos ? parseInt(dadosEmpresa.clientesInativos) : undefined,
+            investimentoMarketing: parseInt(dadosEmpresa.investimentoMarketing),
+            ticketMedio: parseInt(dadosEmpresa.ticketMedio),
+            taxaRecompra: dadosEmpresa.taxaRecompra ? parseInt(dadosEmpresa.taxaRecompra) : undefined,
+          },
+          diagnostico: {
+            respostas: respostasConvertidas,
+            scoreGeral,
+            scoreGovernanca: scores.governanca,
+            scoreIntegracao: scores.integracao,
+            scoreAnalitica: scores.analitica,
+            scoreDecisao: scores.decisao,
+            scoreRoi: scores.roi,
+            desperdicioMensal: Math.round(totalDesperdicio),
+            potencialMensal: Math.round(totalPotencial),
+            impactoAnual: Math.round((totalDesperdicio + totalPotencial) * 12),
+          },
+        });
+        
+        toast.success("Diagnóstico salvo com sucesso!");
+      } catch (error) {
+        console.error("Erro ao salvar diagnóstico:", error);
+        toast.error("Erro ao salvar diagnóstico");
+      } finally {
+        setSalvando(false);
+      }
+    };
+
+    salvarAutomaticamente();
+  }, []); // Executa apenas uma vez ao montar o componente
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
