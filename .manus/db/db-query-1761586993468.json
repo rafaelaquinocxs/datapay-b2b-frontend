@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO base_conhecimento (empresaId, urlSite, missao, visao, valores, produtosServicos, publicoAlvo, diferenciais, historicoSucesso, createdAt) VALUES\n(1, 'https://inter.com.br', 'Transformar a experiência dos torcedores com tecnologia', 'Ser a plataforma de engajamento número 1 em esportes', 'Inovação, Transparência, Excelência', 'Ingressos, Produtos, Experiências', 'Torcedores de futebol', 'Integração com redes sociais, Gamificação, Análise de dados', 'Crescimento de 150% em engajamento em 2024', NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute INSERT INTO base_conhecimento (empresaId, urlSite, missao, visao, valores, produtosServicos, publicoAlvo, diferenciais, historicoSucesso, createdAt) VALUES\n(1, 'https://inter.com.br', 'Transformar a experiência dos torcedores com tecnologia', 'Ser a plataforma de engajamento número 1 em esportes', 'Inovação, Transparência, Excelência', 'Ingressos, Produtos, Experiências', 'Torcedores de futebol', 'Integração com redes sociais, Gamificação, Análise de dados', 'Crescimento de 150% em engajamento em 2024', NOW());",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 59
+}

@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO fontes_dados (empresaId, nome, tipo, status, ultimaSincronizacao, totalRegistros, createdAt) VALUES\n(1, 'Google Analytics', 'analytics', 'conectado', NOW(), 15000, NOW()),\n(1, 'CRM Salesforce', 'crm', 'conectado', NOW(), 2500, NOW()),\n(1, 'Sistema de Vendas', 'vendas', 'conectado', NOW(), 45000, NOW()),\n(1, 'Email Marketing', 'marketing', 'conectado', DATE_SUB(NOW(), INTERVAL 2 DAY), 8500, NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute INSERT INTO fontes_dados (empresaId, nome, tipo, status, ultimaSincronizacao, totalRegistros, createdAt) VALUES\n(1, 'Google Analytics', 'analytics', 'conectado', NOW(), 15000, NOW()),\n(1, 'CRM Salesforce', 'crm', 'conectado', NOW(), 2500, NOW()),\n(1, 'Sistema de Vendas', 'vendas', 'conectado', NOW(), 45000, NOW()),\n(1, 'Email Marketing', 'marketing', 'conectado', DATE_SUB(NOW(), INTERVAL 2 DAY), 8500, NOW());",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 73
+}
