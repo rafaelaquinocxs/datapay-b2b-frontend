@@ -11,6 +11,7 @@ import AnaliseIA from "./pages/AnaliseIA";
 import Pesquisas from "./pages/Pesquisas";
 import AcoesInteligentes from "./pages/AcoesInteligentes";
 import Resultados from "./pages/Resultados";
+import Diagnostico from "./pages/Diagnostico";
 
 function Router() {
   return (
@@ -22,6 +23,7 @@ function Router() {
         <Route path={"/pesquisas"} component={Pesquisas} />
         <Route path={"/acoes"} component={AcoesInteligentes} />
         <Route path={"/resultados"} component={Resultados} />
+        <Route path={"/diagnostico"} component={Diagnostico} />
         <Route path={"/404"} component={NotFound} />
         {/* Final fallback route */}
         <Route component={NotFound} />
