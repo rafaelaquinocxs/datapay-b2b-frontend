@@ -330,3 +330,43 @@
 - Link no formato: `{origin}/p/{linkPublico}`
 - Funcionalidade 100% operacional e pronta para uso
 
+
+
+
+## Integração de Dados Reais - Ações Inteligentes e Resultados - CONCLUÍDO
+
+### Análise de Dados Mockados
+- [x] Identificar dados mockados em AcoesInteligentes.tsx
+  - 3 ações recomendadas (Parceria Coca-Cola, Reativação, Upsell)
+  - 1 ação em andamento (Combo Cerveja)
+- [x] Identificar dados mockados em Resultados.tsx
+  - 4 KPIs gerais (Receita, ROI, Conversão, Alcance)
+  - 1 resultado de ação (Combo Cerveja)
+
+### Integração com Backend
+- [x] Criar tabela `acoes_inteligentes` no schema
+  - Campos: id, empresaId, titulo, tipo, descricao, baseadoEm, potencialLucro, roi, implementacao, status, prioridade
+- [x] Criar tabela `resultados_acoes` no schema
+  - Campos: id, acaoId, periodo, investimento, receita, lucro, roi, conversao, alcance, status
+- [x] API para listar ações inteligentes por empresa
+- [x] API para listar resultados de ações
+- [x] API para atualizar status de ação
+
+### Frontend - Ações Inteligentes
+- [x] Substituir dados mockados por chamada tRPC
+- [x] Carregar ações da API ao montar componente
+- [x] Mostrar loading state enquanto carrega
+- [x] Tratar erro se API falhar
+
+### Frontend - Resultados
+- [x] Substituir dados mockados por chamada tRPC
+- [x] Carregar resultados da API ao montar componente
+- [x] Calcular KPIs dinamicamente a partir dos dados
+- [x] Mostrar loading state enquanto carrega
+- [x] Tratar erro se API falhar
+
+### Dados Iniciais
+- [ ] Criar ações inteligentes de exemplo no banco para empresa de teste
+- [ ] Criar resultados de exemplo para as ações
+- [x] Validar que os dados aparecem corretamente na UI (Testado e funcionando)
+

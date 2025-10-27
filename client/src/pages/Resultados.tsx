@@ -1,5 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 import {
   TrendingUp,
   DollarSign,
@@ -8,24 +10,58 @@ import {
   BarChart,
   CheckCircle2,
   ArrowUp,
+  Loader,
 } from "lucide-react";
 
-const resultadosAcoes = [
-  {
-    id: 1,
-    titulo: "Combo Cerveja + Petisco no Estádio",
-    periodo: "Últimos 30 dias",
-    investimento: "R$ 8k",
-    receita: "R$ 38k",
-    lucro: "R$ 30k",
-    roi: "375%",
-    conversao: "24.3%",
-    alcance: "12.4k pessoas",
-    status: "concluída",
-  },
-];
-
 export default function Resultados() {
+  const { user } = useAuth();
+  const empresaId = (user as any)?.empresaId || 0;
+
+  // Buscar resultados das ações
+  const { data: resultados = [], isLoading } = trpc.resultados.listar.useQuery(
+    { empresaId },
+    { enabled: !!empresaId }
+  );
+
+  // Calcular KPIs gerais
+  const totalInvestimento = resultados.reduce((acc: number, r: any) => {
+    const valor = parseInt(r.investimento?.replace(/\D/g, "") || "0");
+    return acc + valor;
+  }, 0);
+
+  const totalReceita = resultados.reduce((acc: number, r: any) => {
+    const valor = parseInt(r.receita?.replace(/\D/g, "") || "0");
+    return acc + valor;
+  }, 0);
+
+  const totalLucro = resultados.reduce((acc: number, r: any) => {
+    const valor = parseInt(r.lucro?.replace(/\D/g, "") || "0");
+    return acc + valor;
+  }, 0);
+
+  const roiMedio = resultados.length > 0
+    ? Math.round(
+        resultados.reduce((acc: number, r: any) => {
+          const roi = parseInt(r.roi?.replace(/\D/g, "") || "0");
+          return acc + roi;
+        }, 0) / resultados.length
+      )
+    : 0;
+
+  const conversaoMedia = resultados.length > 0
+    ? (
+        resultados.reduce((acc: number, r: any) => {
+          const conv = parseFloat(r.conversao?.replace(/\D/g, ".") || "0");
+          return acc + conv;
+        }, 0) / resultados.length
+      ).toFixed(1)
+    : "0";
+
+  const totalAlcance = resultados.reduce((acc: number, r: any) => {
+    const valor = parseInt(r.alcance?.replace(/\D/g, "") || "0");
+    return acc + valor;
+  }, 0);
+
   return (
     <div className="p-8 space-y-8">
       {/* Header */}
@@ -49,7 +85,9 @@ export default function Resultados() {
             </Badge>
           </div>
           <p className="text-sm text-gray-500">Receita Total</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">R$ 38k</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">
+            R$ {(totalReceita / 1000).toFixed(0)}k
+          </p>
           <p className="text-xs text-gray-500 mt-1">Últimos 30 dias</p>
         </Card>
 
@@ -60,11 +98,11 @@ export default function Resultados() {
             </div>
             <Badge className="bg-blue-100 text-blue-700">
               <ArrowUp className="w-3 h-3 mr-1" />
-              +375%
+              +{roiMedio}%
             </Badge>
           </div>
           <p className="text-sm text-gray-500">ROI Médio</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">375%</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">{roiMedio}%</p>
           <p className="text-xs text-gray-500 mt-1">Acima da meta (300%)</p>
         </Card>
 
@@ -79,7 +117,7 @@ export default function Resultados() {
             </Badge>
           </div>
           <p className="text-sm text-gray-500">Taxa de Conversão</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">24.3%</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">{conversaoMedia}%</p>
           <p className="text-xs text-gray-500 mt-1">Meta: 20%</p>
         </Card>
 
@@ -94,7 +132,9 @@ export default function Resultados() {
             </Badge>
           </div>
           <p className="text-sm text-gray-500">Pessoas Alcançadas</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">12.4k</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">
+            {(totalAlcance / 1000).toFixed(1)}k
+          </p>
           <p className="text-xs text-gray-500 mt-1">Últimos 30 dias</p>
         </Card>
       </div>
@@ -105,83 +145,101 @@ export default function Resultados() {
           Resultados por Ação
         </h2>
 
-        <div className="space-y-6">
-          {resultadosAcoes.map((resultado) => (
-            <Card
-              key={resultado.id}
-              className="p-6 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-xl font-semibold text-gray-900">
-                      {resultado.titulo}
-                    </h3>
-                    <Badge className="bg-green-100 text-green-700">
-                      <CheckCircle2 className="w-3 h-3 mr-1" />
-                      Concluída
-                    </Badge>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader className="w-8 h-8 animate-spin text-purple-600" />
+          </div>
+        ) : resultados.length === 0 ? (
+          <Card className="p-8 text-center">
+            <BarChart className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-600">Nenhum resultado registrado ainda</p>
+            <p className="text-sm text-gray-500 mt-2">
+              Os resultados das ações implementadas aparecerão aqui
+            </p>
+          </Card>
+        ) : (
+          <div className="space-y-6">
+            {resultados.map((resultado: any) => (
+              <Card
+                key={resultado.id}
+                className="p-6 hover:shadow-lg transition-shadow"
+              >
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        {resultado.periodo || "Resultado"}
+                      </h3>
+                      <Badge className={
+                        resultado.status === "concluida"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-blue-100 text-blue-700"
+                      }>
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        {resultado.status === "concluida" ? "Concluída" : "Em Progresso"}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-gray-500">{resultado.periodo}</p>
                   </div>
-                  <p className="text-sm text-gray-500">{resultado.periodo}</p>
-                </div>
-              </div>
-
-              {/* Métricas Principais */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-6">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="text-xs text-gray-500 mb-1">Investimento</p>
-                  <p className="text-xl font-bold text-gray-900">
-                    {resultado.investimento}
-                  </p>
                 </div>
 
-                <div className="p-4 bg-green-50 rounded-lg">
-                  <p className="text-xs text-gray-500 mb-1">Receita</p>
-                  <p className="text-xl font-bold text-green-600">
-                    {resultado.receita}
-                  </p>
+                {/* Métricas Principais */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-6">
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">Investimento</p>
+                    <p className="text-xl font-bold text-gray-900">
+                      {resultado.investimento || "N/A"}
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">Receita</p>
+                    <p className="text-xl font-bold text-green-600">
+                      {resultado.receita || "N/A"}
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">Lucro</p>
+                    <p className="text-xl font-bold text-blue-600">
+                      {resultado.lucro || "N/A"}
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-purple-50 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">ROI</p>
+                    <p className="text-xl font-bold text-purple-600">
+                      {resultado.roi || "N/A"}
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-orange-50 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">Conversão</p>
+                    <p className="text-xl font-bold text-orange-600">
+                      {resultado.conversao || "N/A"}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <p className="text-xs text-gray-500 mb-1">Lucro</p>
-                  <p className="text-xl font-bold text-blue-600">
-                    {resultado.lucro}
-                  </p>
+                {/* Detalhes */}
+                <div className="flex items-center gap-6 pt-4 border-t border-gray-200">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">
+                      Alcance: <strong>{resultado.alcance || "N/A"}</strong>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <BarChart className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">
+                      Status: <strong className="text-green-600">Sucesso</strong>
+                    </span>
+                  </div>
                 </div>
-
-                <div className="p-4 bg-purple-50 rounded-lg">
-                  <p className="text-xs text-gray-500 mb-1">ROI</p>
-                  <p className="text-xl font-bold text-purple-600">
-                    {resultado.roi}
-                  </p>
-                </div>
-
-                <div className="p-4 bg-orange-50 rounded-lg">
-                  <p className="text-xs text-gray-500 mb-1">Conversão</p>
-                  <p className="text-xl font-bold text-orange-600">
-                    {resultado.conversao}
-                  </p>
-                </div>
-              </div>
-
-              {/* Detalhes */}
-              <div className="flex items-center gap-6 pt-4 border-t border-gray-200">
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">
-                    Alcance: <strong>{resultado.alcance}</strong>
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <BarChart className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">
-                    Status: <strong className="text-green-600">Sucesso</strong>
-                  </span>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Resumo Geral */}
@@ -198,17 +256,17 @@ export default function Resultados() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
           <div className="p-6 bg-white/10 rounded-xl backdrop-blur">
             <p className="text-sm text-purple-100 mb-1">Total Investido</p>
-            <p className="text-3xl font-bold">R$ 8k</p>
+            <p className="text-3xl font-bold">R$ {(totalInvestimento / 1000).toFixed(0)}k</p>
           </div>
 
           <div className="p-6 bg-white/10 rounded-xl backdrop-blur">
             <p className="text-sm text-purple-100 mb-1">Total Gerado</p>
-            <p className="text-3xl font-bold">R$ 38k</p>
+            <p className="text-3xl font-bold">R$ {(totalReceita / 1000).toFixed(0)}k</p>
           </div>
 
           <div className="p-6 bg-white/10 rounded-xl backdrop-blur">
             <p className="text-sm text-purple-100 mb-1">Lucro Líquido</p>
-            <p className="text-3xl font-bold">R$ 30k</p>
+            <p className="text-3xl font-bold">R$ {(totalLucro / 1000).toFixed(0)}k</p>
           </div>
         </div>
       </Card>

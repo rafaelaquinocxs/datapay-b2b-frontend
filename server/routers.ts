@@ -629,6 +629,127 @@ Forneca a resposta em formato JSON com a seguinte estrutura:
         }
       }),
   }),
+
+  acoesInteligentes: router({
+    listar: publicProcedure
+      .input(z.object({ empresaId: z.number() }))
+      .query(async ({ input }) => {
+        try {
+          return await db.getAcoesInteligentes(input.empresaId);
+        } catch (error) {
+          console.error("[AcoesInteligentes] Erro ao listar:", error);
+          return [];
+        }
+      }),
+
+    criar: publicProcedure
+      .input(
+        z.object({
+          empresaId: z.number(),
+          titulo: z.string(),
+          tipo: z.string(),
+          descricao: z.string(),
+          baseadoEm: z.string().optional(),
+          potencialLucro: z.string().optional(),
+          roi: z.string().optional(),
+          implementacao: z.string().optional(),
+          status: z.enum(["recomendada", "em_andamento", "concluida", "descartada"]).optional(),
+          prioridade: z.enum(["Baixa", "Média", "Alta", "Crítica"]).optional(),
+          acoes: z.array(z.string()).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const id = await db.createAcaoInteligente(input);
+          return { id, success: true };
+        } catch (error) {
+          console.error("[AcoesInteligentes] Erro ao criar:", error);
+          throw error;
+        }
+      }),
+
+    atualizar: publicProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          status: z.enum(["recomendada", "em_andamento", "concluida", "descartada"]).optional(),
+          prioridade: z.enum(["Baixa", "Média", "Alta", "Crítica"]).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const { id, ...updates } = input;
+          await db.updateAcaoInteligente(id, updates);
+          return { success: true };
+        } catch (error) {
+          console.error("[AcoesInteligentes] Erro ao atualizar:", error);
+          throw error;
+        }
+      }),
+  }),
+
+  resultados: router({
+    listar: publicProcedure
+      .input(z.object({ empresaId: z.number() }))
+      .query(async ({ input }) => {
+        try {
+          return await db.getResultadosAcoes(input.empresaId);
+        } catch (error) {
+          console.error("[Resultados] Erro ao listar:", error);
+          return [];
+        }
+      }),
+
+    criar: publicProcedure
+      .input(
+        z.object({
+          acaoId: z.number(),
+          empresaId: z.number(),
+          periodo: z.string().optional(),
+          investimento: z.string().optional(),
+          receita: z.string().optional(),
+          lucro: z.string().optional(),
+          roi: z.string().optional(),
+          conversao: z.string().optional(),
+          alcance: z.string().optional(),
+          status: z.enum(["em_progresso", "concluida"]).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const id = await db.createResultadoAcao(input);
+          return { id, success: true };
+        } catch (error) {
+          console.error("[Resultados] Erro ao criar:", error);
+          throw error;
+        }
+      }),
+
+    atualizar: publicProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          periodo: z.string().optional(),
+          investimento: z.string().optional(),
+          receita: z.string().optional(),
+          lucro: z.string().optional(),
+          roi: z.string().optional(),
+          conversao: z.string().optional(),
+          alcance: z.string().optional(),
+          status: z.enum(["em_progresso", "concluida"]).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const { id, ...updates } = input;
+          await db.updateResultadoAcao(id, updates);
+          return { success: true };
+        } catch (error) {
+          console.error("[Resultados] Erro ao atualizar:", error);
+          throw error;
+        }
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

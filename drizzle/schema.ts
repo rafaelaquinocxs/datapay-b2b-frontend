@@ -178,3 +178,51 @@ export const insightsIA = mysqlTable("insights_ia", {
 export type InsightIA = typeof insightsIA.$inferSelect;
 export type InsertInsightIA = typeof insightsIA.$inferInsert;
 
+
+
+
+/**
+ * Tabela para armazenar ações inteligentes recomendadas pela IA
+ */
+export const acoesInteligentes = mysqlTable("acoes_inteligentes", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresaId").notNull(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  tipo: varchar("tipo", { length: 100 }).notNull(), // 'Parceria', 'Retenção', 'Upsell', etc
+  descricao: text("descricao").notNull(),
+  baseadoEm: text("baseadoEm"), // Descrição do que gerou a recomendação
+  potencialLucro: varchar("potencialLucro", { length: 100 }), // Ex: "R$ 45k/mês"
+  roi: varchar("roi", { length: 50 }), // Ex: "320%"
+  implementacao: varchar("implementacao", { length: 100 }), // Ex: "2 semanas"
+  status: mysqlEnum("status", ["recomendada", "em_andamento", "concluida", "descartada"]).default("recomendada"),
+  prioridade: mysqlEnum("prioridade", ["Baixa", "Média", "Alta", "Crítica"]).default("Média"),
+  acoes: json("acoes"), // Array de ações a executar
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+
+export type AcaoInteligente = typeof acoesInteligentes.$inferSelect;
+export type InsertAcaoInteligente = typeof acoesInteligentes.$inferInsert;
+
+/**
+ * Tabela para armazenar resultados das ações inteligentes
+ */
+export const resultadosAcoes = mysqlTable("resultados_acoes", {
+  id: int("id").primaryKey().autoincrement(),
+  acaoId: int("acaoId").notNull(),
+  empresaId: int("empresaId").notNull(),
+  periodo: varchar("periodo", { length: 100 }), // Ex: "Últimos 30 dias"
+  investimento: varchar("investimento", { length: 100 }), // Ex: "R$ 8k"
+  receita: varchar("receita", { length: 100 }), // Ex: "R$ 38k"
+  lucro: varchar("lucro", { length: 100 }), // Ex: "R$ 30k"
+  roi: varchar("roi", { length: 50 }), // Ex: "375%"
+  conversao: varchar("conversao", { length: 50 }), // Ex: "24.3%"
+  alcance: varchar("alcance", { length: 100 }), // Ex: "12.4k pessoas"
+  status: mysqlEnum("status", ["em_progresso", "concluida"]).default("em_progresso"),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+
+export type ResultadoAcao = typeof resultadosAcoes.$inferSelect;
+export type InsertResultadoAcao = typeof resultadosAcoes.$inferInsert;
+

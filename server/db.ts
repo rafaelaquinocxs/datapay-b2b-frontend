@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa, fontesDados, InsertFonteDados, baseConhecimento, InsertBaseConhecimento, insightsIA, InsertInsightIA } from "../drizzle/schema";
+import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa, fontesDados, InsertFonteDados, baseConhecimento, InsertBaseConhecimento, insightsIA, InsertInsightIA, acoesInteligentes, InsertAcaoInteligente, resultadosAcoes, InsertResultadoAcao } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -360,5 +360,88 @@ export async function getInsightsByEmpresa(empresaId: number) {
   }
 
   return await db.select().from(insightsIA).where(eq(insightsIA.empresaId, empresaId));
+}
+
+
+
+
+// ============= AÇÕES INTELIGENTES =============
+
+export async function createAcaoInteligente(acao: InsertAcaoInteligente) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(acoesInteligentes).values(acao);
+  return Number(result[0].insertId);
+}
+
+export async function getAcoesInteligentes(empresaId: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return await db.select().from(acoesInteligentes).where(eq(acoesInteligentes.empresaId, empresaId));
+}
+
+export async function getAcaoInteligente(id: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(acoesInteligentes).where(eq(acoesInteligentes.id, id));
+  return result[0] || null;
+}
+
+export async function updateAcaoInteligente(id: number, updates: Partial<InsertAcaoInteligente>) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(acoesInteligentes).set(updates).where(eq(acoesInteligentes.id, id));
+}
+
+// ============= RESULTADOS AÇÕES =============
+
+export async function createResultadoAcao(resultado: InsertResultadoAcao) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(resultadosAcoes).values(resultado);
+  return Number(result[0].insertId);
+}
+
+export async function getResultadosAcoes(empresaId: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return await db.select().from(resultadosAcoes).where(eq(resultadosAcoes.empresaId, empresaId));
+}
+
+export async function getResultadoAcao(id: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(resultadosAcoes).where(eq(resultadosAcoes.id, id));
+  return result[0] || null;
+}
+
+export async function updateResultadoAcao(id: number, updates: Partial<InsertResultadoAcao>) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(resultadosAcoes).set(updates).where(eq(resultadosAcoes.id, id));
 }
 
