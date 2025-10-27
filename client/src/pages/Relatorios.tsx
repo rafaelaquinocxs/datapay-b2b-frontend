@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 export default function Relatorios() {
   const [atualizando, setAtualizando] = useState(false);
-  const [lookerStudioUrl] = useState("https://lookerstudio.google.com/embed/reporting/SEU_REPORT_ID_AQUI");
+
   
   const diagnosticosQuery = trpc.diagnostico.listar.useQuery();
 
@@ -86,9 +86,7 @@ export default function Relatorios() {
     }
   };
 
-  const handleAbrirLookerStudio = () => {
-    window.open(lookerStudioUrl.replace('/embed', ''), '_blank');
-  };
+
 
   return (
     <div className="space-y-6">
@@ -119,13 +117,7 @@ export default function Relatorios() {
             Exportar CSV
           </Button>
           
-          <Button
-            onClick={handleAbrirLookerStudio}
-            className="bg-purple-600 hover:bg-purple-700"
-          >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            Abrir no Looker Studio
-          </Button>
+
         </div>
       </div>
 
@@ -212,12 +204,8 @@ export default function Relatorios() {
       </div>
 
       {/* Tabs de Relatórios */}
-      <Tabs defaultValue="looker" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="looker">
-            <BarChart3 className="w-4 h-4 mr-2" />
-            Looker Studio
-          </TabsTrigger>
+      <Tabs defaultValue="dados" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="dados">
             <FileSpreadsheet className="w-4 h-4 mr-2" />
             Dados Brutos
@@ -227,74 +215,6 @@ export default function Relatorios() {
             Configuração
           </TabsTrigger>
         </TabsList>
-
-        {/* Tab Looker Studio */}
-        <TabsContent value="looker" className="mt-6">
-          <Card className="p-0 overflow-hidden">
-            <div className="bg-gray-50 border-b px-6 py-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">
-                    Dashboard de Maturidade em Dados
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Relatório interativo com análises completas
-                  </p>
-                </div>
-              </div>
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                Ao Vivo
-              </Badge>
-            </div>
-
-            {/* Iframe do Looker Studio */}
-            <div className="relative w-full" style={{ height: "calc(100vh - 400px)", minHeight: "600px" }}>
-              <iframe
-                src={lookerStudioUrl}
-                width="100%"
-                height="100%"
-                frameBorder="0"
-                style={{ border: 0 }}
-                allowFullScreen
-                title="Looker Studio Dashboard"
-              />
-            </div>
-          </Card>
-
-          {/* Instruções */}
-          <Card className="p-6 mt-4 bg-blue-50 border-blue-200">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                <ExternalLink className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <h4 className="font-semibold text-blue-900 mb-1">
-                  Como configurar o Looker Studio
-                </h4>
-                <p className="text-sm text-blue-800 mb-3">
-                  Para visualizar seus dados reais, você precisa conectar o Looker Studio ao banco de dados do DataPay.
-                </p>
-                <ol className="text-sm text-blue-800 space-y-2 list-decimal list-inside">
-                  <li>Acesse o Looker Studio e crie uma nova fonte de dados MySQL</li>
-                  <li>Use as credenciais fornecidas no painel de Configuração</li>
-                  <li>Cole a query SQL disponível na documentação</li>
-                  <li>Copie o ID do relatório e atualize nas configurações</li>
-                </ol>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4 bg-white hover:bg-blue-50"
-                  onClick={() => window.open('/docs/looker-studio-setup.pdf', '_blank')}
-                >
-                  Ver Guia Completo
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
 
         {/* Tab Dados Brutos */}
         <TabsContent value="dados" className="mt-6">
