@@ -123,3 +123,17 @@
 - [ ] Gamificação completa
 - [ ] Sistema de recompensas
 
+
+
+
+## 🎨 Landing Page e Fluxo de Onboarding
+
+- [x] Criar landing page profissional com hero section
+- [x] Adicionar popup/modal de diagnóstico gratuito na landing
+- [x] Permitir fazer diagnóstico sem login
+- [ ] Após diagnóstico, mostrar popup para criar conta
+- [x] Redirecionar para dashboard completo após login (não para diagnóstico)
+- [x] Criar página inicial do dashboard (Dashboard.tsx)
+- [x] Rota / agora é a landing page
+- [x] Rota /dashboard é o dashboard completo após login
+

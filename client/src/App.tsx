@@ -18,11 +18,14 @@ import Relatorios from "./pages/Relatorios";
 import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 import PesquisaPublica from "./pages/PesquisaPublica";
+import Landing from "./pages/Landing";
+import Dashboard from "./pages/Dashboard";
 
 function Router() {
   return (
     <Switch>
       {/* Rotas públicas (sem autenticação) */}
+      <Route path="/" component={Landing} />
       <Route path="/login" component={Login} />
       <Route path="/registro" component={Registro} />
       <Route path="/diagnostico" component={Diagnostico} />
@@ -30,10 +33,10 @@ function Router() {
       <Route path="/404" component={NotFound} />
 
       {/* Rotas protegidas (requerem autenticação) */}
-      <Route path="/">
+      <Route path="/dashboard">
         <ProtectedRoute>
           <DashboardLayout>
-            <Inicio />
+            <Dashboard />
           </DashboardLayout>
         </ProtectedRoute>
       </Route>

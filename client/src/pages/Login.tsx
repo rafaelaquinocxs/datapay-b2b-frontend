@@ -24,7 +24,7 @@ export default function Login() {
       localStorage.setItem("empresaNome", data.empresa.nome || "");
       
       // Redirecionar para o dashboard
-      setLocation("/inicio");
+      setLocation("/dashboard");
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao fazer login");

@@ -26,8 +26,8 @@ export default function Registro() {
       localStorage.setItem("empresaId", data.empresa.id.toString());
       localStorage.setItem("empresaNome", data.empresa.nome || "");
       
-      // Redirecionar para o diagnóstico
-      setLocation("/diagnostico");
+      // Redirecionar para o dashboard
+      setLocation("/dashboard");
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao criar conta");
