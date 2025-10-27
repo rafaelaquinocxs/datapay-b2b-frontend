@@ -311,3 +311,22 @@
 4. Adicionar gráficos de análise de respostas
 5. Implementar exportação de dados em PDF
 
+
+
+
+## Botão de Compartilhamento para Pesquisas - Concluído
+
+- [x] Adicionar ícone de compartilhamento (Share2 do lucide-react)
+- [x] Implementar função para copiar link para área de transferência
+- [x] Mostrar toast notification ao copiar
+- [x] Adicionar botão em cada card de pesquisa na lista
+- [x] Botão destacado em verde com texto "Compartilhar"
+- [x] Testar funcionalidade de cópia
+
+### Detalhes da Implementação
+- Botão verde (bg-green-600) com ícone Share2 e texto "Compartilhar"
+- Ao clicar, copia o link público da pesquisa para a área de transferência
+- Exibe toast notification confirmando a cópia
+- Link no formato: `{origin}/p/{linkPublico}`
+- Funcionalidade 100% operacional e pronta para uso
+

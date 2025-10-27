@@ -365,11 +365,12 @@ export default function Pesquisas() {
                 <div className="flex gap-2">
                   <Button
                     size="sm"
-                    variant="outline"
+                    className="bg-green-600 hover:bg-green-700 text-white"
                     onClick={() => handleCopiarLink(pesquisa.linkPublico)}
-                    title="Copiar link"
+                    title="Compartilhar: Copiar link para área de transferência"
                   >
-                    <Copy className="w-4 h-4" />
+                    <Share2 className="w-4 h-4 mr-1" />
+                    Compartilhar
                   </Button>
                   <Button
                     size="sm"
