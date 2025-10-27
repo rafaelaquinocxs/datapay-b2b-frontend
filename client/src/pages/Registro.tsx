@@ -197,10 +197,8 @@ export default function Registro() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Já tem uma conta?{" "}
-                <Link href="/login">
-                  <a className="text-purple-600 hover:text-purple-700 font-semibold">
-                    Fazer login
-                  </a>
+                <Link href="/login" className="text-purple-600 hover:text-purple-700 font-semibold">
+                  Fazer login
                 </Link>
               </p>
             </div>
@@ -208,10 +206,8 @@ export default function Registro() {
 
           {/* Link para landing page */}
           <div className="text-center">
-            <Link href="/landing">
-              <a className="text-sm text-gray-500 hover:text-gray-700">
-                ← Voltar para a página inicial
-              </a>
+            <Link href="/landing" className="text-sm text-gray-500 hover:text-gray-700">
+              ← Voltar para a página inicial
             </Link>
           </div>
         </div>
