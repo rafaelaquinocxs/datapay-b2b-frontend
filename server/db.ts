@@ -322,7 +322,7 @@ export async function getBaseConhecimentoByEmpresa(empresaId: number) {
   }
 
   const result = await db.select().from(baseConhecimento).where(eq(baseConhecimento.empresaId, empresaId));
-  return result.length > 0 ? result[0] : undefined;
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function createOrUpdateBaseConhecimento(empresaId: number, data: Partial<InsertBaseConhecimento>) {
