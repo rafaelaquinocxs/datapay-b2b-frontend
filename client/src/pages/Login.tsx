@@ -90,10 +90,8 @@ export default function Login() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="senha">Senha</Label>
-                  <Link href="/recuperar-senha">
-                    <a className="text-sm text-purple-600 hover:text-purple-700 font-medium">
-                      Esqueceu a senha?
-                    </a>
+                  <Link href="/recuperar-senha" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
+                    Esqueceu a senha?
                   </Link>
                 </div>
                 <div className="relative">
@@ -133,10 +131,8 @@ export default function Login() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Não tem uma conta?{" "}
-                <Link href="/registro">
-                  <a className="text-purple-600 hover:text-purple-700 font-semibold">
-                    Criar conta gratuita
-                  </a>
+                <Link href="/registro" className="text-purple-600 hover:text-purple-700 font-semibold">
+                  Criar conta gratuita
                 </Link>
               </p>
             </div>
@@ -144,10 +140,8 @@ export default function Login() {
 
           {/* Link para landing page */}
           <div className="text-center">
-            <Link href="/landing">
-              <a className="text-sm text-gray-500 hover:text-gray-700">
-                ← Voltar para a página inicial
-              </a>
+            <Link href="/landing" className="text-sm text-gray-500 hover:text-gray-700">
+              ← Voltar para a página inicial
             </Link>
           </div>
         </div>
