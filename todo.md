@@ -229,3 +229,37 @@
 - [ ] Validar salvamento de dados em todas as tabelas do banco
 - [ ] Testar upload de arquivos CSV/Excel no módulo Meus Dados
 
+
+
+
+## Modulo Pesquisas Gamificadas - Status Atual
+
+### Bugs Corrigidos Recentemente
+- [x] Login nao redireciona para dashboard - Corrigido com sistema de cookies
+- [x] Chave OpenAI invalida - Agora usa helper invokeLLM
+
+### Backend - Pesquisas
+- [x] Criar tabela pesquisas no schema do banco
+- [x] Criar tabela respostas_pesquisas no schema
+- [x] API para criar pesquisa
+- [x] API para listar pesquisas da empresa
+- [x] API para buscar pesquisa por link publico
+- [x] API para enviar resposta de pesquisa
+- [ ] API para visualizar respostas coletadas
+- [ ] API para gerar relatorio de pesquisa
+
+### Frontend - Pesquisas
+- [x] Pagina de Pesquisas no dashboard
+- [x] Formulario para criar pesquisa
+- [x] Pagina publica para responder pesquisa (RespondePesquisa.tsx)
+- [ ] Listar pesquisas criadas com status
+- [ ] Botao para compartilhar link da pesquisa
+- [ ] Pagina para visualizar respostas coletadas
+- [ ] Graficos de analise de respostas
+
+### Problemas Conhecidos
+- [ ] Criacao de pesquisa nao esta salvando no banco de dados
+  - Possivel causa: Erro na funcao createPesquisa do db.ts
+  - Possivel causa: Erro na validacao de autenticacao no router
+  - Possivel causa: Erro na insercao de dados no MySQL
+

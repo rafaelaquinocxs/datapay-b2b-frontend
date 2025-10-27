@@ -356,17 +356,16 @@ export const appRouter = router({
           recompensaValor: z.string().optional(),
         })
       )
-      .mutation(async ({ input }) => {
-        // Gerar link público único
+      .mutation(async ({ input, ctx }) => {
+        console.log("[Pesquisas] Criando pesquisa:", input);
         const linkPublico = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
-
         const novaPesquisa = await db.createPesquisa({
           ...input,
           linkPublico,
           status: "ativa",
           totalRespostas: 0,
         });
-
+        console.log("[Pesquisas] Pesquisa criada:", novaPesquisa);
         return {
           success: true,
           pesquisa: novaPesquisa,

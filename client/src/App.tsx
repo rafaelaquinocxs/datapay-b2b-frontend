@@ -18,7 +18,7 @@ import Diagnostico from "./pages/Diagnostico";
 import Relatorios from "./pages/Relatorios";
 import Login from "./pages/Login";
 import Registro from "./pages/Registro";
-import PesquisaPublica from "./pages/PesquisaPublica";
+import RespondePesquisa from "./pages/RespondePesquisa";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 
@@ -30,7 +30,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/registro" component={Registro} />
       <Route path="/diagnostico" component={Diagnostico} />
-      <Route path="/p/:linkPublico" component={PesquisaPublica} />
+      <Route path="/p/:linkPublico" component={RespondePesquisa} />
       <Route path="/404" component={NotFound} />
 
       {/* Rotas protegidas (requerem autenticação) */}
