@@ -218,3 +218,14 @@
 - [ ] Histórico de análises anteriores
 - [ ] Botão para regenerar análise
 
+
+
+
+## 🐛 Bugs para Correção
+
+- [ ] Login não redireciona para dashboard após autenticação bem-sucedida
+- [ ] Verificar fluxo completo de autenticação e persistência de sessão
+- [ ] Testar geração de insights com OpenAI GPT-4 no módulo Análise da IA
+- [ ] Validar salvamento de dados em todas as tabelas do banco
+- [ ] Testar upload de arquivos CSV/Excel no módulo Meus Dados
+

@@ -6,6 +6,7 @@ import { z } from "zod";
 import * as db from "./db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { CUSTOM_AUTH_COOKIE } from "./_core/context";
 
 // Secret para JWT (em produção, usar variável de ambiente)
 const JWT_SECRET = process.env.JWT_SECRET || "datapay-secret-key-change-in-production";
@@ -14,7 +15,20 @@ export const appRouter = router({
   system: systemRouter,
 
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
+    me: publicProcedure.query(opts => {
+      // Retornar empresa se autenticada via JWT customizado
+      if (opts.ctx.empresa) {
+        return {
+          id: opts.ctx.empresa.id,
+          openId: `empresa-${opts.ctx.empresa.id}`, // Criar um openId virtual
+          name: opts.ctx.empresa.nome,
+          email: opts.ctx.empresa.email,
+          role: 'user' as const,
+          empresaId: opts.ctx.empresa.id,
+        };
+      }
+      return opts.ctx.user;
+    }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
@@ -33,7 +47,7 @@ export const appRouter = router({
           telefone: z.string().optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         // Verificar se email já existe
         const empresaExistente = await db.getEmpresaByEmail(input.email);
         if (empresaExistente) {
@@ -53,16 +67,22 @@ export const appRouter = router({
           assinaturaStatus: "trialing",
         });
 
-        // Gerar token JWT
+        // Gerar token JWT e salvar em cookie
         const token = jwt.sign(
           { empresaId: novaEmpresa.id, email: novaEmpresa.email },
           JWT_SECRET,
           { expiresIn: "7d" }
         );
 
+        // Configurar cookie de sessão
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(CUSTOM_AUTH_COOKIE, token, {
+          ...cookieOptions,
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+        });
+
         return {
           success: true,
-          token,
           empresa: novaEmpresa,
         };
       }),
@@ -75,7 +95,7 @@ export const appRouter = router({
           senha: z.string(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         // Buscar empresa por email
         const empresa = await db.getEmpresaByEmail(input.email);
         if (!empresa || !empresa.passwordHash) {
@@ -88,16 +108,22 @@ export const appRouter = router({
           throw new Error("Email ou senha inválidos");
         }
 
-        // Gerar token JWT
+        // Gerar token JWT e salvar em cookie
         const token = jwt.sign(
           { empresaId: empresa.id, email: empresa.email },
           JWT_SECRET,
           { expiresIn: "7d" }
         );
 
+        // Configurar cookie de sessão
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(CUSTOM_AUTH_COOKIE, token, {
+          ...cookieOptions,
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+        });
+
         return {
           success: true,
-          token,
           empresa: {
             id: empresa.id,
             nome: empresa.nome,

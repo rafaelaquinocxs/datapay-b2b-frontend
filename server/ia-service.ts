@@ -1,10 +1,5 @@
-import OpenAI from "openai";
+import { invokeLLM } from "./_core/llm";
 import * as db from "./db";
-
-// Inicializar OpenAI (em produção, usar variável de ambiente)
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "sk-proj-...", // Substituir por chave real
-});
 
 interface GerarInsightsParams {
   empresaId: number;
@@ -92,9 +87,8 @@ Retorne no formato JSON:
 `;
 
   try {
-    // 6. Chamar GPT-4
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Usar gpt-4o-mini para custo menor, ou gpt-4 para melhor qualidade
+    // 6. Chamar LLM usando o helper do template
+    const completion = await invokeLLM({
       messages: [
         {
           role: "system",
@@ -105,12 +99,11 @@ Retorne no formato JSON:
           content: prompt,
         },
       ],
-      temperature: 0.8, // Criatividade
-      response_format: { type: "json_object" },
+      responseFormat: { type: "json_object" },
     });
 
     const resposta = completion.choices[0].message.content;
-    if (!resposta) {
+    if (!resposta || typeof resposta !== "string") {
       throw new Error("Resposta vazia da IA");
     }
 

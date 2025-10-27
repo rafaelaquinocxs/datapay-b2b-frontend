@@ -15,16 +15,20 @@ export default function Login() {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [carregando, setCarregando] = useState(false);
 
+  const utils = trpc.useUtils();
+
   const loginMutation = trpc.auth.login.useMutation({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       toast.success("Login realizado com sucesso!");
-      // Salvar token no localStorage
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("empresaId", data.empresa.id.toString());
-      localStorage.setItem("empresaNome", data.empresa.nome || "");
+      setCarregando(false);
+      
+      // Invalidar cache do useAuth para recarregar o usuário
+      await utils.auth.me.invalidate();
       
       // Redirecionar para o dashboard
-      setLocation("/dashboard");
+      setTimeout(() => {
+        setLocation("/dashboard");
+      }, 100);
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao fazer login");

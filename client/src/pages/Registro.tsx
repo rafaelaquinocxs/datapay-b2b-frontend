@@ -18,16 +18,20 @@ export default function Registro() {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [carregando, setCarregando] = useState(false);
 
+  const utils = trpc.useUtils();
+
   const registroMutation = trpc.auth.registro.useMutation({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       toast.success("Conta criada com sucesso! Bem-vindo ao DataPay!");
-      // Salvar token no localStorage
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("empresaId", data.empresa.id.toString());
-      localStorage.setItem("empresaNome", data.empresa.nome || "");
+      setCarregando(false);
+      
+      // Invalidar cache do useAuth para recarregar o usuário
+      await utils.auth.me.invalidate();
       
       // Redirecionar para o dashboard
-      setLocation("/dashboard");
+      setTimeout(() => {
+        setLocation("/dashboard");
+      }, 100);
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao criar conta");
