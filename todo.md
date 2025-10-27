@@ -172,3 +172,49 @@
 - [ ] VTEX API
 - [ ] Linx API
 
+
+
+
+## 📚 Módulo "Base de Conhecimento"
+
+### Backend
+- [ ] Criar tabela `base_conhecimento` no schema
+- [ ] API para adicionar informações da empresa
+- [ ] API para atualizar base de conhecimento
+- [ ] API para buscar base de conhecimento por empresa
+
+### Frontend
+- [ ] Criar página Base de Conhecimento
+- [ ] Formulário para URL do site
+- [ ] Formulário para missão, visão, valores
+- [ ] Formulário para produtos/serviços
+- [ ] Formulário para público-alvo
+- [ ] Formulário para diferenciais
+- [ ] Upload de documentos (PDFs, apresentações)
+- [ ] Visualização da base de conhecimento salva
+
+## 🤖 Módulo "Análise da IA" - 100% Funcional
+
+### Backend
+- [ ] Instalar SDK da OpenAI
+- [ ] Criar API para gerar insights com GPT-4
+- [ ] Criar prompt inteligente que combina:
+  - Dados das fontes conectadas
+  - Base de conhecimento da empresa
+  - Contexto do setor
+- [ ] API para salvar insights gerados
+- [ ] API para listar histórico de insights
+
+### Frontend
+- [ ] Reescrever página Análise da IA completamente
+- [ ] Botão "Gerar Insights" que chama a IA
+- [ ] Loading state durante geração
+- [ ] Exibição visual dos insights gerados
+- [ ] Cards para cada insight com:
+  - Título
+  - Descrição
+  - Impacto estimado
+  - Ações sugeridas
+- [ ] Histórico de análises anteriores
+- [ ] Botão para regenerar análise
+

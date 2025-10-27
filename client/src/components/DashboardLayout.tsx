@@ -9,6 +9,7 @@ import {
   Settings,
   TrendingUp,
   FileBarChart,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +36,11 @@ const menuItems = [
     path: "/analise-ia",
     badge: "12",
     badgeColor: "bg-purple-500",
+  },
+  {
+    icon: BookOpen,
+    label: "Base de Conhecimento",
+    path: "/base-conhecimento",
   },
   {
     icon: Users,

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa, fontesDados, InsertFonteDados } from "../drizzle/schema";
+import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa, fontesDados, InsertFonteDados, baseConhecimento, InsertBaseConhecimento, insightsIA, InsertInsightIA } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -309,5 +309,56 @@ export async function deleteFonteDados(id: number) {
   }
 
   await db.delete(fontesDados).where(eq(fontesDados.id, id));
+}
+
+
+
+
+// Helpers para Base de Conhecimento
+export async function getBaseConhecimentoByEmpresa(empresaId: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(baseConhecimento).where(eq(baseConhecimento.empresaId, empresaId));
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createOrUpdateBaseConhecimento(empresaId: number, data: Partial<InsertBaseConhecimento>) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const existing = await getBaseConhecimentoByEmpresa(empresaId);
+
+  if (existing) {
+    await db.update(baseConhecimento).set(data).where(eq(baseConhecimento.empresaId, empresaId));
+    return existing.id;
+  } else {
+    const result = await db.insert(baseConhecimento).values({ ...data, empresaId });
+    return Number(result[0].insertId);
+  }
+}
+
+// Helpers para Insights IA
+export async function createInsightIA(insight: InsertInsightIA) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(insightsIA).values(insight);
+  return Number(result[0].insertId);
+}
+
+export async function getInsightsByEmpresa(empresaId: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return await db.select().from(insightsIA).where(eq(insightsIA.empresaId, empresaId));
 }
 

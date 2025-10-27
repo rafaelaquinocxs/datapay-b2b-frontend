@@ -136,3 +136,45 @@ export const fontesDados = mysqlTable("fontes_dados", {
 
 export type FonteDados = typeof fontesDados.$inferSelect;
 export type InsertFonteDados = typeof fontesDados.$inferInsert;
+
+
+/**
+ * Tabela para armazenar base de conhecimento da empresa
+ */
+export const baseConhecimento = mysqlTable("base_conhecimento", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresaId").notNull().unique(), // Uma base por empresa
+  urlSite: varchar("urlSite", { length: 500 }),
+  missao: text("missao"),
+  visao: text("visao"),
+  valores: text("valores"),
+  produtosServicos: text("produtosServicos"),
+  publicoAlvo: text("publicoAlvo"),
+  diferenciais: text("diferenciais"),
+  historicoSucesso: text("historicoSucesso"),
+  documentos: json("documentos"), // Array de URLs de documentos
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+
+export type BaseConhecimento = typeof baseConhecimento.$inferSelect;
+export type InsertBaseConhecimento = typeof baseConhecimento.$inferInsert;
+
+/**
+ * Tabela para armazenar insights gerados pela IA
+ */
+export const insightsIA = mysqlTable("insights_ia", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresaId").notNull(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  descricao: text("descricao").notNull(),
+  categoria: varchar("categoria", { length: 100 }), // 'marketing', 'vendas', 'produto', 'operacional'
+  impactoEstimado: varchar("impactoEstimado", { length: 100 }), // 'alto', 'médio', 'baixo'
+  acoesSugeridas: json("acoesSugeridas"), // Array de ações
+  dadosUtilizados: json("dadosUtilizados"), // Referência aos dados que geraram o insight
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type InsightIA = typeof insightsIA.$inferSelect;
+export type InsertInsightIA = typeof insightsIA.$inferInsert;
+

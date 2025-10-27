@@ -447,6 +447,77 @@ export const appRouter = router({
         };
       }),
   }),
+
+  // Router para Base de Conhecimento
+  baseConhecimento: router({
+    // Obter base de conhecimento da empresa
+    obter: publicProcedure
+      .input(
+        z.object({
+          empresaId: z.number(),
+        })
+      )
+      .query(async ({ input }) => {
+        const base = await db.getBaseConhecimentoByEmpresa(input.empresaId);
+        return base;
+      }),
+
+    // Salvar/atualizar base de conhecimento
+    salvar: publicProcedure
+      .input(
+        z.object({
+          empresaId: z.number(),
+          urlSite: z.string().optional(),
+          missao: z.string().optional(),
+          visao: z.string().optional(),
+          valores: z.string().optional(),
+          produtosServicos: z.string().optional(),
+          publicoAlvo: z.string().optional(),
+          diferenciais: z.string().optional(),
+          historicoSucesso: z.string().optional(),
+          documentos: z.any().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { empresaId, ...data } = input;
+        await db.createOrUpdateBaseConhecimento(empresaId, data);
+
+        return {
+          success: true,
+        };
+      }),
+  }),
+
+  // Router para Análise da IA
+  analiseIA: router({
+    // Gerar insights com IA
+    gerarInsights: publicProcedure
+      .input(
+        z.object({
+          empresaId: z.number(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const iaService = await import("./ia-service");
+        const resultado = await iaService.gerarInsights({
+          empresaId: input.empresaId,
+        });
+
+        return resultado;
+      }),
+
+    // Listar insights históricos
+    listarInsights: publicProcedure
+      .input(
+        z.object({
+          empresaId: z.number(),
+        })
+      )
+      .query(async ({ input }) => {
+        const insights = await db.getInsightsByEmpresa(input.empresaId);
+        return insights;
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

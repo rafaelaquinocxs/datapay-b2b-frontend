@@ -9,7 +9,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./components/DashboardLayout";
 import Inicio from "./pages/Inicio";
 import MeusDados from "./pages/MeusDados";
-import AnaliseIA from "./pages/AnaliseIA";
+import AnaliseIA from "@/pages/AnaliseIA";
+import BaseConhecimento from "@/pages/BaseConhecimento";
 import Pesquisas from "./pages/Pesquisas";
 import AcoesInteligentes from "./pages/AcoesInteligentes";
 import Resultados from "./pages/Resultados";
@@ -58,6 +59,13 @@ function Router() {
         <ProtectedRoute>
           <DashboardLayout>
             <AnaliseIA />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/base-conhecimento">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <BaseConhecimento />
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
