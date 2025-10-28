@@ -34,7 +34,7 @@ import {
 } from "lucide-react";
 
 export default function MeusDados() {
-  const empresa = { id: 1, nome: "Empresa Demo" }; // Mock para apresenta\u00e7\u00e3o
+  const empresa = { id: 1, nome: "Jaime" }; // Mock para apresenta\u00e7\u00e3o
   const [modalAberto, setModalAberto] = useState(false);
   const [tipoConexao, setTipoConexao] = useState<string>("");
   const [arquivo, setArquivo] = useState<File | null>(null);

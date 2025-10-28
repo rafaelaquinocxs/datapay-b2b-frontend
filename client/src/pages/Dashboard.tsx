@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 export default function Dashboard() {
-  const empresa = { nome: "Empresa Demo", email: "demo@datapay.com" }; // Mock para apresenta\u00e7\u00e3o
+  const empresa = { nome: "Jaime", email: "jaime@empresa.com" }; // Mock para apresenta\u00e7\u00e3o
   const [, setLocation] = useLocation();
 
   const cards = [

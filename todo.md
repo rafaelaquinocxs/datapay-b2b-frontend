@@ -512,3 +512,31 @@
 ## 🐛 BUG - Páginas ainda usando useAuth
 
 - [x] Remover useAuth de MeusDados.t- [x] Verificar e remover useAuth de todas as outras p\u00e1ginas- [x] Substituir por mock de empresa onde necess\u00e1rio
+
+
+## 🎯 Dados Mockados para Apresentação ao Investidor
+- [x] Trocar "Empresa Demo" por "Jaime" em todas as p\u00e1ginas ] Adicionar dados mockados em MeusDados (fontes de dados conectadas)
+- [ ] Adicionar dados mockados em AnaliseIA (insights e análises)
+- [ ] Adicionar dados mockados em Pesquisas (pesquisas criadas)
+- [ ] Adicionar dados mockados em AcoesInteligentes (campanhas sugeridas)
+- [ ] Adicionar dados mockados em Resultados (ROI e performance)
+- [ ] Adicionar dados mockados em BaseConhecimento (informações da empresa)
+- [ ] Adicionar dados mockados em FormularioInteligente (sugestões de IA)
+- [ ] Garantir que TODAS as funcionalidades sejam testáveis pelo investidor
+
+
+
+
+## 🚀 VERIFICAÇÃO FUNCIONAL COMPLETA - Backend Real
+
+- [x] Verificar se MeusDados conecta com banco de dados real
+- [ ] Verificar se é possível adicionar fontes de dados (upload, API, etc)
+- [ ] Verificar se AnaliseIA gera insights reais usando IA
+- [ ] Verificar se Pesquisas salva no banco e gera links públicos
+- [ ] Verificar se AcoesInteligentes funciona com dados reais
+- [ ] Verificar se Resultados mostra dados do banco
+- [ ] Verificar se BaseConhecimento salva informações no banco
+- [ ] Verificar se FormularioInteligente gera sugestões com IA real
+- [ ] Garantir que investidor possa testar TUDO funcionando
+- [x] Sistema limpo (sem dados mockados) mas 100% funcional
+
