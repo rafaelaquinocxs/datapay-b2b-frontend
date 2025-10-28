@@ -1,4 +1,5 @@
-import { int, json, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal } from "drizzle-orm/mysql-core";
+import { int, json, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, serial, boolean } from "drizzle-orm/mysql-core";
+const integer = int; // alias para compatibilidade
 
 /**
  * Core user table backing auth flow.
@@ -627,4 +628,92 @@ export type InsightSegment = typeof insightSegments.$inferSelect;
 export type InsightAction = typeof insightActions.$inferSelect;
 export type InsightResult = typeof insightResults.$inferSelect;
 export type InsightAuditLog = typeof insightAudit.$inferSelect;
+
+
+// ============ FORMULÁRIOS INTELIGENTES ============
+
+export const smartForms = mysqlTable("smart_forms", {
+  id: serial("id").primaryKey(),
+  empresaId: integer("empresa_id").notNull(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  descricao: text("descricao"),
+  prioridade: varchar("prioridade", { length: 50 }).notNull(), // "critico", "alto", "operacional"
+  categoria: varchar("categoria", { length: 100 }).notNull(), // "clientes_ativos", "compliance", "produtos", "retencao"
+  impactoEstimado: varchar("impacto_estimado", { length: 100 }), // "Reduzir churn em até 12%"
+  kpiPrincipal: varchar("kpi_principal", { length: 100 }), // "NPS", "Churn", "LTV", "Ticket Médio"
+  nPerguntas: integer("n_perguntas").default(0),
+  estado: varchar("estado", { length: 50 }).notNull().default("rascunho"), // "rascunho", "ativo", "pausado", "concluido"
+  templateId: integer("template_id"), // referência a biblioteca
+  criadoEm: timestamp("criado_em").defaultNow(),
+  atualizadoEm: timestamp("atualizado_em").defaultNow(),
+});
+
+export const smartFormQuestions = mysqlTable("smart_form_questions", {
+  id: serial("id").primaryKey(),
+  formId: integer("form_id").notNull().references(() => smartForms.id),
+  ordem: integer("ordem").notNull(),
+  pergunta: text("pergunta").notNull(),
+  tipo: varchar("tipo", { length: 50 }).notNull(), // "texto", "multipla", "nps", "data", "email"
+  obrigatoria: boolean("obrigatoria").default(true),
+  opcoes: text("opcoes"), // JSON array para múltipla escolha
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+export const smartFormSchedules = mysqlTable("smart_form_schedules", {
+  id: serial("id").primaryKey(),
+  formId: integer("form_id").notNull().references(() => smartForms.id),
+  tipoAgendamento: varchar("tipo_agendamento", { length: 50 }).notNull(), // "manual", "recorrente", "condicional"
+  recorrencia: varchar("recorrencia", { length: 50 }), // "diaria", "semanal", "mensal", "trimestral"
+  proximoEnvio: timestamp("proximo_envio"),
+  ultimoEnvio: timestamp("ultimo_envio"),
+  ativo: boolean("ativo").default(true),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+export const smartFormChannels = mysqlTable("smart_form_channels", {
+  id: serial("id").primaryKey(),
+  formId: integer("form_id").notNull().references(() => smartForms.id),
+  canal: varchar("canal", { length: 50 }).notNull(), // "email", "whatsapp", "app", "api", "sms"
+  configuracao: text("configuracao"), // JSON com config específica do canal
+  ativo: boolean("ativo").default(true),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+export const smartFormResponses = mysqlTable("smart_form_responses", {
+  id: serial("id").primaryKey(),
+  formId: integer("form_id").notNull().references(() => smartForms.id),
+  clienteId: integer("cliente_id").notNull(),
+  respostas: text("respostas"), // JSON com respostas
+  taxaConclusao: decimal("taxa_conclusao", { precision: 5, scale: 2 }), // 0-100
+  respondidoEm: timestamp("respondido_em"),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+export const smartFormTemplates = mysqlTable("smart_form_templates", {
+  id: serial("id").primaryKey(),
+  nome: varchar("nome", { length: 255 }).notNull(),
+  descricao: text("descricao"),
+  categoria: varchar("categoria", { length: 100 }).notNull(), // "nps", "satisfacao", "lgpd", "feedback"
+  perguntas: text("perguntas"), // JSON array com perguntas padrão
+  impactoEstimado: varchar("impacto_estimado", { length: 100 }),
+  taxaSucessoMedia: decimal("taxa_sucesso_media", { precision: 5, scale: 2 }),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+export const smartFormPermissions = mysqlTable("smart_form_permissions", {
+  id: serial("id").primaryKey(),
+  formId: integer("form_id").notNull().references(() => smartForms.id),
+  usuarioId: varchar("usuario_id", { length: 255 }).notNull(),
+  papel: varchar("papel", { length: 50 }).notNull(), // "criador", "revisor", "aprovador", "executor"
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+export const smartFormAudit = mysqlTable("smart_form_audit", {
+  id: serial("id").primaryKey(),
+  formId: integer("form_id").notNull().references(() => smartForms.id),
+  evento: varchar("evento", { length: 100 }).notNull(), // "criado", "editado", "aprovado", "disparado"
+  quem: varchar("quem", { length: 255 }).notNull(),
+  quando: timestamp("quando").defaultNow(),
+  detalhes: text("detalhes"), // JSON com mudanças
+});
 
