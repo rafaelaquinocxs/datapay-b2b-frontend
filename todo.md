@@ -462,3 +462,17 @@
   - Possível causa: useAuth() retornando isAuthenticated = false mesmo com usuário logado
   - Solução: Modificar oauth.ts para redirecionar direto para `/dashboard` ao invés de `/`
 
+
+
+
+## 🚨 BUG CRÍTICO - OAuth não funciona em produção
+
+- [x] OAuth funciona no sandbox mas não funciona em produção (publicado) - LOGS ADICIONADOS
+  - Problema: Após selecionar conta Google, volta para tela de Login
+  - Funciona perfeitamente no ambiente de desenvolvimento
+  - Não funciona no domínio manus.space publicado
+  - Possível causa: Configuração de redirect_uri diferente entre dev e produção
+  - Possível causa: Cookie não sendo salvo no domínio de produção
+  - Solução: Adicionar logs detalhados no callback do OAuth
+  - Solução: Verificar se redirect_uri está correto para produção
+
