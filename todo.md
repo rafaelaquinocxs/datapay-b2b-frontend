@@ -451,3 +451,14 @@
   - Após logout, redireciona para a landing page (/)
   - Mostrar toast notification de sucesso
 
+
+
+
+## 🚨 BUG CRÍTICO - Home.tsx não detecta autenticação
+
+- [x] Home.tsx não está detectando que usuário está autenticado
+  - Problema: Após login com Google, mostra "Bem-vindo de volta" mas continua na página de Login
+  - OAuth callback redireciona para `/` mas Home.tsx não redireciona para `/dashboard`
+  - Possível causa: useAuth() retornando isAuthenticated = false mesmo com usuário logado
+  - Solução: Modificar oauth.ts para redirecionar direto para `/dashboard` ao invés de `/`
+
