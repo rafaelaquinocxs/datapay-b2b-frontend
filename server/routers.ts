@@ -981,7 +981,7 @@ Forneca a resposta em formato JSON:
         let contexto: any = {};
 
         if (profile) {
-          resposta = `Baseado no seu perfil: ${profile.missao || "sem missão definida"}. Recomendações: Complete todos os blocos do seu perfil para obter insights mais precisos.`;
+          resposta = `Baseado no seu perfil: ${profile.missao || "sem missão definida"}. Recomendações: Complete todos os blocos do seu perfil para obter insights mais precisos.` as string;
           contexto = { profileId: profile.id };
         } else {
           try {
@@ -998,7 +998,8 @@ Forneca a resposta em formato JSON:
                 }
               ]
             });
-            resposta = llmResponse.choices[0].message.content || "Desculpe, não consegui processar sua pergunta.";
+            const content = llmResponse.choices[0].message.content;
+            resposta = typeof content === 'string' ? content : "Desculpe, não consegui processar sua pergunta.";
             contexto = { usedLLM: true, empresaId: input.empresaId };
           } catch (error) {
             console.error("[dataCopilot] Erro ao chamar LLM:", error);
