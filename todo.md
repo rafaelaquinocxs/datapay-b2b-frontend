@@ -437,3 +437,14 @@
 - [x] Redirecionar para getLoginUrl() do SDK
 - [ ] Testar fluxo completo de autenticação com Google em produção
 
+
+
+
+## 🐛 BUG - Popup de Diagnóstico Muito Estreito - CORRIGIDO
+
+- [x] Popup do diagnóstico estava muito estreito
+- [x] Aparecia scroll horizontal no resultado
+- [x] Solução: Aumentado tamanho do modal de max-w-6xl para max-w-[95vw]
+- [x] Modal agora ocupa 95% da largura e altura da tela
+- [x] Removido scroll horizontal desnecessário
+
