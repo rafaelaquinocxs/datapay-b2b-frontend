@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
 import {
   Sparkles,
   Loader2,
@@ -23,6 +23,8 @@ import {
   Copy,
   FileText,
   Bookmark,
+  Download,
+  Send,
 } from "lucide-react";
 
 interface Insight {
@@ -52,6 +54,11 @@ export default function AnaliseIA() {
   const [busca, setBusca] = useState<string>("");
   const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null);
   const [showDrawer, setShowDrawer] = useState(false);
+  const [modalAberto, setModalAberto] = useState<string | null>(null);
+  const [nomeTarefa, setNomeTarefa] = useState("");
+  const [descricaoTarefa, setDescricaoTarefa] = useState("");
+  const [dataVencimento, setDataVencimento] = useState("");
+  const [responsavel, setResponsavel] = useState("");
 
   const {
     data: insightsHistoricos,
@@ -104,17 +111,47 @@ export default function AnaliseIA() {
     { id: "uplift", nome: "Uplift", cor: "bg-orange-100 text-orange-900" },
   ];
 
-  const ESTADOS = [
-    { id: "novo", nome: "Novo", cor: "bg-gray-100 text-gray-900" },
-    { id: "visualizado", nome: "Visualizado", cor: "bg-blue-100 text-blue-900" },
-    { id: "aplicado", nome: "Aplicado", cor: "bg-green-100 text-green-900" },
-    { id: "descartado", nome: "Descartado", cor: "bg-red-100 text-red-900" },
-  ];
-
   const filteredInsights = (insightsHistoricos || []).filter((i: any) =>
     i.titulo.toLowerCase().includes(busca.toLowerCase()) ||
     (i.resumo || i.descricao || "").toLowerCase().includes(busca.toLowerCase())
   );
+
+  const handleCriarTarefa = () => {
+    if (!nomeTarefa || !dataVencimento) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+    toast.success("Tarefa criada com sucesso!");
+    setModalAberto(null);
+    setNomeTarefa("");
+    setDescricaoTarefa("");
+    setDataVencimento("");
+    setResponsavel("");
+  };
+
+  const handleExportar = () => {
+    if (!selectedInsight) return;
+    const conteudo = `
+INSIGHT: ${selectedInsight.titulo}
+RESUMO: ${selectedInsight.resumo || selectedInsight.descricao}
+IMPACTO: ${getImpactoLabel(selectedInsight.priorityScore)}
+CONFIANÇA: ${selectedInsight.confianca}%
+POTENCIAL: R$ ${selectedInsight.potencialR$}
+CLIENTES: ${selectedInsight.tamanhoSegmento}
+    `.trim();
+    
+    const elemento = document.createElement("a");
+    elemento.href = "data:text/plain;charset=utf-8," + encodeURIComponent(conteudo);
+    elemento.download = `insight-${selectedInsight.id}.txt`;
+    elemento.click();
+    toast.success("Arquivo exportado!");
+  };
+
+  const handleCopiar = () => {
+    if (!selectedInsight) return;
+    navigator.clipboard.writeText(selectedInsight.titulo);
+    toast.success("Título copiado para a área de transferência!");
+  };
 
   return (
     <div className="p-8 space-y-8">
@@ -283,12 +320,16 @@ export default function AnaliseIA() {
               </div>
 
               {/* Ações Rápidas */}
-              <div className="flex gap-2 pt-4 border-t">
-                <Button size="sm" variant="outline">
-                  <CheckCircle2 className="w-4 h-4 mr-2" />
-                  Marcar Aplicado
-                </Button>
-                <Button size="sm" variant="outline">
+              <div className="flex gap-2 pt-4 border-t flex-wrap">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedInsight(insight);
+                    setModalAberto("tarefa");
+                  }}
+                >
                   <Bookmark className="w-4 h-4 mr-2" />
                   Criar Tarefa
                 </Button>
@@ -297,16 +338,36 @@ export default function AnaliseIA() {
                   variant="outline"
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigator.clipboard.writeText(insight.titulo);
-                    toast.success("Copiado!");
+                    setSelectedInsight(insight);
+                    handleCopiar();
                   }}
                 >
                   <Copy className="w-4 h-4 mr-2" />
                   Copiar
                 </Button>
-                <Button size="sm" variant="outline">
-                  <FileText className="w-4 h-4 mr-2" />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedInsight(insight);
+                    handleExportar();
+                  }}
+                >
+                  <Download className="w-4 h-4 mr-2" />
                   Exportar
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-purple-600 hover:bg-purple-700"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedInsight(insight);
+                    setModalAberto("acao");
+                  }}
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  Criar Ação
                 </Button>
               </div>
             </Card>
@@ -366,6 +427,165 @@ export default function AnaliseIA() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Modal Criar Tarefa */}
+      {modalAberto === "tarefa" && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <Card className="w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Criar Tarefa</h2>
+              <button
+                onClick={() => setModalAberto(null)}
+                className="p-1 hover:bg-gray-100 rounded-lg"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Nome da Tarefa *
+                </label>
+                <input
+                  type="text"
+                  value={nomeTarefa}
+                  onChange={(e) => setNomeTarefa(e.target.value)}
+                  placeholder="Ex: Implementar campanha de reativação"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Descrição
+                </label>
+                <textarea
+                  value={descricaoTarefa}
+                  onChange={(e) => setDescricaoTarefa(e.target.value)}
+                  placeholder="Descreva os detalhes da tarefa..."
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Data de Vencimento *
+                </label>
+                <input
+                  type="date"
+                  value={dataVencimento}
+                  onChange={(e) => setDataVencimento(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Responsável
+                </label>
+                <select
+                  value={responsavel}
+                  onChange={(e) => setResponsavel(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                >
+                  <option value="">Selecione um responsável</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="vendas">Vendas</option>
+                  <option value="operacoes">Operações</option>
+                  <option value="bi">BI</option>
+                </select>
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <Button
+                  onClick={handleCriarTarefa}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                >
+                  <Bookmark className="w-4 h-4 mr-2" />
+                  Criar Tarefa
+                </Button>
+                <Button
+                  onClick={() => setModalAberto(null)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Modal Criar Ação */}
+      {modalAberto === "acao" && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <Card className="w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Criar Ação</h2>
+              <button
+                onClick={() => setModalAberto(null)}
+                className="p-1 hover:bg-gray-100 rounded-lg"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                <p className="text-sm font-semibold text-purple-900 mb-2">Insight Selecionado</p>
+                <p className="text-sm text-purple-700">{selectedInsight?.titulo}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Tipo de Ação
+                </label>
+                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
+                  <option value="">Selecione o tipo</option>
+                  <option value="campanha">Criar Campanha</option>
+                  <option value="tarefa">Criar Tarefa</option>
+                  <option value="relatorio">Gerar Relatório</option>
+                  <option value="notificacao">Enviar Notificação</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Descrição da Ação
+                </label>
+                <textarea
+                  placeholder="Descreva a ação que será executada..."
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <Button
+                  onClick={() => {
+                    toast.success("Ação criada com sucesso!");
+                    setModalAberto(null);
+                  }}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  Criar Ação
+                </Button>
+                <Button
+                  onClick={() => setModalAberto(null)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </Card>
         </div>
       )}
     </div>
