@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from "@/contexts/AuthContext";
+
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { BookOpen, Save, Loader2 } from "lucide-react";
 
 export default function BaseConhecimento() {
-  const { empresa } = useAuth();
+  const empresa = { id: 1, nome: "Empresa Demo" }; // Mock para apresenta\u00e7\u00e3o
   const [carregando, setCarregando] = useState(false);
 
   // Estados do formulário

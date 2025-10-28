@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
+
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Plus, Share2, Copy, Eye, Trash2, MessageSquare, CheckCircle2, Users, TrendingUp, Gift } from "lucide-react";
 
 export default function Pesquisas() {
-  const { user } = useAuth();
+  const user = { empresaId: 1 }; // Mock para apresenta\u00e7\u00e3o
   const [showForm, setShowForm] = useState(false);
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");

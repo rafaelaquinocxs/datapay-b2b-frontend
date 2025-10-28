@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
@@ -24,7 +24,7 @@ interface Insight {
 }
 
 export default function AnaliseIA() {
-  const { empresa } = useAuth();
+  const empresa = { id: 1, nome: "Empresa Demo" }; // Mock para apresenta\u00e7\u00e3o
   const [gerando, setGerando] = useState(false);
 
   const {

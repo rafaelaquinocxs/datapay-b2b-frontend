@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/_core/hooks/useAuth";
+
 import { trpc } from "@/lib/trpc";
 import {
   TrendingUp,
@@ -14,8 +14,7 @@ import {
 } from "lucide-react";
 
 export default function Resultados() {
-  const { user } = useAuth();
-  const empresaId = (user as any)?.empresaId || 0;
+  const empresaId = 1; // Mock para apresenta\u00e7\u00e3o
 
   // Buscar resultados das ações
   const { data: resultados = [], isLoading } = trpc.resultados.listar.useQuery(

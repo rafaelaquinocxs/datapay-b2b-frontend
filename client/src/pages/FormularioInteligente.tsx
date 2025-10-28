@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
+
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,7 @@ interface SugestaoIA {
 }
 
 export default function FormularioInteligente() {
-  const { user } = useAuth();
+  const user = { empresaId: 1 }; // Mock para apresenta\u00e7\u00e3o
   const [sugestoes, setSugestoes] = useState<SugestaoIA[]>([]);
   const [carregandoSugestoes, setCarregandoSugestoes] = useState(false);
   const [formularioAtivo, setFormularioAtivo] = useState<number | null>(null);

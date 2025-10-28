@@ -507,3 +507,8 @@
 
 
 ## 🚨 URGENTE - REMOVER LOGIN COMPLETAME- [x] Remover sistema de autentica\u00e7\u00e3o comple- [x] Remover ProtectedRoute - tornar todas as rotas p\u00fablicas- [x] Rota / redireciona direto para /dashb- [x] Remover p\u00e1ginas Login.tsx e Registro.tsx- [x] Remover bot\u00e3o "Entrar" do header da landing page- [x] Sistema funciona SEM LOGIN para apresenta\u00e7\u00e3o ao investidor
+
+
+## 🐛 BUG - Páginas ainda usando useAuth
+
+- [x] Remover useAuth de MeusDados.t- [x] Verificar e remover useAuth de todas as outras p\u00e1ginas- [x] Substituir por mock de empresa onde necess\u00e1rio
