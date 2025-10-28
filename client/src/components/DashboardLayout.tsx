@@ -20,10 +20,10 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-const menuItems = [
+const menuItems: any[] = [
   {
     icon: LayoutDashboard,
-    label: "In\u00edcio",
+    label: "Início",
     path: "/",
   },
   {
@@ -37,13 +37,50 @@ const menuItems = [
     path: "/meus-dados",
   },
   {
+    type: 'section',
+    label: 'Inteligência de Dados',
+  },
+  {
     icon: Brain,
-    label: "An\u00e1lise da IA",
+    label: "Análise da IA",
     path: "/analise-ia",
   },
   {
+    icon: Brain,
+    label: "Copiloto de Dados",
+    path: "/copiloto-dados",
+  },
+  {
+    icon: BarChart3,
+    label: "Benchmarks",
+    path: "/benchmarks",
+  },
+  {
+    type: 'section',
+    label: 'Laboratório',
+  },
+  {
     icon: Lightbulb,
-    label: "Formul\u00e1rio Inteligente",
+    label: "🧪 Gerador de Dados",
+    path: "/laboratorio",
+  },
+  {
+    icon: TrendingUp,
+    label: "🎯 Simulador",
+    path: "/laboratorio",
+  },
+  {
+    icon: BarChart3,
+    label: "🔬 Testador",
+    path: "/laboratorio",
+  },
+  {
+    type: 'section',
+    label: 'Coleta & Ações',
+  },
+  {
+    icon: Lightbulb,
+    label: "Formulário Inteligente",
     path: "/formulario-inteligente",
   },
   {
@@ -53,8 +90,12 @@ const menuItems = [
   },
   {
     icon: TrendingUp,
-    label: "A\u00e7\u00f5es Inteligentes",
+    label: "Ações Inteligentes",
     path: "/acoes",
+  },
+  {
+    type: 'section',
+    label: 'Resultados & Relatórios',
   },
   {
     icon: BarChart3,
@@ -70,21 +111,6 @@ const menuItems = [
     icon: BookOpen,
     label: "Resumo Perfil",
     path: "/resumo-perfil",
-  },
-  {
-    icon: BarChart3,
-    label: "Benchmarks",
-    path: "/benchmarks",
-  },
-  {
-    icon: Brain,
-    label: "Copiloto de Dados",
-    path: "/copiloto-dados",
-  },
-  {
-    icon: Lightbulb,
-    label: "🧪 Laboratório",
-    path: "/laboratorio",
   },
 ];
 
@@ -113,34 +139,25 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
 
         {/* Menu Items */}
-        <nav className="flex-1 p-4 space-y-1">
-          {menuItems.map((item) => {
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          {menuItems.map((item, idx) => {
+            if (item.type === 'section') {
+              return (
+                <div key={`section-${idx}`} className="pt-4 pb-2">
+                  <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    {item.label}
+                  </p>
+                </div>
+              );
+            }
             const isActive = location === item.path;
             const Icon = item.icon;
-
             return (
               <Link key={item.path} href={item.path}>
-                <div
-                  className={cn(
-                    "flex items-center justify-between px-4 py-3 rounded-lg transition-all cursor-pointer group",
-                    isActive
-                      ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-500/30"
-                      : "text-gray-600 hover:bg-gray-100"
-                  )}
-                >
+                <div className={cn("flex items-center justify-between px-4 py-3 rounded-lg transition-all cursor-pointer group", isActive ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-500/30" : "text-gray-600 hover:bg-gray-100")}>
                   <div className="flex items-center gap-3">
-                    <Icon
-                      className={cn(
-                        "w-5 h-5",
-                        isActive ? "text-white" : "text-gray-500"
-                      )}
-                    />
-                    <span
-                      className={cn(
-                        "text-sm font-medium",
-                        isActive ? "text-white" : "text-gray-700"
-                      )}
-                    >
+                    <Icon className={cn("w-5 h-5", isActive ? "text-white" : "text-gray-500")} />
+                    <span className={cn("text-sm font-medium", isActive ? "text-white" : "text-gray-700")}>
                       {item.label}
                     </span>
                   </div>

@@ -2,337 +2,320 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, TrendingUp, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Slider } from '@/components/ui/slider';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Download, Zap, TrendingUp, BarChart3, Settings, FileText } from 'lucide-react';
 
 export default function Laboratorio() {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [showModal, setShowModal] = useState(false);
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('gerador');
+  const [recordCount, setRecordCount] = useState([100000]);
+  const [selectedRegions, setSelectedRegions] = useState<string[]>(['SP', 'RJ', 'MG']);
+  const [seasonality, setSeasonality] = useState<string[]>(['black_friday']);
+  const [calibrationEnabled, setCalibrationEnabled] = useState(false);
+  const [realDatasetSize, setRealDatasetSize] = useState('10000');
+
+  const regions = ['SP', 'RJ', 'MG', 'BA', 'RS', 'SC', 'PE', 'CE'];
+  const ageRanges = ['18-25', '26-35', '36-45', '46-55', '56+'];
+  const seasonalityOptions = [
+    { id: 'black_friday', label: 'Black Friday' },
+    { id: 'natal', label: 'Natal' },
+    { id: 'ano_novo', label: 'Ano Novo' },
+    { id: 'carnaval', label: 'Carnaval' },
+    { id: 'verao', label: 'Verão' },
+  ];
 
   const tools = [
     {
-      id: 'generator',
-      title: '1️⃣ Gerador de Dados Sintéticos',
-      description: 'Cria datasets sintéticos realistas baseado em dados reais',
-      icon: '🧬',
-      color: 'bg-purple-50',
+      id: 'gerador',
+      title: '🧬 Gerador de Dados Sintéticos',
+      description: 'Crie datasets sintéticos realistas com parâmetros avançados',
+      icon: Zap,
+      color: 'bg-blue-50 border-blue-200',
     },
     {
-      id: 'simulator',
-      title: '2️⃣ Simulador de Campanhas',
-      description: 'Testa campanhas em dados sintéticos antes de executar',
-      icon: '🎯',
-      color: 'bg-blue-50',
+      id: 'simulador',
+      title: '🎯 Simulador de Campanhas',
+      description: 'Teste campanhas em dados sintéticos antes de executar',
+      icon: TrendingUp,
+      color: 'bg-purple-50 border-purple-200',
     },
     {
-      id: 'tester',
-      title: '3️⃣ Testador de Insights',
-      description: 'Valida insights em dados sintéticos',
-      icon: '💡',
-      color: 'bg-yellow-50',
+      id: 'testador',
+      title: '🔬 Testador de Insights',
+      description: 'Valide insights em múltiplos cenários sintéticos',
+      icon: BarChart3,
+      color: 'bg-green-50 border-green-200',
     },
     {
-      id: 'validator',
-      title: '4️⃣ Validador de Pesquisas',
-      description: 'Prevê taxa de resposta de pesquisas',
-      icon: '📋',
-      color: 'bg-green-50',
+      id: 'validador',
+      title: '✅ Validador de Pesquisas',
+      description: 'Preveja taxa de resposta e qualidade de dados',
+      icon: FileText,
+      color: 'bg-orange-50 border-orange-200',
     },
     {
-      id: 'predictor',
-      title: '5️⃣ Previsor de Resultados',
-      description: 'Prevê resultados de ações antes de executar',
-      icon: '🔮',
-      color: 'bg-pink-50',
+      id: 'previsor',
+      title: '📊 Previsor de Resultados',
+      description: 'Simule ROI e impacto de ações antes de executar',
+      icon: TrendingUp,
+      color: 'bg-pink-50 border-pink-200',
     },
     {
-      id: 'history',
-      title: '6️⃣ Histórico de Simulações',
-      description: 'Veja todas as simulações e taxa de acerto da IA',
-      icon: '📊',
-      color: 'bg-indigo-50',
+      id: 'historico',
+      title: '📈 Histórico de Simulações',
+      description: 'Acompanhe acurácia das previsões vs resultados reais',
+      icon: BarChart3,
+      color: 'bg-indigo-50 border-indigo-200',
     },
-  ];
-
-  const simulationHistory = [
-    { id: 1, type: 'Campanha', name: 'Retenção VIP', predicted: 'R$ 245k', actual: 'R$ 240k', accuracy: '98%', status: '✅' },
-    { id: 2, type: 'Insight', name: 'Ciclo de Vida', predicted: '2.1x', actual: '2.0x', accuracy: '95%', status: '✅' },
-    { id: 3, type: 'Pesquisa', name: 'NPS', predicted: '78%', actual: '82%', accuracy: '96%', status: '✅' },
-    { id: 4, type: 'Ação', name: 'Email Marketing', predicted: '45%', actual: '42%', accuracy: '93%', status: '✅' },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-4xl">🧪</span>
-            <h1 className="text-4xl font-bold text-gray-900">Laboratório</h1>
-          </div>
-          <p className="text-lg text-gray-600">
-            Teste, simule e valide tudo antes de executar no mundo real
-          </p>
-        </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold">🧪 Laboratório</h1>
+        <p className="text-gray-600">
+          Teste ideias, simule campanhas e valide insights com dados sintéticos realistas
+        </p>
+      </div>
 
-        {/* KPI Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-white">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-gray-600 text-sm mb-2">Dados Sintéticos</p>
-                <p className="text-3xl font-bold text-purple-600">100k</p>
-                <p className="text-xs text-gray-500 mt-2">clientes gerados</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-gray-600 text-sm mb-2">Simulações</p>
-                <p className="text-3xl font-bold text-blue-600">47</p>
-                <p className="text-xs text-gray-500 mt-2">este mês</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-gray-600 text-sm mb-2">Taxa de Acerto</p>
-                <p className="text-3xl font-bold text-green-600">89%</p>
-                <p className="text-xs text-gray-500 mt-2">da IA</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-gray-600 text-sm mb-2">Últimas Simulações</p>
-                <p className="text-3xl font-bold text-pink-600">3h</p>
-                <p className="text-xs text-gray-500 mt-2">atrás</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      {/* KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600">24</div>
+              <p className="text-sm text-gray-600 mt-2">Simulações Executadas</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600">94%</div>
+              <p className="text-sm text-gray-600 mt-2">Acurácia Média</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-purple-600">12.5M</div>
+              <p className="text-sm text-gray-600 mt-2">Registros Gerados</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-600">R$ 2.3M</div>
+              <p className="text-sm text-gray-600 mt-2">ROI Previsto</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="overview">Ferramentas</TabsTrigger>
-            <TabsTrigger value="history">Histórico</TabsTrigger>
-          </TabsList>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="gerador">Gerador Avançado</TabsTrigger>
+          <TabsTrigger value="ferramentas">Todas as Ferramentas</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
-            {/* Tools Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {tools.map((tool) => (
-                <Card key={tool.id} className={`${tool.color} border-2 hover:shadow-lg transition-shadow cursor-pointer`}>
+        {/* Gerador Avançado */}
+        <TabsContent value="gerador" className="space-y-6">
+          <Card className="border-blue-200">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-blue-600" />
+                Gerador de Dados Sintéticos
+              </CardTitle>
+              <CardDescription>
+                Configure parâmetros avançados para gerar datasets realistas
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Quantidade de Registros */}
+              <div className="space-y-3">
+                <label className="text-sm font-semibold">
+                  Quantidade de Registros: {recordCount[0].toLocaleString()}
+                </label>
+                <Slider
+                  value={recordCount}
+                  onValueChange={setRecordCount}
+                  min={1000}
+                  max={10000000}
+                  step={10000}
+                  className="w-full"
+                />
+                <p className="text-xs text-gray-500">Mínimo: 1k | Máximo: 10M</p>
+              </div>
+
+              {/* Segmentação por Região */}
+              <div className="space-y-3">
+                <label className="text-sm font-semibold">Segmentação por Região</label>
+                <div className="grid grid-cols-4 gap-3">
+                  {regions.map((region) => (
+                    <label key={region} className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox
+                        checked={selectedRegions.includes(region)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedRegions([...selectedRegions, region]);
+                          } else {
+                            setSelectedRegions(selectedRegions.filter((r) => r !== region));
+                          }
+                        }}
+                      />
+                      <span className="text-sm">{region}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Faixa Etária */}
+              <div className="space-y-3">
+                <label className="text-sm font-semibold">Faixa Etária</label>
+                <div className="grid grid-cols-5 gap-2">
+                  {ageRanges.map((range) => (
+                    <Button key={range} variant="outline" className="text-xs">
+                      {range}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sazonalidade */}
+              <div className="space-y-3">
+                <label className="text-sm font-semibold">Incluir Sazonalidade</label>
+                <div className="space-y-2">
+                  {seasonalityOptions.map((option) => (
+                    <label key={option.id} className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox
+                        checked={seasonality.includes(option.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSeasonality([...seasonality, option.id]);
+                          } else {
+                            setSeasonality(seasonality.filter((s) => s !== option.id));
+                          }
+                        }}
+                      />
+                      <span className="text-sm">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Calibragem */}
+              <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox
+                    checked={calibrationEnabled}
+                    onCheckedChange={(checked) => setCalibrationEnabled(!!checked)}
+                  />
+                  <span className="text-sm font-semibold">Calibrar com dados reais</span>
+                </label>
+                {calibrationEnabled && (
+                  <div className="space-y-3 mt-4">
+                    <p className="text-xs text-gray-600">
+                      A IA vai analisar seu dataset real e extrair padrões para gerar dados sintéticos mais realistas
+                    </p>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold">Tamanho do dataset real (registros)</label>
+                      <Input
+                        type="number"
+                        value={realDatasetSize}
+                        onChange={(e) => setRealDatasetSize(e.target.value)}
+                        placeholder="Ex: 10000"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Botões de Ação */}
+              <div className="flex gap-3 pt-4">
+                <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+                  <Zap className="w-4 h-4 mr-2" />
+                  Gerar Dataset
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Preview */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Preview dos Dados</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-2 text-left">ID</th>
+                      <th className="px-4 py-2 text-left">Idade</th>
+                      <th className="px-4 py-2 text-left">Região</th>
+                      <th className="px-4 py-2 text-left">Última Compra</th>
+                      <th className="px-4 py-2 text-left">Ticket Médio</th>
+                      <th className="px-4 py-2 text-left">Segmento</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <tr key={i} className="border-t hover:bg-gray-50">
+                        <td className="px-4 py-2">{1000 + i}</td>
+                        <td className="px-4 py-2">{28 + i}</td>
+                        <td className="px-4 py-2">SP</td>
+                        <td className="px-4 py-2">15 dias</td>
+                        <td className="px-4 py-2">R$ {(500 + i * 100).toLocaleString()}</td>
+                        <td className="px-4 py-2">
+                          <Badge variant="outline">Premium</Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Todas as Ferramentas */}
+        <TabsContent value="ferramentas" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {tools.map((tool) => {
+              const IconComponent = tool.icon;
+              return (
+                <Card key={tool.id} className={`border-2 cursor-pointer hover:shadow-lg transition-shadow ${tool.color}`}>
                   <CardHeader>
                     <div className="flex items-start justify-between">
-                      <div>
+                      <div className="flex-1">
                         <CardTitle className="text-lg">{tool.title}</CardTitle>
                         <CardDescription className="mt-2">{tool.description}</CardDescription>
                       </div>
-                      <span className="text-3xl">{tool.icon}</span>
+                      <IconComponent className="w-6 h-6 text-gray-400" />
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Button
-                      onClick={() => {
-                        setSelectedTool(tool.id);
-                        setShowModal(true);
-                      }}
-                      className="w-full"
-                    >
+                    <Button variant="outline" className="w-full">
                       Acessar
                     </Button>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="history">
-            {/* Simulation History */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Histórico de Simulações</CardTitle>
-                <CardDescription>Taxa de acerto: 89% (35/39 simulações)</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4 font-semibold">Tipo</th>
-                        <th className="text-left py-3 px-4 font-semibold">Nome</th>
-                        <th className="text-left py-3 px-4 font-semibold">Previsão</th>
-                        <th className="text-left py-3 px-4 font-semibold">Real</th>
-                        <th className="text-left py-3 px-4 font-semibold">Acerto</th>
-                        <th className="text-left py-3 px-4 font-semibold">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {simulationHistory.map((sim) => (
-                        <tr key={sim.id} className="border-b hover:bg-gray-50">
-                          <td className="py-3 px-4">{sim.type}</td>
-                          <td className="py-3 px-4">{sim.name}</td>
-                          <td className="py-3 px-4 font-semibold">{sim.predicted}</td>
-                          <td className="py-3 px-4 font-semibold">{sim.actual}</td>
-                          <td className="py-3 px-4">
-                            <Badge variant="outline" className="bg-green-50">{sim.accuracy}</Badge>
-                          </td>
-                          <td className="py-3 px-4">{sim.status}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-
-        {/* Modal */}
-        {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <Card className="w-full max-w-2xl">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle>
-                      {tools.find((t) => t.id === selectedTool)?.title}
-                    </CardTitle>
-                    <CardDescription className="mt-2">
-                      {tools.find((t) => t.id === selectedTool)?.description}
-                    </CardDescription>
-                  </div>
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {selectedTool === 'generator' && (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Tipo de Dados</label>
-                      <select className="w-full border rounded px-3 py-2">
-                        <option>Clientes</option>
-                        <option>Transações</option>
-                        <option>Interações</option>
-                        <option>Respostas de Pesquisa</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Quantidade</label>
-                      <select className="w-full border rounded px-3 py-2">
-                        <option>10.000</option>
-                        <option>100.000</option>
-                        <option>1.000.000</option>
-                        <option>10.000.000</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Características</label>
-                      <div className="space-y-2">
-                        <label className="flex items-center">
-                          <input type="checkbox" defaultChecked className="mr-2" /> Idade
-                        </label>
-                        <label className="flex items-center">
-                          <input type="checkbox" defaultChecked className="mr-2" /> Localização
-                        </label>
-                        <label className="flex items-center">
-                          <input type="checkbox" defaultChecked className="mr-2" /> Histórico de Compra
-                        </label>
-                        <label className="flex items-center">
-                          <input type="checkbox" defaultChecked className="mr-2" /> Comportamento Online
-                        </label>
-                      </div>
-                    </div>
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                      Gerar Dados Sintéticos
-                    </Button>
-                  </div>
-                )}
-
-                {selectedTool === 'simulator' && (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Nome da Campanha</label>
-                      <Input placeholder="Ex: Retenção VIP" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Descrição</label>
-                      <textarea
-                        className="w-full border rounded px-3 py-2"
-                        placeholder="Descreva a campanha..."
-                        rows={3}
-                      />
-                    </div>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                      Simular Campanha
-                    </Button>
-                  </div>
-                )}
-
-                {selectedTool === 'tester' && (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Descrição do Insight</label>
-                      <textarea
-                        className="w-full border rounded px-3 py-2"
-                        placeholder="Descreva o insight a testar..."
-                        rows={3}
-                      />
-                    </div>
-                    <Button className="w-full bg-yellow-600 hover:bg-yellow-700">
-                      Testar Insight
-                    </Button>
-                  </div>
-                )}
-
-                {selectedTool === 'validator' && (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Descrição da Pesquisa</label>
-                      <textarea
-                        className="w-full border rounded px-3 py-2"
-                        placeholder="Descreva a pesquisa..."
-                        rows={3}
-                      />
-                    </div>
-                    <Button className="w-full bg-green-600 hover:bg-green-700">
-                      Validar Pesquisa
-                    </Button>
-                  </div>
-                )}
-
-                {selectedTool === 'predictor' && (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Descrição da Ação</label>
-                      <textarea
-                        className="w-full border rounded px-3 py-2"
-                        placeholder="Descreva a ação..."
-                        rows={3}
-                      />
-                    </div>
-                    <Button className="w-full bg-pink-600 hover:bg-pink-700">
-                      Prever Resultados
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+              );
+            })}
           </div>
-        )}
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
