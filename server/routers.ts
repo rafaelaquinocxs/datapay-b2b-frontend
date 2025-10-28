@@ -16,15 +16,15 @@ export const appRouter = router({
 
   auth: router({
     me: publicProcedure.query(async opts => {
-      console.log("[auth.me] Verificando autenticação...");
-      console.log("[auth.me] User:", opts.ctx.user ? `presente (${opts.ctx.user.email})` : "ausente");
+      console.log("[auth.me] Verificando autentica\u00e7\u00e3o...");
       console.log("[auth.me] Empresa:", opts.ctx.empresa ? `presente (${opts.ctx.empresa.email})` : "ausente");
       
       // Retornar empresa se autenticada via JWT customizado
       if (opts.ctx.empresa) {
+        console.log("[auth.me] Retornando empresa ID:", opts.ctx.empresa.id);
         return {
           id: opts.ctx.empresa.id,
-          openId: `empresa-${opts.ctx.empresa.id}`, // Criar um openId virtual
+          openId: `empresa-${opts.ctx.empresa.id}`,
           name: opts.ctx.empresa.nome,
           email: opts.ctx.empresa.email,
           role: 'user' as const,
@@ -32,36 +32,8 @@ export const appRouter = router({
         };
       }
       
-      // Se usuário autenticado via Manus OAuth, criar empresa automaticamente
-      if (opts.ctx.user && opts.ctx.user.email) {
-        console.log("[auth.me] Usuário OAuth detectado:", opts.ctx.user.email);
-        const empresaExistente = await db.getEmpresaByEmail(opts.ctx.user.email);
-        console.log("[auth.me] Empresa existente:", empresaExistente ? `sim (ID: ${empresaExistente.id})` : "não");
-        
-        if (!empresaExistente) {
-          console.log("[auth.me] Criando nova empresa para:", opts.ctx.user.email);
-          // Criar empresa automaticamente para usuário OAuth
-          const novaEmpresa = await db.createEmpresa({
-            nome: opts.ctx.user.name || 'Empresa',
-            email: opts.ctx.user.email,
-            telefone: '',
-          });
-          
-          console.log("[auth.me] Empresa criada com ID:", novaEmpresa.id);
-          return {
-            ...opts.ctx.user,
-            empresaId: novaEmpresa.id,
-          };
-        }
-        
-        console.log("[auth.me] Retornando empresa existente ID:", empresaExistente.id);
-        return {
-          ...opts.ctx.user,
-          empresaId: empresaExistente.id,
-        };
-      }
-      
-      return opts.ctx.user;
+      console.log("[auth.me] Nenhuma empresa autenticada");
+      return null;
     }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);

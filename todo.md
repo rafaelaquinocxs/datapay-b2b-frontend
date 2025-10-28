@@ -491,3 +491,15 @@
   - Adicionar parâmetro ?logged=true na URL
   - Detectar parâmetro e redirecionar no cliente
 
+
+
+
+## 🚨 SIMPLIFICAÇÃO RADICAL DO LOGIN - PRIORIDADE MÁXIMA
+
+- [x] Remover toda a complexidade do Manus OAuth temporariamente
+- [x] Implementar login SIMPLES apenas com email/senha e cooki- [x] Remover conflitos entre dois sistemas de autentica\u00e7\u00e3oTestar login localmente até funcionar 100%
+- [ ] Garantir que funciona em produção antes de adicionar OAuth novamente
+- [x] Simplificar context.ts para usar apenas JWT customizado
+- [x] Simplificar routers.ts para focar apenas em auth.login e auth.registro
+- [x] Remover redirecionamentos complexos e usar apenas window.location.href
+
