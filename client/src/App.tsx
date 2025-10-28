@@ -24,6 +24,7 @@ import CopilatoDados from "./pages/CopilatoDados";
 import AdicionarFonte from "./pages/AdicionarFonte";
 import MapeamentoFontes from "./pages/MapeamentoFontes";
 import ConfiguracaoSincronizacao from "./pages/ConfiguracaoSincronizacao";
+import Laboratorio from "./pages/Laboratorio";
 
 function Router() {
   return (
@@ -110,6 +111,12 @@ function Router() {
       </Route>
 
       {/* 404 */}
+
+      <Route path="/laboratorio">
+        <DashboardLayout>
+          <Laboratorio />
+        </DashboardLayout>
+      </Route>
 
       <Route path="/resumo-perfil">
         <DashboardLayout>

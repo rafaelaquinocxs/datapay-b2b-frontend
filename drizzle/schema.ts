@@ -820,3 +820,60 @@ export const surveyAudit = mysqlTable("survey_audit", {
   detalhes: text("detalhes"), // JSON
 });
 
+
+
+
+// 🧪 LABORATÓRIO - Datasets Sintéticos e Simulações
+export const syntheticDatasets = mysqlTable('synthetic_datasets', {
+  id: serial('id').primaryKey(),
+  companyId: varchar('company_id', { length: 255 }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  dataType: varchar('data_type', { length: 50 }).notNull(),
+  recordCount: int('record_count').notNull(),
+  characteristics: json('characteristics').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
+  status: varchar('status', { length: 50 }).default('draft'),
+  generatedBy: varchar('generated_by', { length: 255 }),
+  dataPreview: json('data_preview'),
+});
+
+export const simulations = mysqlTable('simulations', {
+  id: serial('id').primaryKey(),
+  companyId: varchar('company_id', { length: 255 }).notNull(),
+  datasetId: int('dataset_id').references(() => syntheticDatasets.id),
+  simulationType: varchar('simulation_type', { length: 50 }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  configuration: json('configuration').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  executedAt: timestamp('executed_at'),
+  status: varchar('status', { length: 50 }).default('draft'),
+  executedBy: varchar('executed_by', { length: 255 }),
+});
+
+export const simulationResults = mysqlTable('simulation_results', {
+  id: serial('id').primaryKey(),
+  simulationId: int('simulation_id').references(() => simulations.id).notNull(),
+  metricName: varchar('metric_name', { length: 255 }).notNull(),
+  predictedValue: decimal('predicted_value', { precision: 10, scale: 2 }),
+  actualValue: decimal('actual_value', { precision: 10, scale: 2 }),
+  confidence: decimal('confidence', { precision: 5, scale: 2 }),
+  confidenceInterval: json('confidence_interval'),
+  recommendation: text('recommendation'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
+});
+
+export const simulationHistory = mysqlTable('simulation_history', {
+  id: serial('id').primaryKey(),
+  companyId: varchar('company_id', { length: 255 }).notNull(),
+  simulationId: int('simulation_id').references(() => simulations.id),
+  predictedValue: decimal('predicted_value', { precision: 10, scale: 2 }),
+  actualValue: decimal('actual_value', { precision: 10, scale: 2 }),
+  accuracyPercentage: decimal('accuracy_percentage', { precision: 5, scale: 2 }),
+  createdAt: timestamp('created_at').defaultNow(),
+  simulationType: varchar('simulation_type', { length: 50 }),
+});
+

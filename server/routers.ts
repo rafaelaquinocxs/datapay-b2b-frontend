@@ -1427,6 +1427,67 @@ Forneca a resposta em formato JSON:
         return { success: true, message: 'WhatsApp enviado!' };
       }),
   }),
+
+  laboratory: router({
+    generateDataset: publicProcedure
+      .input(z.object({
+        dataType: z.string(),
+        recordCount: z.number(),
+        characteristics: z.array(z.string()),
+      }))
+      .mutation(async ({ input }) => {
+        const { generateSyntheticDataset } = await import('./services/laboratory');
+        return generateSyntheticDataset('company_1', input.dataType, input.recordCount, input.characteristics);
+      }),
+    
+    simulateCampaign: publicProcedure
+      .input(z.object({
+        datasetId: z.number(),
+        name: z.string(),
+        description: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { simulateCampaign } = await import('./services/laboratory');
+        return simulateCampaign('company_1', input.datasetId, { name: input.name, description: input.description });
+      }),
+    
+    testInsight: publicProcedure
+      .input(z.object({
+        datasetId: z.number(),
+        insightDescription: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { testInsight } = await import('./services/laboratory');
+        return testInsight('company_1', input.datasetId, input.insightDescription);
+      }),
+    
+    validateSurvey: publicProcedure
+      .input(z.object({
+        datasetId: z.number(),
+        surveyDescription: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { validateSurvey } = await import('./services/laboratory');
+        return validateSurvey('company_1', input.datasetId, input.surveyDescription);
+      }),
+    
+    predictOutcome: publicProcedure
+      .input(z.object({
+        datasetId: z.number(),
+        actionDescription: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { predictOutcome } = await import('./services/laboratory');
+        return predictOutcome('company_1', input.datasetId, input.actionDescription);
+      }),
+    
+    getHistory: publicProcedure
+      .query(async () => {
+        const { getSimulationHistory } = await import('./services/laboratory');
+        return getSimulationHistory('company_1');
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
+

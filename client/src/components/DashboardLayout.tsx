@@ -81,6 +81,11 @@ const menuItems = [
     label: "Copiloto de Dados",
     path: "/copiloto-dados",
   },
+  {
+    icon: Lightbulb,
+    label: "🧪 Laboratório",
+    path: "/laboratorio",
+  },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
