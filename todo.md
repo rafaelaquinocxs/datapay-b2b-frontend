@@ -476,3 +476,18 @@
   - Solução: Adicionar logs detalhados no callback do OAuth
   - Solução: Verificar se redirect_uri está correto para produção
 
+
+
+
+## 🎯 Feature: Login com Email/Senha + Google OAuth
+
+- [x] Adicionar formulário de login com email/senha na página Login.tsx
+  - Campos: email e senha ✓
+  - Botão "Entrar" principal ✓
+  - Separador "ou" ✓
+  - Botão "Entrar com Google" abaixo como opção alternativa ✓
+- [ ] Simplificar redirecionamento do OAuth para funcionar em produção
+  - Usar window.location.href no callback
+  - Adicionar parâmetro ?logged=true na URL
+  - Detectar parâmetro e redirecionar no cliente
+

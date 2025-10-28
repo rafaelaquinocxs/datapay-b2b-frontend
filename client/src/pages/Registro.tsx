@@ -1,13 +1,49 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { TrendingUp } from "lucide-react";
 import { getLoginUrl } from "@/const";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import { useState } from "react";
 
 export default function Registro() {
-  const handleGoogleSignup = () => {
-    // Usar a mesma função de login do Google
-    // O OAuth do Manus cria a conta automaticamente se não existir
+  const [, setLocation] = useLocation();
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+
+  const registroMutation = trpc.auth.registro.useMutation({
+    onSuccess: () => {
+      toast.success("Conta criada com sucesso!");
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 500);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao criar conta");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!nome || !email || !senha) {
+      toast.error("Preencha todos os campos");
+      return;
+    }
+
+    if (senha.length < 6) {
+      toast.error("Senha deve ter no mínimo 6 caracteres");
+      return;
+    }
+
+    registroMutation.mutate({ nome, email, senha });
+  };
+
+  const handleGoogleLogin = () => {
     window.location.href = getLoginUrl();
   };
 
@@ -37,9 +73,64 @@ export default function Registro() {
 
           {/* Card de Registro */}
           <Card className="p-8">
-            <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="nome">Nome da Empresa</Label>
+                <Input
+                  id="nome"
+                  type="text"
+                  placeholder="Minha Empresa"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  disabled={registroMutation.isPending}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={registroMutation.isPending}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="senha">Senha</Label>
+                <Input
+                  id="senha"
+                  type="password"
+                  placeholder="••••••••"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  disabled={registroMutation.isPending}
+                />
+                <p className="text-xs text-gray-500">Mínimo 6 caracteres</p>
+              </div>
+
               <Button
-                onClick={handleGoogleSignup}
+                type="submit"
+                className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+                disabled={registroMutation.isPending}
+              >
+                {registroMutation.isPending ? "Criando conta..." : "Criar conta"}
+              </Button>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">ou</span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                onClick={handleGoogleLogin}
                 className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 flex items-center justify-center gap-3 h-12"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -63,30 +154,14 @@ export default function Registro() {
                 Criar conta com Google
               </Button>
 
-              <div className="text-center text-sm text-gray-500">
-                Acesso rápido e seguro com sua conta Google
+              <div className="text-center text-sm text-gray-500 mt-4">
+                Já tem uma conta?{" "}
+                <Link href="/login" className="text-purple-600 hover:text-purple-700 font-medium">
+                  Fazer login
+                </Link>
               </div>
-
-              <div className="text-center text-xs text-gray-500 pt-2">
-                Ao criar uma conta, você concorda com nossos{" "}
-                <a href="#" className="text-purple-600 hover:underline">
-                  Termos de Serviço
-                </a>{" "}
-                e{" "}
-                <a href="#" className="text-purple-600 hover:underline">
-                  Política de Privacidade
-                </a>
-              </div>
-            </div>
+            </form>
           </Card>
-
-          {/* Link para login */}
-          <div className="text-center">
-            <span className="text-sm text-gray-500">Já tem uma conta? </span>
-            <Link href="/login" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
-              Faça login
-            </Link>
-          </div>
 
           {/* Link para landing page */}
           <div className="text-center">
@@ -112,12 +187,12 @@ export default function Registro() {
           </div>
 
           <h2 className="text-4xl font-bold leading-tight">
-            Junte-se às empresas que transformam dados em lucro
+            Transforme seus dados em ações que geram lucro
           </h2>
 
           <p className="text-lg text-purple-100">
-            Nossa IA analisa seus dados, identifica oportunidades e sugere ações criativas
-            que aumentam suas vendas de forma mensurável.
+            A IA analisa seus dados, identifica oportunidades e sugere campanhas criativas
+            que aumentam suas vendas.
           </p>
 
           <div className="space-y-4 pt-4">
@@ -126,9 +201,9 @@ export default function Registro() {
                 <span className="text-sm font-bold">✓</span>
               </div>
               <div>
-                <h3 className="font-semibold mb-1">Configuração em 5 minutos</h3>
+                <h3 className="font-semibold mb-1">Análise Inteligente</h3>
                 <p className="text-sm text-purple-100">
-                  Conecte suas fontes de dados e comece a receber insights imediatamente
+                  IA identifica padrões e oportunidades escondidas nos seus dados
                 </p>
               </div>
             </div>
@@ -138,9 +213,9 @@ export default function Registro() {
                 <span className="text-sm font-bold">✓</span>
               </div>
               <div>
-                <h3 className="font-semibold mb-1">ROI Comprovado</h3>
+                <h3 className="font-semibold mb-1">Ações Criativas</h3>
                 <p className="text-sm text-purple-100">
-                  Empresas aumentam em média 23% suas vendas no primeiro trimestre
+                  Sugestões de campanhas e parcerias baseadas em dados reais
                 </p>
               </div>
             </div>
@@ -150,9 +225,9 @@ export default function Registro() {
                 <span className="text-sm font-bold">✓</span>
               </div>
               <div>
-                <h3 className="font-semibold mb-1">Suporte Dedicado</h3>
+                <h3 className="font-semibold mb-1">Pesquisas Gamificadas</h3>
                 <p className="text-sm text-purple-100">
-                  Time de especialistas para ajudar você a extrair o máximo valor
+                  Colete dados faltantes com engajamento e recompensas
                 </p>
               </div>
             </div>

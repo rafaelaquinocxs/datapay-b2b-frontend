@@ -1,10 +1,42 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { TrendingUp } from "lucide-react";
 import { getLoginUrl } from "@/const";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import { useState } from "react";
 
 export default function Login() {
+  const [, setLocation] = useLocation();
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+
+  const loginMutation = trpc.auth.login.useMutation({
+    onSuccess: () => {
+      toast.success("Login realizado com sucesso!");
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 500);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao fazer login");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !senha) {
+      toast.error("Preencha email e senha");
+      return;
+    }
+
+    loginMutation.mutate({ email, senha });
+  };
+
   const handleGoogleLogin = () => {
     window.location.href = getLoginUrl();
   };
@@ -35,8 +67,50 @@ export default function Login() {
 
           {/* Card de Login */}
           <Card className="p-8">
-            <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={loginMutation.isPending}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="senha">Senha</Label>
+                <Input
+                  id="senha"
+                  type="password"
+                  placeholder="••••••••"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  disabled={loginMutation.isPending}
+                />
+              </div>
+
               <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+                disabled={loginMutation.isPending}
+              >
+                {loginMutation.isPending ? "Entrando..." : "Entrar"}
+              </Button>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">ou</span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
                 onClick={handleGoogleLogin}
                 className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 flex items-center justify-center gap-3 h-12"
               >
@@ -61,10 +135,13 @@ export default function Login() {
                 Entrar com Google
               </Button>
 
-              <div className="text-center text-sm text-gray-500">
-                Acesso rápido e seguro com sua conta Google
+              <div className="text-center text-sm text-gray-500 mt-4">
+                Não tem uma conta?{" "}
+                <Link href="/registro" className="text-purple-600 hover:text-purple-700 font-medium">
+                  Criar conta
+                </Link>
               </div>
-            </div>
+            </form>
           </Card>
 
           {/* Link para landing page */}
