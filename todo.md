@@ -394,3 +394,11 @@
   - Solução: Implementado fallback com GPT para gerar respostas sem depender do banco
   - Status: RESOLVIDO - Copiloto agora funciona com ou sem perfil
 
+
+
+- [x] BUG: Páginas do Laboratório não abrem (Gerador, Simulador, Testador)
+  - Sidebar mostra links mas não navega para as páginas
+  - Problema: Rotas não estavam definidas em App.tsx
+  - Solução: Adicionadas rotas dinâmicas para /laboratorio/gerador, /laboratorio/simulador, /laboratorio/testador
+  - Status: RESOLVIDO
+

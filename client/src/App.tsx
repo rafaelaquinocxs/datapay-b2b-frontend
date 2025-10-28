@@ -118,6 +118,24 @@ function Router() {
         </DashboardLayout>
       </Route>
 
+      <Route path="/laboratorio/gerador">
+        <DashboardLayout>
+          <Laboratorio />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/laboratorio/simulador">
+        <DashboardLayout>
+          <Laboratorio />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/laboratorio/testador">
+        <DashboardLayout>
+          <Laboratorio />
+        </DashboardLayout>
+      </Route>
+
       <Route path="/resumo-perfil">
         <DashboardLayout>
           <ResumoPerfil />

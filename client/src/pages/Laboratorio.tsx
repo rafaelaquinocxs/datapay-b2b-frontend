@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,8 +8,16 @@ import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Download, Zap, TrendingUp, BarChart3, Settings, FileText } from 'lucide-react';
+import { Link } from 'wouter';
 
 export default function Laboratorio() {
+  // Redirecionar para /laboratorio/gerador se acessar /laboratorio diretamente
+  const [redirected] = useState(() => {
+    if (typeof window !== 'undefined' && window.location.pathname === '/laboratorio') {
+      window.location.pathname = '/laboratorio/gerador';
+    }
+    return true;
+  });
   const [activeTab, setActiveTab] = useState('gerador');
   const [recordCount, setRecordCount] = useState([100000]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>(['SP', 'RJ', 'MG']);
