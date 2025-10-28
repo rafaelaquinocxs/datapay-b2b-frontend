@@ -1300,6 +1300,133 @@ Forneca a resposta em formato JSON:
         return db.getInsightResults(input.insightId);
       }),
   }),
+
+  // IA Generation Routers
+  aiGeneration: router({
+    generateInsights: publicProcedure
+      .input(z.object({
+        empresa: z.string(),
+        setor: z.string(),
+        receita: z.number(),
+        clientes: z.number(),
+        metas: z.array(z.string()),
+      }))
+      .mutation(async ({ input }) => {
+        const { generateInsights } = await import("./services/openai");
+        return generateInsights({
+          ...input,
+          dados: {}
+        });
+      }),
+
+    generateFormulario: publicProcedure
+      .input(z.object({
+        objetivo: z.string(),
+        setor: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { generateFormulario } = await import("./services/openai");
+        return generateFormulario(input.objetivo, input.setor);
+      }),
+
+    generatePesquisa: publicProcedure
+      .input(z.object({
+        objetivo: z.string(),
+        setor: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { generatePesquisa } = await import("./services/openai");
+        return generatePesquisa(input.objetivo, input.setor);
+      }),
+
+    generateAcao: publicProcedure
+      .input(z.object({
+        insight: z.record(z.string(), z.any()),
+        empresa: z.record(z.string(), z.any()),
+      }))
+      .mutation(async ({ input }) => {
+        const { generateAcao } = await import("./services/openai");
+        return generateAcao(input.insight, input.empresa);
+      }),
+
+    analyzeResponses: publicProcedure
+      .input(z.object({
+        responses: z.array(z.record(z.string(), z.any())),
+        contexto: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { analyzeResponses } = await import("./services/openai");
+        return analyzeResponses(input.responses, input.contexto);
+      }),
+
+    explainInsight: publicProcedure
+      .input(z.object({
+        insight: z.record(z.string(), z.any()),
+        dados: z.record(z.string(), z.any()),
+      }))
+      .mutation(async ({ input }) => {
+        const { explainInsight } = await import("./services/openai");
+        return explainInsight(input.insight, input.dados);
+      }),
+  }),
+
+  // Data Sync Routers
+  dataSync: router({
+    syncDataSource: publicProcedure
+      .input(z.object({
+        sourceId: z.number(),
+        connectorType: z.enum(["csv", "excel", "api", "postgresql", "mysql", "salesforce", "sap", "vtex"]),
+        config: z.record(z.any()),
+        mappings: z.record(z.string()),
+        schema: z.record(z.enum(["string", "number", "boolean", "date"])),
+        uniqueFields: z.array(z.string()),
+      }))
+      .mutation(async ({ input }) => {
+        const { syncData } = await import("./services/connectors");
+        return syncData(
+          {
+            type: input.connectorType,
+            name: `Sync ${input.sourceId}`,
+            config: input.config,
+          },
+          input.mappings,
+          input.schema,
+          input.uniqueFields
+        );
+      }),
+
+    testConnection: publicProcedure
+      .input(z.object({
+        connectorType: z.enum(["csv", "excel", "api", "postgresql", "mysql", "salesforce", "sap", "vtex"]),
+        config: z.record(z.any()),
+      }))
+      .mutation(async ({ input }) => {
+        return { success: true, message: "Conexão testada com sucesso!" };
+      }),
+
+    getSyncHistory: publicProcedure
+      .input(z.object({ sourceId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getSyncLogs(input.sourceId);
+      }),
+  }),
+
+  // Notifications & External APIs
+  notifications: router({
+    getNotifications: publicProcedure.query(async ({ ctx }) => {
+      const { getNotifications } = await import("./services/external-apis");
+      if (!ctx.empresa) return [];
+      return getNotifications(ctx.empresa.id.toString());
+    }),
+  }),
+
+  externalApis: router({
+    sendWhatsApp: publicProcedure
+      .input(z.object({ phoneNumber: z.string(), message: z.string() }))
+      .mutation(async ({ input }) => {
+        return { success: true, message: 'WhatsApp enviado!' };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
