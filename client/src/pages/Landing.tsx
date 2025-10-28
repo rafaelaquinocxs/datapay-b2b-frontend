@@ -190,7 +190,7 @@ export default function Landing() {
 
       {/* Modal de Diagnóstico */}
       <Dialog open={mostrarDiagnostico} onOpenChange={setMostrarDiagnostico}>
-        <DialogContent className="max-w-[95vw] w-full max-h-[95vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Diagnóstico de Maturidade em Dados</DialogTitle>
             <DialogDescription>
