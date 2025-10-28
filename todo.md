@@ -1,613 +1,307 @@
-# DataPay Enterprise - TODO
-
-## ✅ Concluído
-
-- [x] Tela de Início com onboarding
-- [x] Tela Meus Dados (conectar fontes)
-- [x] Tela Análise da IA (insights + gaps)
-- [x] Tela Pesquisas (gamificadas)
-- [x] Tela Ações Inteligentes
-- [x] Tela Resultados (ROI)
-- [x] Menu lateral com navegação
-- [x] Tema roxo personalizado
-
-## 🚧 Em Desenvolvimento
-
-- [x] Redirecionar página inicial para o diagnóstico
-- [x] Adicionar banco de dados (MySQL via Drizzle ORM)
-- [x] Salvar respostas do diagnóstico no banco
-- [x] Salvar dados das empresas no banco
-- [x] Sistema de autenticação básico (Manus OAuth)
-- [x] APIs tRPC para diagnóstico
-
-## ✅ Concluído Recentemente
-
-- [x] Módulo de Diagnóstico de Maturidade em Dados
-  - [x] Página inicial do diagnóstico
-  - [x] Questionário interativo (5 dimensões, 20 perguntas)
-  - [x] Calculadora de ROI
-  - [x] Relatório visual com gráficos
-  - [ ] Exportação de relatório em PDF
-
-## 📋 Backlog
-
-- [ ] Integração com backend real
-- [ ] Sistema de autenticação
-- [ ] Conectores de APIs (TOTVS, SAP, Salesforce, etc.)
-- [ ] Dashboard de administração
-
-
-
-## 📊 Relatório Power BI / Looker Studio
-
-- [x] Criar especificação do relatório interativo
-- [x] Gerar script SQL para extração de dados
-- [x] Criar guia de configuração do Looker Studio
-- [ ] Desenvolver template visual do dashboard (mockup)
-
-
-
-## 📈 Implementação de Relatórios no Dashboard
-
-- [x] Criar página de Relatórios no dashboard
-- [x] Adicionar iframe do Looker Studio
-- [x] Criar API para exportar dados dos diagnósticos
-- [x] Adicionar botão de exportação de dados (CSV)
-- [x] Adicionar item Relatórios no menu lateral
-- [x] Exibir estatísticas rápidas na página de relatórios
-- [x] Criar tabela de dados brutos
-- [x] Adicionar painel de configuração do banco
-
-
-
-
-## 🔐 Sistema de Autenticação Completo
-
-- [x] Página de Login com email e senha
-- [x] Página de Registro de nova conta
-- [x] APIs de autenticação (login, registro)
-- [x] Hash de senha com bcryptjs
-- [x] Geração de token JWT
-- [ ] Recuperação de senha (email)
-- [ ] Página de Perfil do usuário
-- [ ] Gestão de conta (editar dados, trocar senha)
-- [ ] Proteção de rotas (middleware de autenticação)
-
-## 💳 Gateway de Pagamento
-
-- [ ] Integração com Stripe
-- [ ] Página de Pricing com 3 planos (Starter, Growth, Scale)
-- [ ] Checkout de assinatura
-- [ ] Painel de cobrança (faturas, histórico)
-- [ ] Webhook para atualizar status de assinatura
-- [ ] Cancelamento e upgrade de planos
-
-## 📱 Pesquisas via Link Externo (Mobile-First)
-
-- [ ] Criar página pública de pesquisa (sem login)
-- [ ] Design mobile-first responsivo
-- [ ] Link compartilhável único por pesquisa
-- [ ] Coleta de respostas e salvamento no banco
-- [ ] Sistema de gamificação (pontos, badges)
-- [ ] Página de obrigado após envio
-- [ ] Dashboard para visualizar respostas
-
-## 📊 Melhorias no Relatório
-
-- [ ] Remover dependência do Looker Studio
-- [ ] Implementar gráficos nativos (Recharts/Chart.js)
-- [ ] Conectar com dados reais do banco
-- [ ] Exportação de relatório em PDF
-- [ ] Filtros avançados (data, empresa, score)
-
-## 🏢 Multi-tenancy
-
-- [ ] Isolamento de dados por empresa/tenant
-- [ ] Cada usuário vê apenas seus dados
-- [ ] Sistema de permissões (admin, usuário)
-- [ ] Seletor de empresa (para usuários com múltiplas empresas)
-
-## 🌐 Landing Page de Vendas
-
-- [ ] Hero section com proposta de valor
-- [ ] Seção de benefícios
-- [ ] Seção de como funciona
-- [ ] Pricing com CTAs
-- [ ] Depoimentos/cases de sucesso
-- [ ] Footer com links
-- [ ] Botão "Começar Gratuitamente"
-
-## 👥 Sistema de Usuários Finais (APÓS TUDO ACIMA)
-
-- [ ] Portal para usuários finais
-- [ ] Gamificação completa
-- [ ] Sistema de recompensas
-
-
-
-
-## 🎨 Landing Page e Fluxo de Onboarding
-
-- [x] Criar landing page profissional com hero section
-- [x] Adicionar popup/modal de diagnóstico gratuito na landing
-- [x] Permitir fazer diagnóstico sem login
-- [ ] Após diagnóstico, mostrar popup para criar conta
-- [x] Redirecionar para dashboard completo após login (não para diagnóstico)
-- [x] Criar página inicial do dashboard (Dashboard.tsx)
-- [x] Rota / agora é a landing page
-- [x] Rota /dashboard é o dashboard completo após login
-
-
-
-
-## 📊 Módulo "Meus Dados" - Implementação Completa
-
-### Backend
-- [x] Criar tabela `fontes_dados` no schema do banco
-- [x] API para listar fontes de dados da empresa
-- [x] API para adicionar fonte via upload (CSV/Excel)
-- [x] API para conectar fonte via API (credenciais)
-- [x] API para remover fonte
-- [x] API para atualizar status de sincronização
-- [x] Helpers de banco para fontes de dados
-- [ ] Parser de CSV/Excel (processamento real de arquivos)
-- [ ] Validação e armazenamento de dados importados
-
-### Frontend
-- [x] Implementar upload de arquivos CSV/Excel
-- [x] Formulário de conexão via API com credenciais
-- [x] Lista de fontes conectadas com status
-- [x] Botão para remover fonte
-- [x] Indicadores de status (conectado, sincronizando, erro)
-- [x] Modal de adicionar fonte com múltiplos tipos
-- [x] Suporte para 8 tipos de conexão (CSV, Excel, TOTVS, SAP, Salesforce, VTEX, Linx, API)
-- [ ] Visualização de dados importados (tabela de registros)
-
-## 🔌 Integração com ERPs/CRMs Brasileiros
-
-- [ ] Pesquisar e documentar APIs dos 5 principais ERPs/CRMs
-- [ ] TOTVS Protheus API
-- [ ] SAP Business One API
-- [ ] Salesforce API
-- [ ] VTEX API
-- [ ] Linx API
-
-
-
-
-## 📚 Módulo "Base de Conhecimento"
-
-### Backend
-- [ ] Criar tabela `base_conhecimento` no schema
-- [ ] API para adicionar informações da empresa
-- [ ] API para atualizar base de conhecimento
-- [ ] API para buscar base de conhecimento por empresa
-
-### Frontend
-- [ ] Criar página Base de Conhecimento
-- [ ] Formulário para URL do site
-- [ ] Formulário para missão, visão, valores
-- [ ] Formulário para produtos/serviços
-- [ ] Formulário para público-alvo
-- [ ] Formulário para diferenciais
-- [ ] Upload de documentos (PDFs, apresentações)
-- [ ] Visualização da base de conhecimento salva
-
-## 🤖 Módulo "Análise da IA" - 100% Funcional
-
-### Backend
-- [ ] Instalar SDK da OpenAI
-- [ ] Criar API para gerar insights com GPT-4
-- [ ] Criar prompt inteligente que combina:
-  - Dados das fontes conectadas
-  - Base de conhecimento da empresa
-  - Contexto do setor
-- [ ] API para salvar insights gerados
-- [ ] API para listar histórico de insights
-
-### Frontend
-- [ ] Reescrever página Análise da IA completamente
-- [ ] Botão "Gerar Insights" que chama a IA
-- [ ] Loading state durante geração
-- [ ] Exibição visual dos insights gerados
-- [ ] Cards para cada insight com:
-  - Título
-  - Descrição
-  - Impacto estimado
-  - Ações sugeridas
-- [ ] Histórico de análises anteriores
-- [ ] Botão para regenerar análise
-
-
-
-
-## 🐛 Bugs para Correção
-
-- [x] Login mostra "Login realizado com sucesso!" mas não redireciona para dashboard - CORRIGIDO
-  - Problema: setTimeout de 100ms era insuficiente
-  - Solução: Aumentado para 500ms e adicionados logs de debug
-  - Status: Testado e funcionando perfeitamente
-- [x] Verificar fluxo completo de autenticação e persistência de sessão - VALIDADO
-- [ ] Testar geração de insights com OpenAI GPT-4 no módulo Análise da IA
-- [ ] Validar salvamento de dados em todas as tabelas do banco
-- [ ] Testar upload de arquivos CSV/Excel no módulo Meus Dados
-
-
-
-
-## Modulo Pesquisas Gamificadas - Status Atual
-
-### Bugs Corrigidos Recentemente
-- [x] Login nao redireciona para dashboard - Corrigido com sistema de cookies
-- [x] Chave OpenAI invalida - Agora usa helper invokeLLM
-
-### Backend - Pesquisas
-- [x] Criar tabela pesquisas no schema do banco
-- [x] Criar tabela respostas_pesquisas no schema
-- [x] API para criar pesquisa
-- [x] API para listar pesquisas da empresa
-- [x] API para buscar pesquisa por link publico
-- [x] API para enviar resposta de pesquisa
-- [ ] API para visualizar respostas coletadas
-- [ ] API para gerar relatorio de pesquisa
-
-### Frontend - Pesquisas
-- [x] Pagina de Pesquisas no dashboard
-- [x] Formulario para criar pesquisa
-- [x] Pagina publica para responder pesquisa (RespondePesquisa.tsx)
-- [ ] Listar pesquisas criadas com status
-- [ ] Botao para compartilhar link da pesquisa
-- [ ] Pagina para visualizar respostas coletadas
-- [ ] Graficos de analise de respostas
-
-### Problemas Conhecidos
-- [ ] Criacao de pesquisa nao esta salvando no banco de dados
-  - Possivel causa: Erro na funcao createPesquisa do db.ts
-  - Possivel causa: Erro na validacao de autenticacao no router
-  - Possivel causa: Erro na insercao de dados no MySQL
-
-
-
-
-## Modulo Formulario Inteligente - Status Final
-
-### Backend - Formularios Inteligentes
-- [x] API para gerar sugestoes de formularios com IA
-- [x] API para salvar respostas de formularios
-- [x] Integracao com invokeLLM para chamadas a IA
-- [x] Router analiseIA.gerarSugestoesFormularios criado
-- [x] Router formularios.salvarRespostas criado
-
-### Frontend - Formularios Inteligentes
-- [x] Pagina FormularioInteligente.tsx criada
-- [x] Interface para gerar sugestoes baseadas em dados da empresa
-- [x] Formulario dinamico para responder sugestoes
-- [x] Mutations tRPC para chamar APIs
-- [x] Menu de navegacao atualizado com novo item
-- [x] Rota /formulario-inteligente adicionada ao App.tsx
-
-### Funcionalidades Implementadas
-- [x] Botao "Gerar Sugestoes" que chama a IA
-- [x] Cards com sugestoes de formularios
-- [x] Exibicao de prioridade (alta, media, baixa)
-- [x] Exibicao de impacto estimado
-- [x] Interface para responder cada formulario
-- [x] Botao "Salvar Respostas" para cada formulario
-- [x] Loading states durante processamento
-- [x] Toast notifications para feedback do usuario
-
-### Status Geral do Projeto
-- [x] Landing page com diagnóstico gratuito
-- [x] Sistema de autenticação com cookies
-- [x] Dashboard completo com 8 módulos
-- [x] Módulo de Pesquisas Gamificadas
-- [x] Módulo de Formulário Inteligente com IA
-- [x] Integração com OpenAI GPT-4 via invokeLLM
-- [x] Menu de navegação atualizado
-- [ ] Criação de pesquisas (debug necessário)
-- [ ] Chamada a IA para gerar sugestões (debug necessário)
-
-### Próximos Passos
-1. Debugar criação de pesquisas no banco de dados
-2. Testar chamada a IA para gerar sugestões
-3. Implementar visualização de respostas coletadas
-4. Adicionar gráficos de análise de respostas
-5. Implementar exportação de dados em PDF
-
-
-
-
-## Botão de Compartilhamento para Pesquisas - Concluído
-
-- [x] Adicionar ícone de compartilhamento (Share2 do lucide-react)
-- [x] Implementar função para copiar link para área de transferência
-- [x] Mostrar toast notification ao copiar
-- [x] Adicionar botão em cada card de pesquisa na lista
-- [x] Botão destacado em verde com texto "Compartilhar"
-- [x] Testar funcionalidade de cópia
-
-### Detalhes da Implementação
-- Botão verde (bg-green-600) com ícone Share2 e texto "Compartilhar"
-- Ao clicar, copia o link público da pesquisa para a área de transferência
-- Exibe toast notification confirmando a cópia
-- Link no formato: `{origin}/p/{linkPublico}`
-- Funcionalidade 100% operacional e pronta para uso
-
-
-
-
-## Integração de Dados Reais - Ações Inteligentes e Resultados - CONCLUÍDO
-
-### Análise de Dados Mockados
-- [x] Identificar dados mockados em AcoesInteligentes.tsx
-  - 3 ações recomendadas (Parceria Coca-Cola, Reativação, Upsell)
-  - 1 ação em andamento (Combo Cerveja)
-- [x] Identificar dados mockados em Resultados.tsx
-  - 4 KPIs gerais (Receita, ROI, Conversão, Alcance)
-  - 1 resultado de ação (Combo Cerveja)
-
-### Integração com Backend
-- [x] Criar tabela `acoes_inteligentes` no schema
-  - Campos: id, empresaId, titulo, tipo, descricao, baseadoEm, potencialLucro, roi, implementacao, status, prioridade
-- [x] Criar tabela `resultados_acoes` no schema
-  - Campos: id, acaoId, periodo, investimento, receita, lucro, roi, conversao, alcance, status
-- [x] API para listar ações inteligentes por empresa
-- [x] API para listar resultados de ações
-- [x] API para atualizar status de ação
-
-### Frontend - Ações Inteligentes
-- [x] Substituir dados mockados por chamada tRPC
-- [x] Carregar ações da API ao montar componente
-- [x] Mostrar loading state enquanto carrega
-- [x] Tratar erro se API falhar
-
-### Frontend - Resultados
-- [x] Substituir dados mockados por chamada tRPC
-- [x] Carregar resultados da API ao montar componente
-- [x] Calcular KPIs dinamicamente a partir dos dados
-- [x] Mostrar loading state enquanto carrega
-- [x] Tratar erro se API falhar
-
-### Dados Iniciais
-- [ ] Criar ações inteligentes de exemplo no banco para empresa de teste
-- [ ] Criar resultados de exemplo para as ações
-- [x] Validar que os dados aparecem corretamente na UI (Testado e funcionando)
-
-
-
-
-## 🚨 Erros de Build para Correção
-
-- [ ] ERR_INVALID_THIS - Erro de contexto this em algum arquivo
-- [ ] ERR_INVALID_URL - Erro de URL inválida 
-- [ ] Deployment travando em "Redirecionando"
-- [ ] Verificar logs de build completos
-
-
-
-
-## 🚨 BUG CRÍTICO - Login não redireciona
-
-- [ ] Login mostra logs "Redirecionando para /dashboard..." mas não sai da tela de login
-- [ ] setLocation("/dashboard") não está funcionando
-- [ ] Possível problema: wouter não está redirecionando corretamente
-- [ ] Solução: usar window.location.href ao invés de setLocation
-
-
-
-
-## 🚨 BUG CRÍTICO URGENTE - Login não funciona
-
-- [ ] Login mostra rodinha girando, pisca e volta para tela de login
-- [ ] window.location.href não está funcionando
-- [ ] Possível problema: cookie não está sendo salvo corretamente
-- [ ] Possível problema: auth.me está retornando null após login
-- [ ] Solução: verificar se cookie está sendo setado no response
-- [ ] Solução: verificar se auth.me está lendo o cookie corretamente
-
-
-
-
-## Ajustes para Apresentação ao Investidor
-
-- [x] Remover seção "CONFIADO POR GRANDES EMPRESAS" da landing page
-- [x] Remover logos: Magazine Luiza, Ambev, Nike, Renner
-- [x] Remover texto de empresas da página de Login
-
-
-
-
-## 🚨 BUG CRÍTICO - Login não funciona em produção (manus.space)
-
-- [x] Login funciona em dev mas não em produção
-- [x] Usuário é criado no banco mas login não redireciona
-- [x] Possível problema: cookies não sendo salvos no domínio manus.space
-- [x] Possível problema: configuração de cookies para produção
-- [x] Solução: Ajustado sameSite para "lax" em HTTP e "none" em HTTPS
-- [ ] Testar login em produção após correção
-
-
-
-
-## 🚨 BUG CRÍTICO - Loop de Redirecionamento após Login
-
-- [x] Corrigir loop de redirecionamento após login com Google OAuth
-  - Problema: Rota `/` mostra Landing Page mesmo quando usuário está autenticado
-  - Após login, sistema redireciona para `/` que mostra Landing Page novamente
-  - Usuário clica em "Entrar" e entra em loop infinito
-  - Solução: Implementar lógica de redirecionamento inteligente na rota `/`
-  - Se usuário NÃO autenticado → Mostra Landing Page
-  - Se usuário ESTÁ autenticado → Redireciona automaticamente para `/dashboard`
-
-
-
-
-## 🎯 Feature: Botão de Logout na Sidebar
-
-- [x] Adicionar botão de logout funcional na sidebar do DashboardLayout
-  - Deve aparecer no final da sidebar (footer)
-  - Ícone de logout (LogOut do lucide-react)
-  - Ao clicar, chama trpc.auth.logout.useMutation()
-  - Após logout, redireciona para a landing page (/)
-  - Mostrar toast notification de sucesso
-
-
-
-
-## 🚨 BUG CRÍTICO - Home.tsx não detecta autenticação
-
-- [x] Home.tsx não está detectando que usuário está autenticado
-  - Problema: Após login com Google, mostra "Bem-vindo de volta" mas continua na página de Login
-  - OAuth callback redireciona para `/` mas Home.tsx não redireciona para `/dashboard`
-  - Possível causa: useAuth() retornando isAuthenticated = false mesmo com usuário logado
-  - Solução: Modificar oauth.ts para redirecionar direto para `/dashboard` ao invés de `/`
-
-
-
-
-## 🚨 BUG CRÍTICO - OAuth não funciona em produção
-
-- [x] OAuth funciona no sandbox mas não funciona em produção (publicado) - LOGS ADICIONADOS
-  - Problema: Após selecionar conta Google, volta para tela de Login
-  - Funciona perfeitamente no ambiente de desenvolvimento
-  - Não funciona no domínio manus.space publicado
-  - Possível causa: Configuração de redirect_uri diferente entre dev e produção
-  - Possível causa: Cookie não sendo salvo no domínio de produção
-  - Solução: Adicionar logs detalhados no callback do OAuth
-  - Solução: Verificar se redirect_uri está correto para produção
-
-
-
-
-## 🎯 Feature: Login com Email/Senha + Google OAuth
-
-- [x] Adicionar formulário de login com email/senha na página Login.tsx
-  - Campos: email e senha ✓
-  - Botão "Entrar" principal ✓
-  - Separador "ou" ✓
-  - Botão "Entrar com Google" abaixo como opção alternativa ✓
-- [ ] Simplificar redirecionamento do OAuth para funcionar em produção
-  - Usar window.location.href no callback
-  - Adicionar parâmetro ?logged=true na URL
-  - Detectar parâmetro e redirecionar no cliente
-
-
-
-
-## 🚨 SIMPLIFICAÇÃO RADICAL DO LOGIN - PRIORIDADE MÁXIMA
-
-- [x] Remover toda a complexidade do Manus OAuth temporariamente
-- [x] Implementar login SIMPLES apenas com email/senha e cooki- [x] Remover conflitos entre dois sistemas de autentica\u00e7\u00e3oTestar login localmente até funcionar 100%
-- [ ] Garantir que funciona em produção antes de adicionar OAuth novamente
-- [x] Simplificar context.ts para usar apenas JWT customizado
-- [x] Simplificar routers.ts para focar apenas em auth.login e auth.registro
-- [x] Remover redirecionamentos complexos e usar apenas window.location.href
-
-
-
-
-## 🚨 URGENTE - REMOVER LOGIN COMPLETAME- [x] Remover sistema de autentica\u00e7\u00e3o comple- [x] Remover ProtectedRoute - tornar todas as rotas p\u00fablicas- [x] Rota / redireciona direto para /dashb- [x] Remover p\u00e1ginas Login.tsx e Registro.tsx- [x] Remover bot\u00e3o "Entrar" do header da landing page- [x] Sistema funciona SEM LOGIN para apresenta\u00e7\u00e3o ao investidor
-
-
-## 🐛 BUG - Páginas ainda usando useAuth
-
-- [x] Remover useAuth de MeusDados.t- [x] Verificar e remover useAuth de todas as outras p\u00e1ginas- [x] Substituir por mock de empresa onde necess\u00e1rio
-
-
-## 🎯 Dados Mockados para Apresentação ao Investidor
-- [x] Trocar "Empresa Demo" por "Jaime" em todas as p\u00e1ginas ] Adicionar dados mockados em MeusDados (fontes de dados conectadas)
-- [ ] Adicionar dados mockados em AnaliseIA (insights e análises)
-- [ ] Adicionar dados mockados em Pesquisas (pesquisas criadas)
-- [ ] Adicionar dados mockados em AcoesInteligentes (campanhas sugeridas)
-- [ ] Adicionar dados mockados em Resultados (ROI e performance)
-- [ ] Adicionar dados mockados em BaseConhecimento (informações da empresa)
-- [ ] Adicionar dados mockados em FormularioInteligente (sugestões de IA)
-- [ ] Garantir que TODAS as funcionalidades sejam testáveis pelo investidor
-
-
-
-
-## 🚀 VERIFICAÇÃO FUNCIONAL COMPLETA - Backend Real
-
-- [x] Verificar se MeusDados conecta com banco de dados real
-- [ ] Verificar se é possível adicionar fontes de dados (upload, API, etc)
-- [ ] Verificar se AnaliseIA gera insights reais usando IA
-- [ ] Verificar se Pesquisas salva no banco e gera links públicos
-- [ ] Verificar se AcoesInteligentes funciona com dados reais
-- [ ] Verificar se Resultados mostra dados do banco
-- [ ] Verificar se BaseConhecimento salva informações no banco
-- [ ] Verificar se FormularioInteligente gera sugestões com IA real
-- [ ] Garantir que investidor possa testar TUDO funcionando
-- [x] Sistema limpo (sem dados mockados) mas 100% funcional
-
-
-
-
-## 🐛 BUG - Dados mockados ainda presentes
-
-- [x] Verificar e remover dados mockados de TODOS os men- [x] Garantir que TODAS as p\u00e1ginas busquem dados do banco real- [x] Testar cada funcionalidade individualmente
-
-
-
-## 🎨 Melhorias de UX/UI - Fluxo de Trabal- [x] Reordenar sidebar seguindo fluxo l\u00f3gico de uso da plataforma  1. Base de Conhecimento (conectar informações da empresa)
-  2. Meus Dados (conectar fontes de dados)
-  3. Análise da IA (gerar insights)
-  4. Formulário Inteligente (coletar dados)
-  5. Pesquisas (engajar usuários)
-  6. Ações Inteligentes (executar campanhas)
-  7. Resultados (medir ROI)
-  8. Relatórios (visualiz- [x] Adicionar se\u00e7\u00e3o "Como Funciona" no Dashboard
-  - Mostrar fluxo de trabalho visual (timeline/steps)
-  - Explicar cada etapa do processo
-  - Tornar navegação mais intuitiva
-  - Posicionar ANTES dos "Módulos da Plataforma"
-
-
-
-
-## 🐛 BUG - Acentos aparecendo como códigos Unicode
-
-- [ ] Corrigir todos os textos com acentos no Dashboard
-- [ ] Corrigir acentos em todas as páginas da plataforma
-- [ ] Garantir que acentos apareçam corretamente (ç, ã, é, etc)
-
-
-
-
-## 🐛 BUG - Dados mockados na página Análise da - [x] Remover todos os dados mockados/fake da p\u00e1gina AnaliseIA.- [x] Deixar p\u00e1gina vazia (0 insights) at\u00e9 conectar- [x] Garantir que an\u00e1lises venham do banco de dados reall
-- [ ] Testar upload de Excel e geração de insights reais com OpenAI
-
-
-
-
-## 🐛 BUG PRIORITÁRIO - Botão "Gerar Sugestões" não funciona
-
-- [x] Botão "Gerar Sugestões" no Formulário Inteligente não responde ao clique
-- [x] Verificar se função gerarSugestoes() está sendo chamada corretamente
-- [x] Verificar se mutation está configurada corretamente
-- [x] Testar geração de sugestões de formulários com dados reais
-
-
-
-
-## 🐛 BUG CRÍTICO - Página Ações Inteligentes não existe (404)
-
-- [x] Criar página AcoesInteligentes.tsx completa
-- [ ] Adicionar botão "Gerar Ações" na página
-- [ ] Criar rota backend gerarAcoesInteligentes baseada nos insights
-- [x] Adicionar rota /acoes-inteligentes no App.tsx
-- [ ] Testar geração de ações com dados reais do pet shop
-
-
-
-
-## 🎯 NOVAS FEATURES - Modal de Ativação de Ações
-
-- [ ] Corrigir cálculo de receita no prompt da IA (valores muito grandes)
-- [ ] Criar modal "Ativar Ação" com checklist interativo
-- [ ] Adicionar lista de passos com checkboxes
-- [ ] Adicionar barra de progresso (X/Y passos concluídos)
-- [ ] Adicionar botão "Salvar Progresso"
-- [ ] Permitir mudar status da ação (Recomendada → Em Andamento → Concluída)
-- [ ] Testar modal com dados reais
+# DataPay Enterprise - Roadmap de Escalabilidade
+
+## 🎯 OBJETIVO: Escalar de 5k/mês (MVP) → 20k+/mês (Enterprise) → 1 Bilhão
+
+---
+
+## ✅ FASE 1: INTEGRAÇÕES NATIVAS + GOVERNANÇA (Curto Prazo - 4 semanas)
+
+### 🔌 Integrações com ERPs/CRMs (Semana 1-2)
+
+- [ ] **Integração SAP**
+  - [ ] Autenticação OAuth com SAP
+  - [ ] Sincronização automática de clientes
+  - [ ] Sincronização de pedidos e faturamento
+  - [ ] Sincronização de estoque
+  - [ ] Agendamento de sincronizações (diárias/horárias)
+
+- [ ] **Integração TOTVS**
+  - [ ] Autenticação com TOTVS
+  - [ ] Sincronização de dados financeiros
+  - [ ] Sincronização de CRM integrado
+  - [ ] Extração de relatórios automáticos
+
+- [ ] **Integração Salesforce**
+  - [ ] Autenticação OAuth Salesforce
+  - [ ] Sincronização de leads e oportunidades
+  - [ ] Sincronização de clientes e contas
+  - [ ] Sincronização de histórico de vendas
+
+- [ ] **Integração HubSpot**
+  - [ ] Autenticação HubSpot API
+  - [ ] Sincronização de contatos
+  - [ ] Sincronização de deals
+  - [ ] Sincronização de campanhas
+
+- [ ] **Integração Odoo**
+  - [ ] Autenticação Odoo XML-RPC
+  - [ ] Sincronização de produtos
+  - [ ] Sincronização de vendas
+  - [ ] Sincronização de clientes
+
+### 🔐 Governança & Compliance LGPD (Semana 2-3)
+
+- [ ] **Sistema de Permissões Multi-usuário**
+  - [ ] Roles: Admin, Gerente, Analista, Visualizador
+  - [ ] Controle granular de acesso por módulo
+  - [ ] Controle de acesso por dados (ex: vendedor só vê seus dados)
+  - [ ] Delegação de permissões
+
+- [ ] **Auditoria e Logs**
+  - [ ] Log de todas as ações de usuário
+  - [ ] Log de acessos a dados sensíveis
+  - [ ] Log de mudanças em configurações
+  - [ ] Retenção de logs por 2 anos (LGPD)
+  - [ ] Dashboard de auditoria para compliance
+
+- [ ] **Conformidade LGPD**
+  - [ ] Consentimento explícito para coleta de dados
+  - [ ] Direito ao esquecimento (deletar dados de cliente)
+  - [ ] Portabilidade de dados (exportar em formato aberto)
+  - [ ] Criptografia de dados em repouso e em trânsito
+  - [ ] Política de privacidade e termos de serviço
+
+- [ ] **Segurança**
+  - [ ] 2FA (autenticação de dois fatores)
+  - [ ] SSO (Single Sign-On) com Azure AD / Okta
+  - [ ] Backup automático e recuperação de desastres
+  - [ ] Teste de penetração (pen test)
+
+### 📊 Data Pipeline Automático (Semana 3-4)
+
+- [ ] **ETL (Extract, Transform, Load)**
+  - [ ] Limpeza automática de dados duplicados
+  - [ ] Padronização de formatos (datas, moedas, etc)
+  - [ ] Validação de integridade de dados
+  - [ ] Tratamento de valores nulos e outliers
+
+- [ ] **Agendamento de Sincronizações**
+  - [ ] Interface para configurar frequência de sync
+  - [ ] Sincronização em tempo real para dados críticos
+  - [ ] Fila de processamento (queue) para grandes volumes
+  - [ ] Notificações de falha de sincronização
+
+---
+
+## 🚀 FASE 2: AUTOMAÇÃO ACIONÁVEL + RELATÓRIOS EXECUTIVOS (Médio Prazo - 8 semanas)
+
+### ⚙️ Automação Acionável (Semana 1-3)
+
+- [ ] **Botão "Executar Agora" para Ações**
+  - [ ] Integração com Salesforce para disparar campanha
+  - [ ] Integração com HubSpot para criar tarefa
+  - [ ] Integração com ERP para aplicar desconto automático
+  - [ ] Integração com CRM para atualizar estágio do lead
+  - [ ] Integração com e-mail marketing (Klaviyo, RD Station)
+
+- [ ] **Workflow Automático**
+  - [ ] Criar fluxo de trabalho visual (no-code)
+  - [ ] Disparar ações baseadas em eventos (ex: cliente inativo → enviar e-mail)
+  - [ ] Agendamento de ações (ex: executar campanha toda segunda-feira)
+  - [ ] Histórico de execução de ações
+
+- [ ] **Integração com Ferramentas de Produtividade**
+  - [ ] Criar tarefa no Asana / Monday / Trello
+  - [ ] Criar evento no Google Calendar / Outlook
+  - [ ] Enviar notificação no Slack / Teams
+  - [ ] Integração com Zapier / Make para automações customizadas
+
+### 📈 Relatórios Executivos Premium (Semana 3-6)
+
+- [ ] **Relatórios Board-Ready**
+  - [ ] Geração automática de PDF executivo
+  - [ ] Gráficos profissionais (ROI, receita, churn, LTV, CAC)
+  - [ ] Resumo executivo com recomendações
+  - [ ] Comparação com período anterior
+  - [ ] Exportação em PowerPoint para apresentação
+
+- [ ] **Métricas Avançadas**
+  - [ ] LTV (Lifetime Value) por cliente/segmento
+  - [ ] CAC (Customer Acquisition Cost)
+  - [ ] Payback period
+  - [ ] Churn rate e retenção
+  - [ ] NPS (Net Promoter Score)
+  - [ ] Análise de coorte
+
+- [ ] **Dashboards Personalizados por Cargo**
+  - [ ] Dashboard CFO: receita, margem, fluxo de caixa
+  - [ ] Dashboard CMO: leads, conversão, CAC, LTV
+  - [ ] Dashboard CEO: KPIs estratégicos, crescimento
+  - [ ] Dashboard de Vendas: pipeline, taxa de fechamento
+
+- [ ] **Exportação para BI**
+  - [ ] Integração com Power BI (via API)
+  - [ ] Integração com Looker Studio (via BigQuery)
+  - [ ] Integração com Tableau (via API)
+  - [ ] Exportação em formato CSV/Excel/JSON
+
+### 💰 Simulação de Impacto Financeiro (Semana 6-8)
+
+- [ ] **Calculadora de ROI Avançada**
+  - [ ] Simular impacto de cada ação (receita, economia)
+  - [ ] Mostrar payback period realista
+  - [ ] Projeção de receita acumulada ao longo de 12 meses
+  - [ ] Análise de sensibilidade (e se aumentar X%?)
+
+- [ ] **Roadmap de Impacto Acumulado**
+  - [ ] Mostrar como cada ação se soma ao longo do tempo
+  - [ ] Projeção de crescimento mês a mês
+  - [ ] Identificar ações de maior impacto para priorizar
+
+---
+
+## 🌟 FASE 3: BENCHMARKING SETORIAL + MARKETPLACE (Longo Prazo - 12 semanas)
+
+### 📊 Benchmarking Setorial (Semana 1-4)
+
+- [ ] **Coleta de Dados de Mercado**
+  - [ ] Parceria com associações setoriais
+  - [ ] Agregação de dados de clientes (anonimizados)
+  - [ ] Dados públicos de concorrentes
+  - [ ] Pesquisas de mercado externas
+
+- [ ] **Análise Comparativa**
+  - [ ] Comparar empresa com média do setor
+  - [ ] Identificar gaps em relação aos líderes
+  - [ ] Mostrar oportunidades de melhoria
+  - [ ] Recomendações baseadas em benchmarks
+
+- [ ] **Relatório de Maturidade em Dados**
+  - [ ] Nível de maturidade (1-5)
+  - [ ] Comparação com empresas do mesmo setor
+  - [ ] Roadmap para próximo nível
+  - [ ] Estimativa de impacto financeiro
+
+### 🛒 Marketplace de Dados (Semana 5-8)
+
+- [ ] **Plataforma de Compra/Venda de Dados**
+  - [ ] Catálogo de datasets disponíveis
+  - [ ] Sistema de precificação
+  - [ ] Integração de pagamento (Stripe)
+  - [ ] Contratos de dados (termos de uso)
+
+- [ ] **Dados Disponíveis para Venda**
+  - [ ] Dados agregados de comportamento de consumidor
+  - [ ] Tendências de mercado por setor
+  - [ ] Previsões de demanda
+  - [ ] Análise de concorrência
+
+### 🤖 Inteligência Preditiva em Tempo Real (Semana 9-12)
+
+- [ ] **Previsões Automáticas**
+  - [ ] Prever churn de clientes (com 60+ dias de antecedência)
+  - [ ] Prever oportunidades de upsell/cross-sell
+  - [ ] Prever demanda de produtos
+  - [ ] Prever sazonalidade
+
+- [ ] **Alertas Proativos**
+  - [ ] "Identificamos que cliente X tem 70% de chance de sair"
+  - [ ] "Oportunidade de vender Y para cliente Z (ROI estimado: R$ 50k)"
+  - [ ] "Demanda de produto A vai aumentar 40% no próximo mês"
+
+- [ ] **Recomendações Contínuas**
+  - [ ] Atualizar recomendações de ações diariamente
+  - [ ] Priorizar por impacto financeiro
+  - [ ] Mostrar confiança da previsão
+
+---
+
+## 📋 BACKLOG GERAL
+
+### Melhorias no Dashboard
+- [ ] Adicionar alertas automáticos ("Oportunidade identificada: reduzir churn em 15%")
+- [ ] Personalização por setor (varejo, saúde, indústria, etc)
+- [ ] Benchmarks de mercado na tela inicial
+- [ ] Histórico de ações e resultados
+
+### Melhorias na Base de Conhecimento
+- [ ] Importar automaticamente dados do site da empresa
+- [ ] Extrair dados de redes sociais (LinkedIn, Instagram)
+- [ ] Gerar SWOT automático
+- [ ] Gerar matriz BCG
+- [ ] Análise de proposta de valor vs concorrência
+
+### Melhorias em Meus Dados
+- [ ] Validação de qualidade de dados (score)
+- [ ] Recomendações de limpeza de dados
+- [ ] Histórico de sincronizações
+- [ ] Alertas de dados faltantes
+
+### Melhorias em Análise da IA
+- [ ] Matriz de impacto/esforço (priorização)
+- [ ] Integração com Trello/Asana (transformar insights em tarefas)
+- [ ] Histórico de insights gerados
+- [ ] Feedback do usuário (insight foi útil?)
+
+### Melhorias em Formulários Inteligentes
+- [ ] Biblioteca de templates por setor
+- [ ] Automação de distribuição (e-mail, WhatsApp, SMS)
+- [ ] Análise de respostas em tempo real
+- [ ] Relacionar respostas com ROI esperado
+
+### Melhorias em Pesquisas Gamificadas
+- [ ] Biblioteca de templates de pesquisa
+- [ ] Integração com DataCoins (recompensas reais)
+- [ ] Relacionar pesquisas com KPIs (churn, LTV, ticket médio)
+- [ ] Análise de engajamento
+
+### Melhorias em Ações Inteligentes
+- [ ] Botão "Executar Agora" com integrações
+- [ ] Transparência total de ROI (baseado em dados reais)
+- [ ] Roadmap de impacto acumulado
+- [ ] Histórico de ações executadas
+
+### Melhorias em Resultados
+- [ ] Simulação de impacto (e se implementar X?)
+- [ ] Exportação executiva (PDF/PowerPoint)
+- [ ] Métricas avançadas (LTV, CAC, payback, churn)
+- [ ] Comparação com benchmark do setor
+
+### Melhorias em Relatórios
+- [ ] Benchmarking setorial
+- [ ] Relatórios customizados por cargo (CFO, CMO, CEO)
+- [ ] Exportação para BI (Power BI, Looker, Tableau)
+- [ ] Agendamento de relatórios por e-mail
+
+---
+
+## 🎯 MARCOS CRÍTICOS
+
+- **Semana 4:** Fase 1 completa (integrações + governança) → Justifica R$ 10k/mês
+- **Semana 12:** Fase 2 completa (automação + relatórios) → Justifica R$ 20k/mês
+- **Semana 24:** Fase 3 completa (benchmarking + marketplace) → Justifica R$ 50k+/mês
+- **Ano 2:** Marketplace + IA preditiva → Caminho para R$ 1 bilhão
+
+---
+
+## 💡 ESTRATÉGIA DE VENDAS
+
+### Ticket 5k/mês (MVP Atual)
+- Coleta de dados + Insights básicos + Pesquisas
+
+### Ticket 10k/mês (Após Fase 1)
+- + Integrações com ERPs/CRMs
+- + Governança LGPD
+- + Multi-usuário com permissões
+
+### Ticket 20k/mês (Após Fase 2)
+- + Automação acionável
+- + Relatórios executivos
+- + Métricas avançadas (LTV, CAC, churn)
+
+### Ticket 50k+/mês (Após Fase 3)
+- + Benchmarking setorial
+- + Marketplace de dados
+- + IA preditiva em tempo real
+- + Suporte dedicado
+
+---
+
+## 📞 PRÓXIMOS PASSOS
+
+1. ✅ Revisar este roadmap com stakeholders
+2. ⏳ Priorizar features por impacto/esforço
+3. ⏳ Começar Fase 1 (Integrações + Governança)
+4. ⏳ Montar equipe de desenvolvimento
+5. ⏳ Definir SLAs e métricas de sucesso
 
