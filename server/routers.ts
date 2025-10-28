@@ -15,7 +15,7 @@ export const appRouter = router({
   system: systemRouter,
 
   auth: router({
-    me: publicProcedure.query(opts => {
+    me: publicProcedure.query(async opts => {
       // Retornar empresa se autenticada via JWT customizado
       if (opts.ctx.empresa) {
         return {
@@ -27,6 +27,31 @@ export const appRouter = router({
           empresaId: opts.ctx.empresa.id,
         };
       }
+      
+      // Se usuário autenticado via Manus OAuth, criar empresa automaticamente
+      if (opts.ctx.user && opts.ctx.user.email) {
+        const empresaExistente = await db.getEmpresaByEmail(opts.ctx.user.email);
+        
+        if (!empresaExistente) {
+          // Criar empresa automaticamente para usuário OAuth
+          const novaEmpresa = await db.createEmpresa({
+            nome: opts.ctx.user.name || 'Empresa',
+            email: opts.ctx.user.email,
+            telefone: '',
+          });
+          
+          return {
+            ...opts.ctx.user,
+            empresaId: novaEmpresa.id,
+          };
+        }
+        
+        return {
+          ...opts.ctx.user,
+          empresaId: empresaExistente.id,
+        };
+      }
+      
       return opts.ctx.user;
     }),
     logout: publicProcedure.mutation(({ ctx }) => {
