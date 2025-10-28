@@ -719,14 +719,16 @@ Para cada acao, forneca:
 - tipo: Tipo de acao (ex: "Email Marketing", "Programa de Fidelidade", "Parceria", etc)
 - descricao: Descricao detalhada da acao
 - baseadoEm: Qual insight motivou esta acao
-- potencialLucro: Estimativa de lucro (ex: "R$ 15.000/mes")
-- roi: ROI estimado em % (ex: "250%")
+- potencialLucro: Estimativa REALISTA de lucro mensal (ex: "R$ 15.000/mes" ou "R$ 25.000/mes"). IMPORTANTE: Valores devem ser entre R$ 5.000 e R$ 100.000/mes, nunca maiores!
+- roi: ROI estimado em % (ex: "250%" ou "350%"). Valores entre 100% e 500%
 - implementacao: Passos para implementar
 - prioridade: "Alta", "Media" ou "Baixa"
 - acoes: Array de 3-5 passos praticos
 
+IMPORTANTE: Garanta que potencialLucro e roi sejam valores REALISTAS e pequenos (nao coloque numeros gigantes).
+
 Forneca a resposta em formato JSON:
-{"acoes": [{"titulo": "...", "tipo": "...", "descricao": "...", "baseadoEm": "...", "potencialLucro": "...", "roi": "...", "implementacao": "...", "prioridade": "Alta", "acoes": ["..."]}]}`;
+{"acoes": [{"titulo": "...", "tipo": "...", "descricao": "...", "baseadoEm": "...", "potencialLucro": "R$ 20.000/mes", "roi": "300%", "implementacao": "...", "prioridade": "Alta", "acoes": ["Passo 1", "Passo 2", "Passo 3"]}]}`;
 
           const response = await invokeLLM({
             messages: [{ role: "user", content: prompt }],

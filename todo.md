@@ -598,3 +598,16 @@
 - [x] Adicionar rota /acoes-inteligentes no App.tsx
 - [ ] Testar geração de ações com dados reais do pet shop
 
+
+
+
+## 🎯 NOVAS FEATURES - Modal de Ativação de Ações
+
+- [ ] Corrigir cálculo de receita no prompt da IA (valores muito grandes)
+- [ ] Criar modal "Ativar Ação" com checklist interativo
+- [ ] Adicionar lista de passos com checkboxes
+- [ ] Adicionar barra de progresso (X/Y passos concluídos)
+- [ ] Adicionar botão "Salvar Progresso"
+- [ ] Permitir mudar status da ação (Recomendada → Em Andamento → Concluída)
+- [ ] Testar modal com dados reais
+

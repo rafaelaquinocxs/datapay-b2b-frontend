@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-
+import { ModalAtivarAcao } from "@/components/ModalAtivarAcao";
 import { trpc } from "@/lib/trpc";
 import {
   Sparkles,
@@ -30,10 +30,10 @@ const colorMap: Record<string, { bg: string; text: string; icon: string }> = {
   "Retenção": { bg: "bg-orange-100", text: "text-orange-700", icon: "text-orange-600" },
   "Upsell": { bg: "bg-green-100", text: "text-green-700", icon: "text-green-600" },
   "Default": { bg: "bg-blue-100", text: "text-blue-700", icon: "text-blue-600" },
-};
-
-export default function AcoesInteligentes() {
-  const empresaId = 1; // Mock para apresenta\u00e7\u00e3o
+};export default function AcoesInteligentes() {
+  const [modalAberto, setModalAberto] = useState(false);
+  const [acaoSelecionada, setAcaoSelecionada] = useState<any>(null);
+  const empresaId = 1; // Mock para apresentaçãou00e7\u00e3o
 
   // Buscar a\u00e7\u00f5es inteligentes
   const { data: acoes = [], isLoading, refetch } = trpc.acoesInteligentes.listar.useQuery(
@@ -282,6 +282,10 @@ export default function AcoesInteligentes() {
                     <Button
                       size="sm"
                       className="bg-purple-600 hover:bg-purple-700"
+                      onClick={() => {
+                        setAcaoSelecionada(acao);
+                        setModalAberto(true);
+                      }}
                     >
                       Ativar Ação
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -331,6 +335,17 @@ export default function AcoesInteligentes() {
           </div>
         </div>
       )}
+
+      {/* Modal de Ativação */}
+      <ModalAtivarAcao
+        isOpen={modalAberto}
+        onClose={() => setModalAberto(false)}
+        acao={acaoSelecionada}
+        onSalvarProgresso={(passos, status) => {
+          toast.success("Progresso salvo com sucesso!");
+          // Aqui você pode adicionar lógica para atualizar o status da ação no banco
+        }}
+      />
     </div>
   );
 }
