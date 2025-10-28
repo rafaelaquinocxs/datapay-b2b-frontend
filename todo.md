@@ -540,3 +540,9 @@
 - [ ] Garantir que investidor possa testar TUDO funcionando
 - [x] Sistema limpo (sem dados mockados) mas 100% funcional
 
+
+
+
+## 🐛 BUG - Dados mockados ainda presentes
+
+- [x] Verificar e remover dados mockados de TODOS os men- [x] Garantir que TODAS as p\u00e1ginas busquem dados do banco real- [x] Testar cada funcionalidade individualmente

@@ -30,15 +30,11 @@ const menuItems = [
     icon: Database,
     label: "Meus Dados",
     path: "/meus-dados",
-    badge: "3",
-    badgeColor: "bg-blue-500",
   },
   {
     icon: Brain,
-    label: "Análise da IA",
+    label: "An\u00e1lise da IA",
     path: "/analise-ia",
-    badge: "12",
-    badgeColor: "bg-purple-500",
   },
   {
     icon: BookOpen,
@@ -49,22 +45,16 @@ const menuItems = [
     icon: Users,
     label: "Pesquisas",
     path: "/pesquisas",
-    badge: "5",
-    badgeColor: "bg-green-500",
   },
   {
     icon: Lightbulb,
-    label: "Formulário Inteligente",
+    label: "Formul\u00e1rio Inteligente",
     path: "/formulario-inteligente",
-    badge: "AI",
-    badgeColor: "bg-yellow-500",
   },
   {
     icon: TrendingUp,
-    label: "Ações Inteligentes",
+    label: "A\u00e7\u00f5es Inteligentes",
     path: "/acoes",
-    badge: "8",
-    badgeColor: "bg-orange-500",
   },
   {
     icon: BarChart3,
@@ -134,18 +124,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       {item.label}
                     </span>
                   </div>
-                  {item.badge && (
-                    <span
-                      className={cn(
-                        "text-xs font-semibold px-2 py-0.5 rounded-full",
-                        isActive
-                          ? "bg-white/20 text-white"
-                          : `${item.badgeColor} text-white`
-                      )}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
                 </div>
               </Link>
             );
