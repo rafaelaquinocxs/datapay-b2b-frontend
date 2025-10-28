@@ -571,3 +571,9 @@
 - [ ] Corrigir acentos em todas as páginas da plataforma
 - [ ] Garantir que acentos apareçam corretamente (ç, ã, é, etc)
 
+
+
+
+## 🐛 BUG - Dados mockados na página Análise da - [x] Remover todos os dados mockados/fake da p\u00e1gina AnaliseIA.- [x] Deixar p\u00e1gina vazia (0 insights) at\u00e9 conectar- [x] Garantir que an\u00e1lises venham do banco de dados reall
+- [ ] Testar upload de Excel e geração de insights reais com OpenAI
+
