@@ -30,7 +30,7 @@ export default function Login() {
       console.log("Redirecionando para /dashboard...");
       setTimeout(() => {
         console.log("Executando redirecionamento");
-        setLocation("/dashboard");
+        window.location.href = "/dashboard";
       }, 500);
     },
     onError: (error) => {

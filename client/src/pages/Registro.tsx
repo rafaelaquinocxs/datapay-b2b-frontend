@@ -30,8 +30,8 @@ export default function Registro() {
       
       // Redirecionar para o dashboard
       setTimeout(() => {
-        setLocation("/dashboard");
-      }, 100);
+        window.location.href = "/dashboard";
+      }, 500);
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao criar conta");

@@ -383,3 +383,13 @@
 - [ ] Deployment travando em "Redirecionando"
 - [ ] Verificar logs de build completos
 
+
+
+
+## 🚨 BUG CRÍTICO - Login não redireciona
+
+- [ ] Login mostra logs "Redirecionando para /dashboard..." mas não sai da tela de login
+- [ ] setLocation("/dashboard") não está funcionando
+- [ ] Possível problema: wouter não está redirecionando corretamente
+- [ ] Solução: usar window.location.href ao invés de setLocation
+
