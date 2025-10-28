@@ -546,3 +546,19 @@
 ## 🐛 BUG - Dados mockados ainda presentes
 
 - [x] Verificar e remover dados mockados de TODOS os men- [x] Garantir que TODAS as p\u00e1ginas busquem dados do banco real- [x] Testar cada funcionalidade individualmente
+
+
+
+## 🎨 Melhorias de UX/UI - Fluxo de Trabal- [x] Reordenar sidebar seguindo fluxo l\u00f3gico de uso da plataforma  1. Base de Conhecimento (conectar informações da empresa)
+  2. Meus Dados (conectar fontes de dados)
+  3. Análise da IA (gerar insights)
+  4. Formulário Inteligente (coletar dados)
+  5. Pesquisas (engajar usuários)
+  6. Ações Inteligentes (executar campanhas)
+  7. Resultados (medir ROI)
+  8. Relatórios (visualiz- [x] Adicionar se\u00e7\u00e3o "Como Funciona" no Dashboard
+  - Mostrar fluxo de trabalho visual (timeline/steps)
+  - Explicar cada etapa do processo
+  - Tornar navegação mais intuitiva
+  - Posicionar ANTES dos "Módulos da Plataforma"
+

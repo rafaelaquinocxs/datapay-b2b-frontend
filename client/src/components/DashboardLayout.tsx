@@ -23,8 +23,13 @@ interface DashboardLayoutProps {
 const menuItems = [
   {
     icon: LayoutDashboard,
-    label: "Início",
+    label: "In\u00edcio",
     path: "/",
+  },
+  {
+    icon: BookOpen,
+    label: "Base de Conhecimento",
+    path: "/base-conhecimento",
   },
   {
     icon: Database,
@@ -37,19 +42,14 @@ const menuItems = [
     path: "/analise-ia",
   },
   {
-    icon: BookOpen,
-    label: "Base de Conhecimento",
-    path: "/base-conhecimento",
+    icon: Lightbulb,
+    label: "Formul\u00e1rio Inteligente",
+    path: "/formulario-inteligente",
   },
   {
     icon: Users,
     label: "Pesquisas",
     path: "/pesquisas",
-  },
-  {
-    icon: Lightbulb,
-    label: "Formul\u00e1rio Inteligente",
-    path: "/formulario-inteligente",
   },
   {
     icon: TrendingUp,
@@ -63,7 +63,7 @@ const menuItems = [
   },
   {
     icon: FileBarChart,
-    label: "Relatórios",
+    label: "Relat\u00f3rios",
     path: "/relatorios",
   },
 ];

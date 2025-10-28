@@ -113,10 +113,103 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Módulos */}
+      {/* Como Funciona */}
+      <Card className="p-8 mb-8 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <Zap className="w-6 h-6 text-purple-600" />
+          Como a Plataforma Funciona
+        </h2>
+        <p className="text-gray-600 mb-6">
+          Siga este fluxo de trabalho para transformar seus dados em a\u00e7\u00f5es que geram lucro:
+        </p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Step 1 */}
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold mb-3">
+              1
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Conecte seus Dados</h3>
+            <p className="text-sm text-gray-600">
+              Base de Conhecimento + Meus Dados
+            </p>
+          </div>
+
+          <div className="flex items-center justify-center">
+            <ArrowRight className="w-6 h-6 text-purple-400 hidden md:block" />
+          </div>
+
+          {/* Step 2 */}
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold mb-3">
+              2
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Gere Insights com IA</h3>
+            <p className="text-sm text-gray-600">
+              An\u00e1lise da IA identifica gaps e oportunidades
+            </p>
+          </div>
+
+          <div className="flex items-center justify-center">
+            <ArrowRight className="w-6 h-6 text-purple-400 hidden md:block" />
+          </div>
+
+          {/* Step 3 */}
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold mb-3">
+              3
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Colete Mais Dados</h3>
+            <p className="text-sm text-gray-600">
+              Formul\u00e1rios Inteligentes + Pesquisas
+            </p>
+          </div>
+
+          <div className="flex items-center justify-center">
+            <ArrowRight className="w-6 h-6 text-purple-400 hidden md:block" />
+          </div>
+
+          {/* Step 4 */}
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold mb-3">
+              4
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Execute Campanhas</h3>
+            <p className="text-sm text-gray-600">
+              A\u00e7\u00f5es Inteligentes sugeridas pela IA
+            </p>
+          </div>
+
+          <div className="flex items-center justify-center">
+            <ArrowRight className="w-6 h-6 text-purple-400 hidden md:block" />
+          </div>
+
+          {/* Step 5 */}
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-full bg-green-600 text-white flex items-center justify-center font-bold mb-3">
+              5
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Mea ROI</h3>
+            <p className="text-sm text-gray-600">
+              Resultados + Relat\u00f3rios
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 p-4 bg-white rounded-lg border border-purple-200">
+          <p className="text-sm text-gray-700 flex items-start gap-2">
+            <Users className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+            <span>
+              <strong>Comece agora:</strong> Adicione informa\u00e7\u00f5es da sua empresa na Base de Conhecimento e conecte suas fontes de dados em Meus Dados.
+            </span>
+          </p>
+        </div>
+      </Card>
+
+      {/* M\u00f3dulos */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          Módulos da Plataforma
+          M\u00f3dulos da Plataforma
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cards.map((card, index) => {
