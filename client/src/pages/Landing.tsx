@@ -41,16 +41,10 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-3">
             <Button
-              variant="ghost"
-              onClick={() => setLocation("/login")}
-            >
-              Entrar
-            </Button>
-            <Button
-              onClick={() => setLocation("/registro")}
+              onClick={() => setLocation("/dashboard")}
               className="bg-purple-600 hover:bg-purple-700"
             >
-              Começar Grátis
+              Acessar Plataforma
             </Button>
           </div>
         </div>
@@ -86,10 +80,10 @@ export default function Landing() {
             <Button
               size="lg"
               variant="outline"
-              onClick={() => setLocation("/registro")}
+              onClick={() => setLocation("/dashboard")}
               className="text-lg px-8 py-6"
             >
-              Ver Demonstração
+              Ver Demonstra\u00e7\u00e3o
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </div>

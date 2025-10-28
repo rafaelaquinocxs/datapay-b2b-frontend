@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+
 import { useLocation } from "wouter";
 import {
   TrendingUp,
@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 export default function Dashboard() {
-  const { empresa } = useAuth();
+  const empresa = { nome: "Empresa Demo", email: "demo@datapay.com" }; // Mock para apresenta\u00e7\u00e3o
   const [, setLocation] = useLocation();
 
   const cards = [

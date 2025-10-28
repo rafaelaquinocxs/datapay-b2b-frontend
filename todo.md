@@ -503,3 +503,7 @@
 - [x] Simplificar routers.ts para focar apenas em auth.login e auth.registro
 - [x] Remover redirecionamentos complexos e usar apenas window.location.href
 
+
+
+
+## 🚨 URGENTE - REMOVER LOGIN COMPLETAME- [x] Remover sistema de autentica\u00e7\u00e3o comple- [x] Remover ProtectedRoute - tornar todas as rotas p\u00fablicas- [x] Rota / redireciona direto para /dashb- [x] Remover p\u00e1ginas Login.tsx e Registro.tsx- [x] Remover bot\u00e3o "Entrar" do header da landing page- [x] Sistema funciona SEM LOGIN para apresenta\u00e7\u00e3o ao investidor
