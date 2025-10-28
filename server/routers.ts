@@ -1376,9 +1376,9 @@ Forneca a resposta em formato JSON:
       .input(z.object({
         sourceId: z.number(),
         connectorType: z.enum(["csv", "excel", "api", "postgresql", "mysql", "salesforce", "sap", "vtex"]),
-        config: z.record(z.any()),
-        mappings: z.record(z.string()),
-        schema: z.record(z.enum(["string", "number", "boolean", "date"])),
+        config: z.record(z.string(), z.any()),
+        mappings: z.record(z.string(), z.string()),
+        schema: z.record(z.string(), z.enum(["string", "number", "boolean", "date"])),
         uniqueFields: z.array(z.string()),
       }))
       .mutation(async ({ input }) => {
@@ -1387,10 +1387,10 @@ Forneca a resposta em formato JSON:
           {
             type: input.connectorType,
             name: `Sync ${input.sourceId}`,
-            config: input.config,
+            config: input.config as Record<string, unknown>,
           },
-          input.mappings,
-          input.schema,
+          input.mappings as Record<string, string>,
+          input.schema as Record<string, "string" | "number" | "boolean" | "date">,
           input.uniqueFields
         );
       }),
@@ -1398,7 +1398,7 @@ Forneca a resposta em formato JSON:
     testConnection: publicProcedure
       .input(z.object({
         connectorType: z.enum(["csv", "excel", "api", "postgresql", "mysql", "salesforce", "sap", "vtex"]),
-        config: z.record(z.any()),
+        config: z.record(z.string(), z.any()),
       }))
       .mutation(async ({ input }) => {
         return { success: true, message: "Conexão testada com sucesso!" };

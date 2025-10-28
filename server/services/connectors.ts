@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import csv from "csv-parse/sync";
+import { parse as csvParse } from "csv-parse/sync";
 import * as XLSX from "xlsx";
 
 export interface ConnectorConfig {
@@ -20,42 +20,54 @@ export interface SyncResult {
 }
 
 // CSV Connector
-export async function readCSV(filePath: string): Promise<Record<string, unknown>[]> {
-  const fileContent = fs.readFileSync(filePath, "utf-8");
-  const records = csv.parse(fileContent, {
-    columns: true,
-    skip_empty_lines: true,
-  });
-  return records;
+export async function readCSV(filePath: string): Promise<unknown[]> {
+  try {
+    const fileContent = fs.readFileSync(filePath, "utf-8");
+    const records = csvParse(fileContent, {
+      columns: true,
+      skip_empty_lines: true,
+    });
+    return records as unknown[];
+  } catch (error) {
+    throw new Error(`CSV Error: ${error}`);
+  }
 }
 
 // Excel Connector
-export async function readExcel(filePath: string, sheetName?: string): Promise<Record<string, unknown>[]> {
-  const workbook = XLSX.readFile(filePath);
-  const sheet = sheetName ? workbook.Sheets[sheetName] : workbook.Sheets[workbook.SheetNames[0]];
-  const records = XLSX.utils.sheet_to_json(sheet);
-  return records;
+export async function readExcel(filePath: string, sheetName?: string): Promise<unknown[]> {
+  try {
+    const workbook = XLSX.readFile(filePath);
+    const sheet = sheetName ? workbook.Sheets[sheetName] : workbook.Sheets[workbook.SheetNames[0]];
+    const records = XLSX.utils.sheet_to_json(sheet);
+    return records as unknown[];
+  } catch (error) {
+    throw new Error(`Excel Error: ${error}`);
+  }
 }
 
 // API Connector
-export async function fetchFromAPI(url: string, headers?: Record<string, string>): Promise<Record<string, unknown>[]> {
-  const response = await fetch(url, { headers });
-  if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
-  const data = await response.json();
-  return Array.isArray(data) ? data : data.data || [];
+export async function fetchFromAPI(url: string, headers?: Record<string, string>): Promise<unknown[]> {
+  try {
+    const response = await fetch(url, { headers });
+    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+    const data = await response.json();
+    return Array.isArray(data) ? data : data.data || [];
+  } catch (error) {
+    throw new Error(`API Error: ${error}`);
+  }
 }
 
 // PostgreSQL Connector
 export async function readPostgreSQL(
   connectionString: string,
   query: string
-): Promise<Record<string, unknown>[]> {
+): Promise<unknown[]> {
   try {
     const { Pool } = await import("pg");
     const pool = new Pool({ connectionString });
     const result = await pool.query(query);
     await pool.end();
-    return result.rows;
+    return result.rows as unknown[];
   } catch (error) {
     throw new Error(`PostgreSQL Error: ${error}`);
   }
@@ -65,13 +77,13 @@ export async function readPostgreSQL(
 export async function readMySQL(
   connectionString: string,
   query: string
-): Promise<Record<string, unknown>[]> {
+): Promise<unknown[]> {
   try {
     const mysql = await import("mysql2/promise");
     const connection = await mysql.createConnection(connectionString);
     const [rows] = await connection.execute(query);
     await connection.end();
-    return rows as Record<string, unknown>[];
+    return rows as unknown[];
   } catch (error) {
     throw new Error(`MySQL Error: ${error}`);
   }
@@ -81,20 +93,21 @@ export async function readMySQL(
 export async function readSalesforce(
   instanceUrl: string,
   accessToken: string,
-  soqlQuery: string
-): Promise<Record<string, unknown>[]> {
-  const response = await fetch(`${instanceUrl}/services/data/v57.0/query`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ q: soqlQuery }),
-    method: "POST",
-  });
-
-  if (!response.ok) throw new Error(`Salesforce Error: ${response.statusText}`);
-  const data = await response.json() as { records?: Record<string, unknown>[] };
-  return data.records || [];
+  query: string
+): Promise<unknown[]> {
+  try {
+    const response = await fetch(`${instanceUrl}/services/data/v57.0/query?q=${encodeURIComponent(query)}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) throw new Error(`Salesforce Error: ${response.statusText}`);
+    const data = await response.json() as { records: unknown[] };
+    return data.records;
+  } catch (error) {
+    throw new Error(`Salesforce Error: ${error}`);
+  }
 }
 
 // SAP Connector
@@ -102,19 +115,22 @@ export async function readSAP(
   baseUrl: string,
   username: string,
   password: string,
-  entity: string
-): Promise<Record<string, unknown>[]> {
-  const auth = Buffer.from(`${username}:${password}`).toString("base64");
-  const response = await fetch(`${baseUrl}/sap/opu/odata/sap/${entity}`, {
-    headers: {
-      Authorization: `Basic ${auth}`,
-      Accept: "application/json",
-    },
-  });
-
-  if (!response.ok) throw new Error(`SAP Error: ${response.statusText}`);
-  const data = await response.json() as { d?: { results?: Record<string, unknown>[] } };
-  return data.d?.results || [];
+  endpoint: string
+): Promise<unknown[]> {
+  try {
+    const auth = Buffer.from(`${username}:${password}`).toString("base64");
+    const response = await fetch(`${baseUrl}${endpoint}`, {
+      headers: {
+        Authorization: `Basic ${auth}`,
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) throw new Error(`SAP Error: ${response.statusText}`);
+    const data = await response.json();
+    return Array.isArray(data) ? data : data.d?.results || [];
+  } catch (error) {
+    throw new Error(`SAP Error: ${error}`);
+  }
 }
 
 // VTEX Connector
@@ -123,28 +139,33 @@ export async function readVTEX(
   apiKey: string,
   apiToken: string,
   endpoint: string
-): Promise<Record<string, unknown>[]> {
-  const response = await fetch(`https://${accountName}.vtexcommercestable.com.br/api/catalog_system/pvt/${endpoint}`, {
-    headers: {
-      "X-VTEX-API-AppKey": apiKey,
-      "X-VTEX-API-AppToken": apiToken,
-    },
-  });
-
-  if (!response.ok) throw new Error(`VTEX Error: ${response.statusText}`);
-  return await response.json() as Record<string, unknown>[];
+): Promise<unknown[]> {
+  try {
+    const response = await fetch(`https://${accountName}.vtexcommercestable.com.br/api/catalog_system/pvt/${endpoint}`, {
+      headers: {
+        "X-VTEX-API-AppKey": apiKey,
+        "X-VTEX-API-AppToken": apiToken,
+      },
+    });
+    if (!response.ok) throw new Error(`VTEX Error: ${response.statusText}`);
+    return await response.json() as unknown[];
+  } catch (error) {
+    throw new Error(`VTEX Error: ${error}`);
+  }
 }
 
 // ETL: Transform data
 export function transformData(
-  records: Record<string, unknown>[],
+  records: unknown[],
   mappings: Record<string, string>
-): Record<string, unknown>[] {
-  return records.map((record) => {
+): unknown[] {
+  return records.map((record: unknown) => {
+    if (typeof record !== "object" || record === null) return record;
     const transformed: Record<string, unknown> = {};
+    const rec = record as Record<string, unknown>;
     for (const [source, target] of Object.entries(mappings)) {
-      if (source in record) {
-        transformed[target] = record[source];
+      if (source in rec) {
+        transformed[target] = rec[source];
       }
     }
     return transformed;
@@ -153,17 +174,22 @@ export function transformData(
 
 // Validation
 export function validateRecords(
-  records: Record<string, unknown>[],
+  records: unknown[],
   schema: Record<string, "string" | "number" | "boolean" | "date">
-): { valid: Record<string, unknown>[]; invalid: Array<{ record: Record<string, unknown>; errors: string[] }> } {
-  const valid: Record<string, unknown>[] = [];
-  const invalid: Array<{ record: Record<string, unknown>; errors: string[] }> = [];
+): { valid: unknown[]; invalid: Array<{ record: unknown; errors: string[] }> } {
+  const valid: unknown[] = [];
+  const invalid: Array<{ record: unknown; errors: string[] }> = [];
 
   for (const record of records) {
     const errors: string[] = [];
+    if (typeof record !== "object" || record === null) {
+      valid.push(record);
+      continue;
+    }
 
+    const rec = record as Record<string, unknown>;
     for (const [field, type] of Object.entries(schema)) {
-      const value = record[field];
+      const value = rec[field];
 
       if (value === null || value === undefined) {
         errors.push(`${field} is required`);
@@ -200,14 +226,19 @@ export function validateRecords(
 
 // Deduplication
 export function deduplicateRecords(
-  records: Record<string, unknown>[],
+  records: unknown[],
   uniqueFields: string[]
-): Record<string, unknown>[] {
+): unknown[] {
   const seen = new Set<string>();
-  const deduplicated: Record<string, unknown>[] = [];
+  const deduplicated: unknown[] = [];
 
   for (const record of records) {
-    const key = uniqueFields.map((field) => record[field]).join("|");
+    if (typeof record !== "object" || record === null) {
+      deduplicated.push(record);
+      continue;
+    }
+    const rec = record as Record<string, unknown>;
+    const key = uniqueFields.map((field) => rec[field]).join("|");
 
     if (!seen.has(key)) {
       seen.add(key);
@@ -227,7 +258,7 @@ export async function syncData(
 ): Promise<SyncResult> {
   const startTime = Date.now();
   const errors: string[] = [];
-  let records: Record<string, unknown>[] = [];
+  let records: unknown[] = [];
 
   try {
     // Fetch data based on connector type
@@ -251,7 +282,7 @@ export async function syncData(
         records = await readSalesforce(
           connector.config.instanceUrl as string,
           connector.config.accessToken as string,
-          connector.config.soqlQuery as string
+          connector.config.query as string
         );
         break;
       case "sap":
@@ -259,7 +290,7 @@ export async function syncData(
           connector.config.baseUrl as string,
           connector.config.username as string,
           connector.config.password as string,
-          connector.config.entity as string
+          connector.config.endpoint as string
         );
         break;
       case "vtex":
@@ -310,3 +341,4 @@ export async function syncData(
     };
   }
 }
+
