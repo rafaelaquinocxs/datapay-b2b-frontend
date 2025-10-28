@@ -426,3 +426,14 @@
 - [x] Solução: Ajustado sameSite para "lax" em HTTP e "none" em HTTPS
 - [ ] Testar login em produção após correção
 
+
+
+
+## 🔄 Substituir Login por Google OAuth - CONCLUÍDO
+
+- [x] Remover formulário de login com email/senha
+- [x] Remover formulário de registro com email/senha
+- [x] Adicionar botão "Entrar com Google" usando Manus OAuth
+- [x] Redirecionar para getLoginUrl() do SDK
+- [ ] Testar fluxo completo de autenticação com Google em produção
+
