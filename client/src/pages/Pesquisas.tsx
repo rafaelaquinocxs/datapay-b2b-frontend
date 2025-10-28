@@ -1,428 +1,405 @@
 import { useState } from "react";
-
-import { trpc } from "@/lib/trpc";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Share2, Copy, Eye, Trash2, MessageSquare, CheckCircle2, Users, TrendingUp, Gift } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Filter,
+  Zap,
+  TrendingUp,
+  Users,
+  BarChart3,
+  MessageSquare,
+  Gauge,
+  Smile,
+  Briefcase,
+  AlertCircle,
+  ChevronRight,
+  Loader2,
+} from "lucide-react";
+
+interface Survey {
+  id: number;
+  titulo: string;
+  descricao: string;
+  tipo: string;
+  categoria: string;
+  segmento: string;
+  estado: string;
+  respostasColetadas: number;
+  taxaResposta: number;
+  recompensaAtiva: boolean;
+  recompensaValor?: number;
+}
 
 export default function Pesquisas() {
-  const user = { empresaId: 1 }; // Mock para apresenta\u00e7\u00e3o
-  const [showForm, setShowForm] = useState(false);
-  const [titulo, setTitulo] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [tipo, setTipo] = useState<"pesquisa" | "quiz" | "missao">("pesquisa");
-  const [perguntas, setPerguntas] = useState([
-    { id: "1", texto: "", tipo: "texto", opcoes: [] }
-  ]);
-  const [recompensaTipo, setRecompensaTipo] = useState("");
-  const [recompensaValor, setRecompensaValor] = useState("");
+  const [gerando, setGerando] = useState(false);
+  const [filtroCategoria, setFiltroCategoria] = useState<string>("");
+  const [busca, setBusca] = useState<string>("");
+  const [showModelos, setShowModelos] = useState(false);
 
-  const empresaId = (user as any)?.empresaId || 0;
-  const utils = trpc.useUtils();
+  const pesquisas: Survey[] = [
+    {
+      id: 1,
+      titulo: "NPS - Net Promoter Score",
+      descricao: "Medir lealdade e satisfação geral",
+      tipo: "nps",
+      categoria: "clientes",
+      segmento: "vip",
+      estado: "ativo",
+      respostasColetadas: 1250,
+      taxaResposta: 68,
+      recompensaAtiva: true,
+      recompensaValor: 10,
+    },
+    {
+      id: 2,
+      titulo: "Satisfação com Atendimento",
+      descricao: "Avaliar qualidade do suporte",
+      tipo: "satisfacao",
+      categoria: "clientes",
+      segmento: "todos",
+      estado: "ativo",
+      respostasColetadas: 890,
+      taxaResposta: 72,
+      recompensaAtiva: false,
+    },
+    {
+      id: 3,
+      titulo: "Clima Organizacional",
+      descricao: "Avaliação de satisfação dos funcionários",
+      tipo: "clima",
+      categoria: "funcionarios",
+      segmento: "todos",
+      estado: "ativo",
+      respostasColetadas: 245,
+      taxaResposta: 85,
+      recompensaAtiva: true,
+      recompensaValor: 50,
+    },
+    {
+      id: 4,
+      titulo: "Feedback de Novo Produto",
+      descricao: "Coletar opinião sobre novo lançamento",
+      tipo: "produto",
+      categoria: "produto",
+      segmento: "early_adopters",
+      estado: "rascunho",
+      respostasColetadas: 0,
+      taxaResposta: 0,
+      recompensaAtiva: false,
+    },
+    {
+      id: 5,
+      titulo: "Compliance LGPD",
+      descricao: "Validar conformidade de dados",
+      tipo: "custom",
+      categoria: "compliance",
+      segmento: "todos",
+      estado: "ativo",
+      respostasColetadas: 1500,
+      taxaResposta: 92,
+      recompensaAtiva: false,
+    },
+  ];
 
-  // Buscar pesquisas
-  const { data: pesquisas = [], isLoading } = trpc.pesquisas.listar.useQuery(
-    { empresaId },
-    { enabled: !!empresaId }
+  const modelos = [
+    {
+      id: 1,
+      nome: "NPS Padrão",
+      descricao: "Template de NPS com 3 perguntas",
+      icon: Gauge,
+      cor: "bg-blue-100",
+    },
+    {
+      id: 2,
+      nome: "Satisfação CSAT",
+      descricao: "Avaliação rápida em 2 perguntas",
+      icon: Smile,
+      cor: "bg-green-100",
+    },
+    {
+      id: 3,
+      nome: "Clima Organizacional",
+      descricao: "Pesquisa de satisfação interna",
+      icon: Briefcase,
+      cor: "bg-purple-100",
+    },
+    {
+      id: 4,
+      nome: "Feedback de Produto",
+      descricao: "Coletar insights sobre features",
+      icon: MessageSquare,
+      cor: "bg-orange-100",
+    },
+  ];
+
+  const CATEGORIAS = [
+    { id: "clientes", nome: "Clientes" },
+    { id: "funcionarios", nome: "Funcionários" },
+    { id: "produto", nome: "Produto" },
+    { id: "compliance", nome: "Compliance" },
+  ];
+
+  const filteredPesquisas = pesquisas.filter(
+    (p) =>
+      (filtroCategoria === "" || p.categoria === filtroCategoria) &&
+      (p.titulo.toLowerCase().includes(busca.toLowerCase()) ||
+        p.descricao.toLowerCase().includes(busca.toLowerCase()))
   );
 
-  // Criar pesquisa
-  const criarMutation = trpc.pesquisas.criar.useMutation({
-    onSuccess: (data) => {
-      toast.success("Pesquisa criada com sucesso!");
-      setTitulo("");
-      setDescricao("");
-      setPerguntas([{ id: "1", texto: "", tipo: "texto", opcoes: [] }]);
-      setRecompensaTipo("");
-      setRecompensaValor("");
-      setShowForm(false);
-      utils.pesquisas.listar.invalidate();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Erro ao criar pesquisa");
-    },
-  });
-
-  const handleCriarPesquisa = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    console.log("[Pesquisas] Tentando criar pesquisa:", { empresaId, titulo, perguntas });
-
-    if (!titulo || perguntas.some(p => !p.texto)) {
-      toast.error("Preencha todos os campos obrigatórios");
-      return;
-    }
-
-    if (!empresaId) {
-      toast.error("Erro: Empresa não identificada. Faça login novamente.");
-      return;
-    }
-
-    await criarMutation.mutateAsync({
-      empresaId,
-      titulo,
-      descricao,
-      tipo,
-      perguntas,
-      recompensaTipo,
-      recompensaValor,
-    });
+  const handleGerarSugestoes = async () => {
+    setGerando(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    toast.success("3 pesquisas sugeridas com base em sua empresa!");
+    setGerando(false);
   };
-
-  const handleAdicionarPergunta = () => {
-    const novaId = String(Math.max(...perguntas.map(p => parseInt(p.id) || 0)) + 1);
-    setPerguntas([...perguntas, { id: novaId, texto: "", tipo: "texto", opcoes: [] }]);
-  };
-
-  const handleRemoverPergunta = (id: string) => {
-    if (perguntas.length > 1) {
-      setPerguntas(perguntas.filter(p => p.id !== id));
-    }
-  };
-
-  const handleAtualizarPergunta = (id: string, campo: string, valor: any) => {
-    setPerguntas(
-      perguntas.map(p => (p.id === id ? { ...p, [campo]: valor } : p))
-    );
-  };
-
-  const handleCopiarLink = (linkPublico: string) => {
-    const url = `${window.location.origin}/p/${linkPublico}`;
-    navigator.clipboard.writeText(url);
-    toast.success("Link copiado para a área de transferência!");
-  };
-
-  const totalRespostas = pesquisas.reduce((acc, p) => acc + (p.totalRespostas || 0), 0);
-  const pesquisasAtivas = pesquisas.filter((p: any) => p.status === "ativa");
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex justify-between items-center">
+    <div className="p-8 space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Pesquisas Gamificadas</h1>
-          <p className="text-gray-600 mt-2">
-            Crie pesquisas, compartilhe links e colete respostas com recompensas
+          <h1 className="text-3xl font-bold text-gray-900">Pesquisas</h1>
+          <p className="text-gray-600 mt-1">
+            Crie pesquisas, colete feedback e gere insights com IA
           </p>
         </div>
-        <Button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-purple-600 hover:bg-purple-700"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Nova Pesquisa
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setShowModelos(!showModelos)}
+            variant="outline"
+          >
+            <Zap className="w-4 h-4 mr-2" />
+            Modelos
+          </Button>
+          <Button
+            onClick={handleGerarSugestoes}
+            disabled={gerando}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            {gerando ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Gerando...
+              </>
+            ) : (
+              <>
+                <Zap className="w-4 h-4 mr-2" />
+                Sugerir
+              </>
+            )}
+          </Button>
+          <Button className="bg-green-600 hover:bg-green-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Pesquisa
+          </Button>
+        </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Pesquisas Ativas</p>
-              <p className="text-2xl font-bold">{pesquisasAtivas.length}</p>
-            </div>
+      {/* Filtros */}
+      <div className="space-y-4">
+        <div className="flex gap-3">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar pesquisas..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+            />
           </div>
-        </Card>
+          <Button variant="outline">
+            <Filter className="w-4 h-4 mr-2" />
+            Filtros
+          </Button>
+        </div>
 
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-              <Users className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Respostas Coletadas</p>
-              <p className="text-2xl font-bold">{totalRespostas}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Total de Pesquisas</p>
-              <p className="text-2xl font-bold">{pesquisas.length}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-              <Gift className="w-5 h-5 text-orange-600" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Taxa Média</p>
-              <p className="text-2xl font-bold">
-                {pesquisas.length > 0 
-                  ? Math.round(totalRespostas / pesquisas.length) 
-                  : 0}
-              </p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {showForm && (
-        <Card className="p-6 border-2 border-purple-200">
-          <h2 className="text-xl font-bold mb-4">Criar Nova Pesquisa</h2>
-          <form onSubmit={handleCriarPesquisa} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Título *</Label>
-                <Input
-                  value={titulo}
-                  onChange={(e) => setTitulo(e.target.value)}
-                  placeholder="Ex: Pesquisa de Satisfação"
-                />
-              </div>
-
-              <div>
-                <Label>Tipo</Label>
-                <select
-                  value={tipo}
-                  onChange={(e) => setTipo(e.target.value as any)}
-                  className="w-full border rounded p-2"
-                >
-                  <option value="pesquisa">Pesquisa</option>
-                  <option value="quiz">Quiz</option>
-                  <option value="missao">Missão</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <Label>Descrição</Label>
-              <textarea
-                value={descricao}
-                onChange={(e) => setDescricao(e.target.value)}
-                placeholder="Descreva o objetivo da pesquisa"
-                className="w-full border rounded p-2"
-                rows={2}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Tipo de Recompensa</Label>
-                <select
-                  value={recompensaTipo}
-                  onChange={(e) => setRecompensaTipo(e.target.value)}
-                  className="w-full border rounded p-2"
-                >
-                  <option value="">Nenhuma</option>
-                  <option value="pontos">Pontos</option>
-                  <option value="desconto">Desconto</option>
-                  <option value="brinde">Brinde</option>
-                </select>
-              </div>
-
-              {recompensaTipo && (
-                <div>
-                  <Label>Valor da Recompensa</Label>
-                  <Input
-                    value={recompensaValor}
-                    onChange={(e) => setRecompensaValor(e.target.value)}
-                    placeholder="Ex: 100 pontos, 10%"
-                  />
-                </div>
-              )}
-            </div>
-
-            <div>
-              <Label className="block mb-4">Perguntas *</Label>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {perguntas.map((pergunta, idx) => (
-                  <div key={pergunta.id} className="border rounded p-3 bg-gray-50">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="font-semibold text-sm">Pergunta {idx + 1}</span>
-                      {perguntas.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoverPergunta(pergunta.id)}
-                          className="text-red-500 hover:text-red-700 text-sm"
-                        >
-                          ✕ Remover
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Input
-                        value={pergunta.texto}
-                        onChange={(e) =>
-                          handleAtualizarPergunta(pergunta.id, "texto", e.target.value)
-                        }
-                        placeholder="Digite a pergunta"
-                        size={1}
-                      />
-
-                      <select
-                        value={pergunta.tipo}
-                        onChange={(e) =>
-                          handleAtualizarPergunta(pergunta.id, "tipo", e.target.value)
-                        }
-                        className="w-full border rounded p-2 text-sm"
-                      >
-                        <option value="texto">Texto Livre</option>
-                        <option value="multipla">Múltipla Escolha</option>
-                        <option value="escala">Escala (1-5)</option>
-                        <option value="email">Email</option>
-                        <option value="telefone">Telefone</option>
-                      </select>
-
-                      {pergunta.tipo === "multipla" && (
-                        <Input
-                          value={pergunta.opcoes?.join(", ") || ""}
-                          onChange={(e) =>
-                            handleAtualizarPergunta(
-                              pergunta.id,
-                              "opcoes",
-                              e.target.value.split(",").map(o => o.trim())
-                            )
-                          }
-                          placeholder="Opção 1, Opção 2, Opção 3"
-                          size={1}
-                        />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <Button
-                type="button"
-                onClick={handleAdicionarPergunta}
-                variant="outline"
-                className="mt-3 w-full"
-              >
-                + Adicionar Pergunta
-              </Button>
-            </div>
-
-            <div className="flex gap-2 pt-4 border-t">
-              <Button
-                type="submit"
-                className="bg-purple-600 hover:bg-purple-700"
-                disabled={criarMutation.isPending}
-              >
-                {criarMutation.isPending ? "Criando..." : "Criar Pesquisa"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowForm(false)}
-              >
-                Cancelar
-              </Button>
-            </div>
-          </form>
-        </Card>
-      )}
-
-      {isLoading ? (
-        <div className="text-center py-8">Carregando pesquisas...</div>
-      ) : pesquisas.length === 0 ? (
-        <Card className="p-8 text-center">
-          <MessageSquare className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600">Nenhuma pesquisa criada ainda</p>
-          <p className="text-sm text-gray-500 mt-2">
-            Clique em "Nova Pesquisa" para começar
-          </p>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {pesquisas.map((pesquisa: any) => (
-            <Card key={pesquisa.id} className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-lg font-bold">{pesquisa.titulo}</h3>
-                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
-                      {pesquisa.tipo}
-                    </span>
-                    <span className={`text-xs px-2 py-1 rounded ${
-                      pesquisa.status === "ativa"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-700"
-                    }`}>
-                      {pesquisa.status === "ativa" ? "🟢 Ativa" : "⏸️ Pausada"}
-                    </span>
-                  </div>
-                  {pesquisa.descricao && (
-                    <p className="text-gray-600 text-sm">{pesquisa.descricao}</p>
-                  )}
-                </div>
-
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => handleCopiarLink(pesquisa.linkPublico)}
-                    title="Compartilhar: Copiar link para área de transferência"
-                  >
-                    <Share2 className="w-4 h-4 mr-1" />
-                    Compartilhar
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() =>
-                      window.open(`/p/${pesquisa.linkPublico}`, "_blank")
-                    }
-                    title="Visualizar"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-4 gap-4 p-3 bg-gray-50 rounded mb-3">
-                <div>
-                  <p className="text-xs text-gray-500">Perguntas</p>
-                  <p className="text-lg font-semibold">
-                    {pesquisa.perguntas?.length || 0}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Respostas</p>
-                  <p className="text-lg font-semibold">{pesquisa.totalRespostas}</p>
-                </div>
-                {pesquisa.recompensaTipo && (
-                  <div>
-                    <p className="text-xs text-gray-500">Recompensa</p>
-                    <p className="text-sm font-semibold">
-                      {pesquisa.recompensaTipo}: {pesquisa.recompensaValor}
-                    </p>
-                  </div>
-                )}
-                <div>
-                  <p className="text-xs text-gray-500">Criada em</p>
-                  <p className="text-sm">
-                    {new Date(pesquisa.criadoEm).toLocaleDateString("pt-BR")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-3 bg-blue-50 rounded border border-blue-200 flex items-center gap-2">
-                <Share2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                <code className="text-xs text-blue-900 flex-1 break-all font-mono">
-                  {`${window.location.origin}/p/${pesquisa.linkPublico}`}
-                </code>
-              </div>
-            </Card>
+        <div className="flex gap-2 flex-wrap">
+          {CATEGORIAS.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setFiltroCategoria(filtroCategoria === cat.id ? "" : cat.id)}
+              className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
+                filtroCategoria === cat.id
+                  ? "bg-purple-600 text-white ring-2 ring-offset-2 ring-purple-600"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {cat.nome}
+            </button>
           ))}
         </div>
+      </div>
+
+      {/* Modelos Rápidos */}
+      {showModelos && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-gray-900">Modelos Rápidos</h2>
+          <div className="grid grid-cols-4 gap-4">
+            {modelos.map((modelo) => {
+              const Icon = modelo.icon;
+              return (
+                <Card
+                  key={modelo.id}
+                  className={`p-6 cursor-pointer hover:shadow-lg transition-all ${modelo.cor}`}
+                >
+                  <Icon className="w-8 h-8 text-gray-900 mb-3" />
+                  <h3 className="font-bold text-gray-900 mb-1">{modelo.nome}</h3>
+                  <p className="text-sm text-gray-700 mb-4">{modelo.descricao}</p>
+                  <Button size="sm" className="w-full bg-purple-600 hover:bg-purple-700">
+                    Usar
+                  </Button>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
       )}
+
+      {/* KPI Dashboard */}
+      <div className="grid grid-cols-4 gap-4">
+        <Card className="p-6">
+          <p className="text-sm text-gray-600 mb-2">Pesquisas Ativas</p>
+          <p className="text-3xl font-bold text-purple-600">4</p>
+          <p className="text-xs text-purple-600 mt-2">↑ 1 nova esta semana</p>
+        </Card>
+        <Card className="p-6">
+          <p className="text-sm text-gray-600 mb-2">Taxa Média Resposta</p>
+          <div className="flex items-center gap-2">
+            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+              <span className="text-2xl font-bold text-blue-600">76%</span>
+            </div>
+          </div>
+          <p className="text-xs text-blue-600 mt-2">↑ 5% vs mês anterior</p>
+        </Card>
+        <Card className="p-6">
+          <p className="text-sm text-gray-600 mb-2">Respostas Coletadas</p>
+          <p className="text-3xl font-bold text-green-600">3.885</p>
+          <p className="text-xs text-green-600 mt-2">↑ 500 esta semana</p>
+        </Card>
+        <Card className="p-6">
+          <p className="text-sm text-gray-600 mb-2">Recompensas Ativas</p>
+          <p className="text-3xl font-bold text-orange-600">2</p>
+          <p className="text-xs text-orange-600 mt-2">60 DataCoins distribuídos</p>
+        </Card>
+      </div>
+
+      {/* Pesquisas */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-gray-900">Minhas Pesquisas</h2>
+        {filteredPesquisas.length === 0 ? (
+          <Card className="p-12 text-center">
+            <AlertCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Nenhuma pesquisa encontrada
+            </h3>
+            <p className="text-gray-600">
+              Crie uma nova pesquisa ou use um modelo rápido
+            </p>
+          </Card>
+        ) : (
+          <div className="grid gap-4">
+            {filteredPesquisas.map((pesquisa) => (
+              <Card
+                key={pesquisa.id}
+                className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-lg font-bold text-gray-900">
+                        {pesquisa.titulo}
+                      </h3>
+                      <Badge
+                        className={
+                          pesquisa.estado === "ativo"
+                            ? "bg-green-100 text-green-900"
+                            : pesquisa.estado === "rascunho"
+                            ? "bg-gray-100 text-gray-900"
+                            : "bg-yellow-100 text-yellow-900"
+                        }
+                      >
+                        {pesquisa.estado === "ativo" && "Ativo"}
+                        {pesquisa.estado === "rascunho" && "Rascunho"}
+                        {pesquisa.estado === "pausado" && "Pausado"}
+                      </Badge>
+                    </div>
+
+                    <p className="text-gray-600 mb-3">{pesquisa.descricao}</p>
+
+                    <div className="grid grid-cols-5 gap-3 text-sm mb-3">
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <BarChart3 className="w-4 h-4 text-blue-600" />
+                        <span>
+                          <strong>Tipo:</strong> {pesquisa.tipo}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Users className="w-4 h-4 text-green-600" />
+                        <span>
+                          <strong>Respostas:</strong> {pesquisa.respostasColetadas}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <TrendingUp className="w-4 h-4 text-purple-600" />
+                        <span>
+                          <strong>Taxa:</strong> {pesquisa.taxaResposta}%
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Badge className="bg-blue-100 text-blue-900">
+                          {pesquisa.categoria}
+                        </Badge>
+                      </div>
+                      {pesquisa.recompensaAtiva && (
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <Zap className="w-4 h-4 text-orange-600" />
+                          <span>
+                            <strong>+{pesquisa.recompensaValor} DC</strong>
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {pesquisa.recompensaAtiva && (
+                      <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                        <p className="text-xs text-orange-600 font-semibold mb-1">
+                          Recompensa Ativa
+                        </p>
+                        <p className="text-sm text-orange-900">
+                          Respondentes ganham {pesquisa.recompensaValor} DataCoins
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <ChevronRight className="w-6 h-6 text-gray-400 flex-shrink-0 ml-4" />
+                </div>
+
+                {/* Ações */}
+                <div className="flex gap-2 pt-4 border-t flex-wrap">
+                  <Button size="sm" variant="outline">
+                    Responder
+                  </Button>
+                  <Button size="sm" variant="outline">
+                    Resultados
+                  </Button>
+                  <Button size="sm" variant="outline">
+                    Agendar
+                  </Button>
+                  <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                    Editar
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-

@@ -717,3 +717,106 @@ export const smartFormAudit = mysqlTable("smart_form_audit", {
   detalhes: text("detalhes"), // JSON com mudanças
 });
 
+
+// ============ PESQUISAS ENTERPRISE ============
+
+export const surveys = mysqlTable("surveys", {
+  id: serial("id").primaryKey(),
+  empresaId: integer("empresa_id").notNull(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  descricao: text("descricao"),
+  tipo: varchar("tipo", { length: 50 }).notNull(), // "nps", "satisfacao", "clima", "produto", "custom"
+  categoria: varchar("categoria", { length: 100 }).notNull(), // "clientes", "funcionarios", "produto", "compliance"
+  segmento: varchar("segmento", { length: 100 }), // "vip", "inativos", "vendas", "suporte"
+  estado: varchar("estado", { length: 50 }).notNull().default("rascunho"), // "rascunho", "ativo", "pausado", "concluido"
+  dataInicio: timestamp("data_inicio"),
+  dataFim: timestamp("data_fim"),
+  respostasColetadas: integer("respostas_coletadas").default(0),
+  taxaResposta: decimal("taxa_resposta", { precision: 5, scale: 2 }),
+  recompensaAtiva: boolean("recompensa_ativa").default(false),
+  recompensaTipo: varchar("recompensa_tipo", { length: 50 }), // "datacoin", "cupom", "desconto"
+  recompensaValor: decimal("recompensa_valor", { precision: 10, scale: 2 }),
+  criadoEm: timestamp("criado_em").defaultNow(),
+  atualizadoEm: timestamp("atualizado_em").defaultNow(),
+});
+
+export const surveyQuestions = mysqlTable("survey_questions", {
+  id: serial("id").primaryKey(),
+  surveyId: integer("survey_id").notNull().references(() => surveys.id),
+  ordem: integer("ordem").notNull(),
+  pergunta: text("pergunta").notNull(),
+  tipo: varchar("tipo", { length: 50 }).notNull(), // "texto", "multipla", "nps", "escala", "data"
+  obrigatoria: boolean("obrigatoria").default(true),
+  opcoes: text("opcoes"), // JSON array
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+export const surveyResponses = mysqlTable("survey_responses", {
+  id: serial("id").primaryKey(),
+  surveyId: integer("survey_id").notNull().references(() => surveys.id),
+  respondentId: integer("respondent_id").notNull(),
+  respostas: text("respostas"), // JSON com respostas
+  taxaConclusao: decimal("taxa_conclusao", { precision: 5, scale: 2 }),
+  respondidoEm: timestamp("respondido_em"),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+export const surveySchedules = mysqlTable("survey_schedules", {
+  id: serial("id").primaryKey(),
+  surveyId: integer("survey_id").notNull().references(() => surveys.id),
+  recorrencia: varchar("recorrencia", { length: 50 }), // "diaria", "semanal", "mensal", "trimestral"
+  proximoEnvio: timestamp("proximo_envio"),
+  ultimoEnvio: timestamp("ultimo_envio"),
+  ativo: boolean("ativo").default(true),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+export const surveyDistribution = mysqlTable("survey_distribution", {
+  id: serial("id").primaryKey(),
+  surveyId: integer("survey_id").notNull().references(() => surveys.id),
+  canal: varchar("canal", { length: 50 }).notNull(), // "email", "whatsapp", "app", "link", "api"
+  configuracao: text("configuracao"), // JSON com config específica
+  ativo: boolean("ativo").default(true),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+export const surveyInsights = mysqlTable("survey_insights", {
+  id: serial("id").primaryKey(),
+  surveyId: integer("survey_id").notNull().references(() => surveys.id),
+  tipo: varchar("tipo", { length: 50 }).notNull(), // "cluster", "sentimento", "oportunidade", "alerta"
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  descricao: text("descricao"),
+  percentual: decimal("percentual", { precision: 5, scale: 2 }),
+  acaoSugerida: text("acao_sugerida"),
+  geradoEm: timestamp("gerado_em").defaultNow(),
+});
+
+export const surveyBenchmarks = mysqlTable("survey_benchmarks", {
+  id: serial("id").primaryKey(),
+  surveyId: integer("survey_id").notNull().references(() => surveys.id),
+  segmento1: varchar("segmento1", { length: 100 }).notNull(), // ex: "São Paulo"
+  segmento2: varchar("segmento2", { length: 100 }).notNull(), // ex: "Rio de Janeiro"
+  metrica: varchar("metrica", { length: 100 }).notNull(), // ex: "NPS"
+  valor1: decimal("valor1", { precision: 10, scale: 2 }),
+  valor2: decimal("valor2", { precision: 10, scale: 2 }),
+  diferenca: decimal("diferenca", { precision: 10, scale: 2 }),
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+export const surveyPermissions = mysqlTable("survey_permissions", {
+  id: serial("id").primaryKey(),
+  surveyId: integer("survey_id").notNull().references(() => surveys.id),
+  usuarioId: varchar("usuario_id", { length: 255 }).notNull(),
+  papel: varchar("papel", { length: 50 }).notNull(), // "criador", "revisor", "executor", "visualizador"
+  criadoEm: timestamp("criado_em").defaultNow(),
+});
+
+export const surveyAudit = mysqlTable("survey_audit", {
+  id: serial("id").primaryKey(),
+  surveyId: integer("survey_id").notNull().references(() => surveys.id),
+  evento: varchar("evento", { length: 100 }).notNull(), // "criado", "disparado", "concluido"
+  quem: varchar("quem", { length: 255 }).notNull(),
+  quando: timestamp("quando").defaultNow(),
+  detalhes: text("detalhes"), // JSON
+});
+
