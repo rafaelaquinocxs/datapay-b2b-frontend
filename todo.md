@@ -274,6 +274,16 @@
 
 ---
 
+---
+
+## 🐛 BUGS CONHECIDOS
+
+- [ ] Criação de pesquisas não persiste no banco (debug necessário)
+- [ ] Chamada à IA para gerar sugestões pode estar falhando (debug necessário)
+- [ ] Paths do Laboratório precisam de rotas dinâmicas em App.tsx
+
+---
+
 ## 💡 ESTRATÉGIA DE VENDAS
 
 ### Ticket 5k/mês (MVP Atual)
@@ -307,6 +317,30 @@
 
 
 
+
+## ✅ FASE 4: LABORATÓRIO (COMPLETE)
+
+### Sprint 1: Advanced Generator ✅
+- [x] Slider para quantidade de registros (1k-10M)
+- [x] Segmentação por 8 regiões brasileiras
+- [x] Sazonalidade (Black Friday, Natal, Dia das Mães, etc)
+- [x] Calibração com dados reais
+- [x] Preview de tabela com 10 registros
+
+### Sprint 2: Sidebar Reorganization ✅
+- [x] Agrupamento lógico em 4 seções (Inteligência, Laboratório, Coleta & Ações, Resultados)
+- [x] Hierarquia clara com section headers
+- [x] Ícones distintos para cada menu item
+- [x] Paths únicos para subferramentas (/laboratorio/gerador, /simulador, /testador)
+
+### Sprint 3: Export Integrations (PENDING)
+- [ ] CSV export com dados sintéticos
+- [ ] Excel export com formatação
+- [ ] BigQuery integration
+- [ ] Snowflake integration
+- [ ] Integração com outros módulos (Análise IA, Ações)
+
+---
 
 ## 🏢 MENU 1: BASE DE CONHECIMENTO - Evolução Completa
 
@@ -343,10 +377,10 @@
 
 ### 📊 Schema de Dados
 
-- [ ] Tabela company_profile (JSON: identidade, mercado, operacao_dados, objetivos_kpis, politicas)
-- [ ] Tabela company_profile_versions (versionamento)
-- [ ] Tabela profile_audit_log (auditoria)
-- [ ] Tabela taxonomy_sectors (CNAE → playbooks)
+- [x] Tabela company_profile (JSON: identidade, mercado, operacao_dados, objetivos_kpis, politicas)
+- [x] Tabela company_profile_versions (versionamento)
+- [x] Tabela profile_audit_log (auditoria)
+- [x] Tabela taxonomy_sectors (CNAE → playbooks)
 
 ---
 

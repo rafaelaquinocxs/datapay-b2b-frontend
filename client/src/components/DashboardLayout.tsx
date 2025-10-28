@@ -62,17 +62,17 @@ const menuItems: any[] = [
   {
     icon: Lightbulb,
     label: "🧪 Gerador de Dados",
-    path: "/laboratorio",
+    path: "/laboratorio/gerador",
   },
   {
     icon: TrendingUp,
     label: "🎯 Simulador",
-    path: "/laboratorio",
+    path: "/laboratorio/simulador",
   },
   {
     icon: BarChart3,
     label: "🔬 Testador",
-    path: "/laboratorio",
+    path: "/laboratorio/testador",
   },
   {
     type: 'section',
