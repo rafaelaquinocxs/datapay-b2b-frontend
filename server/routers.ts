@@ -1111,6 +1111,117 @@ Forneca a resposta em formato JSON:
         return { success: true };
       }),
   }),
+
+  /**
+   * Sprint B: Mapeamento & Qualidade
+   */
+  fieldMappings: router({
+    getAll: publicProcedure
+      .input(z.object({ dataSourceId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getFieldMappings(input.dataSourceId);
+      }),
+
+    save: publicProcedure
+      .input(z.object({
+        dataSourceId: z.number(),
+        mappings: z.array(z.object({
+          sourceField: z.string(),
+          targetField: z.string(),
+          tipo: z.string().optional(),
+          validadores: z.array(z.string()).optional(),
+          transformacao: z.string().optional(),
+        })),
+      }))
+      .mutation(async ({ input }) => {
+        await db.saveFieldMappings(input.dataSourceId, input.mappings as any);
+        return { success: true };
+      }),
+  }),
+
+  /**
+   * Sprint C: Agendamento & Webhooks
+   */
+  syncSchedules: router({
+    get: publicProcedure
+      .input(z.object({ dataSourceId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getSyncSchedule(input.dataSourceId);
+      }),
+
+    save: publicProcedure
+      .input(z.object({
+        dataSourceId: z.number(),
+        tipo: z.string(),
+        expressao: z.string().optional(),
+        janelaInicio: z.string().optional(),
+        janelaFim: z.string().optional(),
+        ativo: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.saveSyncSchedule({
+          dataSourceId: input.dataSourceId,
+          tipo: input.tipo,
+          expressao: input.expressao,
+          janelaInicio: input.janelaInicio,
+          janelaFim: input.janelaFim,
+          ativo: input.ativo || 1,
+        });
+        return { success: true };
+      }),
+  }),
+
+  dataSourceWebhooks: router({
+    get: publicProcedure
+      .input(z.object({ dataSourceId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getWebhookByDataSource(input.dataSourceId);
+      }),
+
+    save: publicProcedure
+      .input(z.object({
+        dataSourceId: z.number(),
+        url: z.string(),
+        secret: z.string(),
+        eventos: z.array(z.string()).optional(),
+        ativo: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.saveDataSourceWebhook({
+          dataSourceId: input.dataSourceId,
+          url: input.url,
+          secret: input.secret,
+          eventos: input.eventos,
+          ativo: input.ativo || 1,
+        });
+        return { success: true };
+      }),
+  }),
+
+  dataSourceAuditLog: router({
+    getAll: publicProcedure
+      .input(z.object({ dataSourceId: z.number(), limit: z.number().optional() }))
+      .query(async ({ input }) => {
+        return db.getDataSourceAuditLog(input.dataSourceId, input.limit || 50);
+      }),
+
+    create: publicProcedure
+      .input(z.object({
+        dataSourceId: z.number(),
+        userId: z.number().optional(),
+        acao: z.string(),
+        mudancas: z.record(z.string(), z.any()).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.createDataSourceAuditLog({
+          dataSourceId: input.dataSourceId,
+          userId: input.userId,
+          acao: input.acao,
+          mudancas: input.mudancas,
+        });
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

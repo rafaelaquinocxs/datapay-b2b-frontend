@@ -21,6 +21,9 @@ import FormularioInteligente from "./pages/FormularioInteligente";
 import ResumoPerfil from "./pages/ResumoPerfil";
 import Benchmarks from "./pages/Benchmarks";
 import CopilatoDados from "./pages/CopilatoDados";
+import AdicionarFonte from "./pages/AdicionarFonte";
+import MapeamentoFontes from "./pages/MapeamentoFontes";
+import ConfiguracaoSincronizacao from "./pages/ConfiguracaoSincronizacao";
 
 function Router() {
   return (
@@ -125,7 +128,26 @@ function Router() {
           <CopilatoDados />
         </DashboardLayout>
       </Route>
-      <Route path="/404" component={NotFound} />
+
+      <Route path="/adicionar-fonte">
+        <DashboardLayout>
+          <AdicionarFonte />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/mapeamento-fontes">
+        <DashboardLayout>
+          <MapeamentoFontes />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/configuracao-sincronizacao">
+        <DashboardLayout>
+          <ConfiguracaoSincronizacao />
+        </DashboardLayout>
+      </Route>
+
+      {/* 404 */}
       <Route component={NotFound} />
     </Switch>
   );
