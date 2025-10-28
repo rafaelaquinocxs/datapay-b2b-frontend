@@ -384,3 +384,13 @@
 
 ---
 
+
+
+## 🆕 BUG REPORT - 2025-10-28
+
+- [x] Erro "Perfil não encontrado" em /copiloto-dados (empresaId 240003)
+  - Usuário: Robson Suzin (copiloto.supravel@gmail.com)
+  - Causa: Sem login, company_profile não foi criado
+  - Solução: Implementar fallback com GPT para gerar respostas sem depender do banco
+  - Status: Implementando fallback com invokeLLM
+
