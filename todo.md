@@ -414,3 +414,15 @@
 - [x] Remover logos: Magazine Luiza, Ambev, Nike, Renner
 - [x] Remover texto de empresas da página de Login
 
+
+
+
+## 🚨 BUG CRÍTICO - Login não funciona em produção (manus.space)
+
+- [x] Login funciona em dev mas não em produção
+- [x] Usuário é criado no banco mas login não redireciona
+- [x] Possível problema: cookies não sendo salvos no domínio manus.space
+- [x] Possível problema: configuração de cookies para produção
+- [x] Solução: Ajustado sameSite para "lax" em HTTP e "none" em HTTPS
+- [ ] Testar login em produção após correção
+
