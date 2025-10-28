@@ -399,22 +399,74 @@ export default function MeusDados() {
         </div>
       )}
 
-      {/* Modal Adicionar Fonte (placeholder) */}
+      {/* Modal Adicionar Fonte - 4 Passos */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <Card className="w-full max-w-2xl p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Adicionar Fonte de Dados
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Modal de 4 passos será implementado na Sprint A completa
-            </p>
-            <Button
-              onClick={() => setShowModal(false)}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              Fechar
-            </Button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-3xl p-8 max-h-96 overflow-y-auto">
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  Adicionar Fonte de Dados
+                </h2>
+                <p className="text-gray-600">
+                  Conecte uma nova fonte em 4 passos simples
+                </p>
+              </div>
+
+              {/* Conectores */}
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">Escolha um Conector</h3>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { id: "csv", icon: "📄", nome: "CSV" },
+                    { id: "excel", icon: "📊", nome: "Excel" },
+                    { id: "salesforce", icon: "☁️", nome: "Salesforce" },
+                    { id: "sap", icon: "🏢", nome: "SAP" },
+                    { id: "postgresql", icon: "🗄️", nome: "PostgreSQL" },
+                    { id: "mysql", icon: "🗄️", nome: "MySQL" },
+                    { id: "vtex", icon: "🛒", nome: "VTEX" },
+                    { id: "api", icon: "🔌", nome: "API" },
+                  ].map((c) => (
+                    <button
+                      key={c.id}
+                      className="p-3 border-2 border-gray-200 rounded-lg hover:border-purple-600 hover:bg-purple-50 transition-all text-center"
+                    >
+                      <div className="text-2xl mb-1">{c.icon}</div>
+                      <div className="text-xs font-medium text-gray-700">{c.nome}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Info */}
+              <Card className="p-4 bg-blue-50 border-blue-200">
+                <p className="text-sm text-blue-900">
+                  💡 <strong>Dica:</strong> Após selecionar o conector, você configurará autenticação, mapeamento de campos e agendamento de sincronização.
+                </p>
+              </Card>
+
+              {/* Botões */}
+              <div className="flex gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowModal(false);
+                    // Redirecionar para página de adicionar fonte
+                    window.location.href = "/adicionar-fonte";
+                  }}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Continuar
+                </Button>
+              </div>
+            </div>
           </Card>
         </div>
       )}
