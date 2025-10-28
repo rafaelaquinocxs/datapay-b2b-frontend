@@ -1,382 +1,423 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-import { trpc } from "@/lib/trpc";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
 import {
+  Plus,
+  Loader,
   Database,
-  Upload,
-  Plug,
-  Trash2,
-  CheckCircle2,
+  RefreshCw,
+  Eye,
+  Clock,
   AlertCircle,
-  Loader2,
-  FileSpreadsheet,
-  Cloud,
+  CheckCircle2,
+  Trash2,
+  Edit,
+  MoreVertical,
+  Search,
+  X,
 } from "lucide-react";
 
+interface DataSource {
+  id: number;
+  nome: string;
+  conector: string;
+  status: "conectado" | "sincronizando" | "erro" | "desconectado";
+  totalRegistros: number;
+  ultimaSincronizacao?: Date;
+  proximaSincronizacao?: Date;
+}
+
+const CONNECTOR_ICONS: Record<string, string> = {
+  csv: "📄",
+  excel: "📊",
+  salesforce: "☁️",
+  sap: "🏢",
+  vtex: "🛒",
+  postgresql: "🗄️",
+  mysql: "🗄️",
+  api: "🔌",
+};
+
 export default function MeusDados() {
-  const empresa = { id: 1, nome: "Jaime" }; // Mock para apresenta\u00e7\u00e3o
-  const [modalAberto, setModalAberto] = useState(false);
-  const [tipoConexao, setTipoConexao] = useState<string>("");
-  const [arquivo, setArquivo] = useState<File | null>(null);
-  const [carregando, setCarregando] = useState(false);
+  const empresaId = 1;
+  const [dataSources, setDataSources] = useState<DataSource[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedSource, setSelectedSource] = useState<DataSource | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [filterCategoria, setFilterCategoria] = useState("todos");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Formulário de conexão API
-  const [nomeConexao, setNomeConexao] = useState("");
-  const [apiUrl, setApiUrl] = useState("");
-  const [apiKey, setApiKey] = useState("");
-
-  // Query para listar fontes
-  const { data: fontes, refetch } = trpc.fontesDados.listar.useQuery(
-    { empresaId: empresa?.id || 0 },
-    { enabled: !!empresa?.id }
+  const { data: sources } = trpc.dataSources.getAll.useQuery(
+    { empresaId },
+    { enabled: !!empresaId }
   );
 
-  // Mutation para adicionar fonte
-  const adicionarFonte = trpc.fontesDados.adicionar.useMutation({
+  useEffect(() => {
+    if (sources) {
+      setDataSources(sources as any);
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
+    }
+  }, [sources]);
+
+  const syncMutation = trpc.dataSources.createSyncLog.useMutation({
     onSuccess: () => {
-      toast.success("Fonte de dados adicionada com sucesso!");
-      refetch();
-      setModalAberto(false);
-      resetForm();
+      toast.success("Sincronização iniciada!");
     },
-    onError: (error) => {
-      toast.error(error.message || "Erro ao adicionar fonte");
-      setCarregando(false);
+    onError: () => {
+      toast.error("Erro ao sincronizar");
     },
   });
 
-  // Mutation para remover fonte
-  const removerFonte = trpc.fontesDados.remover.useMutation({
-    onSuccess: () => {
-      toast.success("Fonte removida com sucesso!");
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Erro ao remover fonte");
-    },
+  const handleSync = async (source: DataSource) => {
+    await syncMutation.mutateAsync({
+      dataSourceId: source.id,
+      status: "sincronizando",
+      registrosLidos: 0,
+      registrosGravados: 0,
+      erros: 0,
+      duracao: 0,
+    });
+  };
+
+  const filteredSources = dataSources.filter((source) => {
+    const matchesSearch = source.nome
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      filterCategoria === "todos" || source.conector === filterCategoria;
+    return matchesSearch && matchesCategory;
   });
-
-  const resetForm = () => {
-    setTipoConexao("");
-    setArquivo(null);
-    setNomeConexao("");
-    setApiUrl("");
-    setApiKey("");
-    setCarregando(false);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setArquivo(e.target.files[0]);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setCarregando(true);
-
-    if (!empresa?.id) {
-      toast.error("Empresa não identificada");
-      setCarregando(false);
-      return;
-    }
-
-    try {
-      if (tipoConexao === "csv" || tipoConexao === "excel") {
-        if (!arquivo) {
-          toast.error("Selecione um arquivo");
-          setCarregando(false);
-          return;
-        }
-
-        // Simular processamento do arquivo
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        await adicionarFonte.mutateAsync({
-          empresaId: empresa.id,
-          nome: arquivo.name,
-          tipo: tipoConexao,
-          configuracao: {
-            nomeArquivo: arquivo.name,
-            tamanho: arquivo.size,
-          },
-        });
-      } else {
-        // Conexão via API
-        if (!nomeConexao || !apiUrl || !apiKey) {
-          toast.error("Preencha todos os campos");
-          setCarregando(false);
-          return;
-        }
-
-        await adicionarFonte.mutateAsync({
-          empresaId: empresa.id,
-          nome: nomeConexao,
-          tipo: tipoConexao,
-          configuracao: {
-            apiUrl,
-            apiKey,
-          },
-        });
-      }
-    } catch (error) {
-      console.error("Erro ao adicionar fonte:", error);
-    }
-  };
-
-  const handleRemover = async (id: number) => {
-    if (confirm("Tem certeza que deseja remover esta fonte de dados?")) {
-      await removerFonte.mutateAsync({ id });
-    }
-  };
-
-  const getTipoIcon = (tipo: string) => {
-    switch (tipo) {
-      case "csv":
-      case "excel":
-        return <FileSpreadsheet className="w-5 h-5" />;
-      default:
-        return <Cloud className="w-5 h-5" />;
-    }
-  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "conectado":
-        return <CheckCircle2 className="w-5 h-5 text-green-500" />;
+        return <CheckCircle2 className="w-5 h-5 text-green-600" />;
       case "sincronizando":
-        return <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />;
+        return <Loader className="w-5 h-5 text-blue-600 animate-spin" />;
       case "erro":
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
+        return <AlertCircle className="w-5 h-5 text-red-600" />;
       default:
         return <AlertCircle className="w-5 h-5 text-gray-400" />;
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      conectado: "Sincronizado",
+      sincronizando: "Sincronizando",
+      erro: "Erro",
+      desconectado: "Desconectado",
+    };
+    return labels[status] || status;
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "conectado":
+        return "bg-green-50 border-green-200";
+      case "sincronizando":
+        return "bg-blue-50 border-blue-200";
+      case "erro":
+        return "bg-red-50 border-red-200";
+      default:
+        return "bg-gray-50 border-gray-200";
+    }
+  };
+
   return (
-    <div className="p-8">
+    <div className="p-8 space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Meus Dados</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900">Meus Dados</h1>
+          <p className="text-gray-600 mt-1">
             Conecte e gerencie suas fontes de dados
           </p>
         </div>
-        <Dialog open={modalAberto} onOpenChange={setModalAberto}>
-          <DialogTrigger asChild>
-            <Button className="bg-purple-600 hover:bg-purple-700">
-              <Plug className="w-4 h-4 mr-2" />
-              Adicionar Fonte
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Adicionar Fonte de Dados</DialogTitle>
-              <DialogDescription>
-                Escolha como deseja conectar seus dados
-              </DialogDescription>
-            </DialogHeader>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Tipo de Conexão */}
-              <div className="space-y-2">
-                <Label>Tipo de Conexão</Label>
-                <Select value={tipoConexao} onValueChange={setTipoConexao}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="csv">Upload CSV</SelectItem>
-                    <SelectItem value="excel">Upload Excel</SelectItem>
-                    <SelectItem value="totvs">TOTVS Protheus</SelectItem>
-                    <SelectItem value="sap">SAP Business One</SelectItem>
-                    <SelectItem value="salesforce">Salesforce</SelectItem>
-                    <SelectItem value="vtex">VTEX</SelectItem>
-                    <SelectItem value="linx">Linx</SelectItem>
-                    <SelectItem value="api">API Personalizada</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Upload de Arquivo */}
-              {(tipoConexao === "csv" || tipoConexao === "excel") && (
-                <div className="space-y-2">
-                  <Label>Arquivo</Label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors">
-                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <Input
-                      type="file"
-                      accept={tipoConexao === "csv" ? ".csv" : ".xlsx,.xls"}
-                      onChange={handleFileChange}
-                      className="max-w-xs mx-auto"
-                    />
-                    {arquivo && (
-                      <p className="text-sm text-gray-600 mt-2">
-                        {arquivo.name} ({(arquivo.size / 1024).toFixed(2)} KB)
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Conexão via API */}
-              {tipoConexao &&
-                tipoConexao !== "csv" &&
-                tipoConexao !== "excel" && (
-                  <>
-                    <div className="space-y-2">
-                      <Label>Nome da Conexão</Label>
-                      <Input
-                        placeholder="Ex: CRM Principal"
-                        value={nomeConexao}
-                        onChange={(e) => setNomeConexao(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>URL da API</Label>
-                      <Input
-                        placeholder="https://api.exemplo.com"
-                        value={apiUrl}
-                        onChange={(e) => setApiUrl(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>API Key / Token</Label>
-                      <Input
-                        type="password"
-                        placeholder="••••••••••••••••"
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                      />
-                    </div>
-                  </>
-                )}
-
-              <div className="flex justify-end gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setModalAberto(false);
-                    resetForm();
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={carregando || !tipoConexao}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  {carregando ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Conectando...
-                    </>
-                  ) : (
-                    <>
-                      <Plug className="w-4 h-4 mr-2" />
-                      Conectar
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <Button
+          onClick={() => setShowModal(true)}
+          className="bg-purple-600 hover:bg-purple-700"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Adicionar Fonte
+        </Button>
       </div>
 
-      {/* Lista de Fontes */}
-      {fontes && fontes.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {fontes.map((fonte) => (
-            <Card key={fonte.id} className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                    {getTipoIcon(fonte.tipo)}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      {fonte.nome}
-                    </h3>
-                    <p className="text-sm text-gray-500 capitalize">
-                      {fonte.tipo}
-                    </p>
-                  </div>
-                </div>
-                {getStatusIcon(fonte.status || "conectado")}
-              </div>
+      {/* Filtros */}
+      <div className="flex gap-3 items-center">
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Buscar fonte..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+          />
+        </div>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Registros:</span>
-                  <span className="font-medium">
-                    {fonte.totalRegistros?.toLocaleString() || 0}
+        <div className="flex gap-2">
+          {["todos", "csv", "salesforce", "sap", "api"].map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setFilterCategoria(cat)}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                filterCategoria === cat
+                  ? "bg-purple-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {cat === "todos" ? "Todos" : cat.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Grid de Cards */}
+      {isLoading ? (
+        <div className="flex items-center justify-center min-h-96">
+          <Loader className="w-8 h-8 animate-spin text-purple-600" />
+        </div>
+      ) : filteredSources.length === 0 ? (
+        <Card className="p-12 text-center">
+          <Database className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Nenhuma fonte conectada
+          </h3>
+          <p className="text-gray-600 mb-6">
+            Conecte sua primeira fonte de dados em 2-3 cliques
+          </p>
+          <Button
+            onClick={() => setShowModal(true)}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Conectar Primeira Fonte
+          </Button>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredSources.map((source) => (
+            <Card
+              key={source.id}
+              className={`p-5 cursor-pointer hover:shadow-lg transition-all border-l-4 ${getStatusColor(
+                source.status
+              )}`}
+              onClick={() => setSelectedSource(source)}
+            >
+              <div className="space-y-4">
+                {/* Header */}
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="text-2xl">
+                      {CONNECTOR_ICONS[source.conector] || "📊"}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">
+                        {source.nome}
+                      </h3>
+                      <p className="text-xs text-gray-500">
+                        {source.conector.toUpperCase()}
+                      </p>
+                    </div>
+                  </div>
+                  <button className="p-1 hover:bg-gray-100 rounded">
+                    <MoreVertical className="w-4 h-4 text-gray-400" />
+                  </button>
+                </div>
+
+                {/* Status */}
+                <div className="flex items-center gap-2">
+                  {getStatusIcon(source.status)}
+                  <span className="text-sm font-medium text-gray-700">
+                    {getStatusLabel(source.status)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Última sync:</span>
-                  <span className="font-medium">
-                    {fonte.ultimaSincronizacao
-                      ? new Date(fonte.ultimaSincronizacao).toLocaleDateString()
+
+                {/* Registros */}
+                <div className="bg-white rounded p-3">
+                  <p className="text-xs text-gray-600">Registros</p>
+                  <p className="text-lg font-bold text-gray-900">
+                    {source.totalRegistros.toLocaleString("pt-BR")}
+                  </p>
+                </div>
+
+                {/* Última Sincronização */}
+                <div className="flex items-center gap-2 text-xs text-gray-600">
+                  <Clock className="w-4 h-4" />
+                  <span>
+                    Última sync:{" "}
+                    {source.ultimaSincronizacao
+                      ? new Date(source.ultimaSincronizacao).toLocaleDateString(
+                          "pt-BR"
+                        )
+                      : "Nunca"}
+                  </span>
+                </div>
+
+                {/* Ações */}
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSync(source);
+                    }}
+                    disabled={syncMutation.isPending}
+                  >
+                    <RefreshCw className="w-3 h-3 mr-1" />
+                    Sincronizar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedSource(source);
+                    }}
+                  >
+                    <Eye className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Side Panel */}
+      {selectedSource && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setSelectedSource(null)} />
+      )}
+
+      {selectedSource && (
+        <div className="fixed right-0 top-0 h-full w-96 bg-white shadow-lg z-50 overflow-y-auto">
+          <div className="p-6 space-y-6">
+            {/* Header */}
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {selectedSource.nome}
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {selectedSource.conector.toUpperCase()}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedSource(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Status Card */}
+            <Card className="p-4 bg-gradient-to-br from-blue-50 to-purple-50">
+              <div className="flex items-center gap-3 mb-4">
+                {getStatusIcon(selectedSource.status)}
+                <span className="font-semibold text-gray-900">
+                  {getStatusLabel(selectedSource.status)}
+                </span>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Registros</span>
+                  <span className="font-semibold">
+                    {selectedSource.totalRegistros.toLocaleString("pt-BR")}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Última sync</span>
+                  <span className="font-semibold">
+                    {selectedSource.ultimaSincronizacao
+                      ? new Date(
+                          selectedSource.ultimaSincronizacao
+                        ).toLocaleDateString("pt-BR")
                       : "Nunca"}
                   </span>
                 </div>
               </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
-                onClick={() => handleRemover(fonte.id)}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Remover
-              </Button>
             </Card>
-          ))}
+
+            {/* Tabs */}
+            <div className="space-y-4">
+              <div className="border-b">
+                <div className="flex gap-4">
+                  <button className="pb-2 px-2 border-b-2 border-purple-600 text-purple-600 font-medium">
+                    Visão Geral
+                  </button>
+                  <button className="pb-2 px-2 text-gray-600 hover:text-gray-900">
+                    Logs
+                  </button>
+                </div>
+              </div>
+
+              {/* Qualidade */}
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">
+                  Qualidade de Dados
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Score</span>
+                    <Badge>82%</Badge>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-green-600 h-2 rounded-full" style={{ width: "82%" }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Ações */}
+              <div className="space-y-2 pt-4 border-t">
+                <Button
+                  onClick={() => handleSync(selectedSource)}
+                  className="w-full bg-purple-600 hover:bg-purple-700"
+                  disabled={syncMutation.isPending}
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Sincronizar Agora
+                </Button>
+                <Button variant="outline" className="w-full">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Editar
+                </Button>
+                <Button variant="outline" className="w-full text-red-600">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Remover
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
-      ) : (
-        <Card className="p-12 text-center">
-          <Database className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            Nenhuma fonte conectada
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Comece adicionando sua primeira fonte de dados
-          </p>
-          <Button
-            onClick={() => setModalAberto(true)}
-            className="bg-purple-600 hover:bg-purple-700"
-          >
-            <Plug className="w-4 h-4 mr-2" />
-            Adicionar Fonte
-          </Button>
-        </Card>
+      )}
+
+      {/* Modal Adicionar Fonte (placeholder) */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <Card className="w-full max-w-2xl p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Adicionar Fonte de Dados
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Modal de 4 passos será implementado na Sprint A completa
+            </p>
+            <Button
+              onClick={() => setShowModal(false)}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              Fechar
+            </Button>
+          </Card>
+        </div>
       )}
     </div>
   );
 }
-

@@ -996,6 +996,121 @@ Forneca a resposta em formato JSON:
         return db.getDataCopiloHistory(input.empresaId, input.limit);
       }),
   }),
+
+  dataSources: router({
+    getAll: publicProcedure
+      .input(z.object({ empresaId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getDataSources(input.empresaId);
+      }),
+
+    getById: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return db.getDataSourceById(input.id);
+      }),
+
+    create: publicProcedure
+      .input(z.object({
+        empresaId: z.number(),
+        nome: z.string(),
+        conector: z.string(),
+        entidade: z.string().optional(),
+        configuracao: z.record(z.string(), z.any()).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.createDataSource({
+          empresaId: input.empresaId,
+          nome: input.nome,
+          conector: input.conector,
+          entidade: input.entidade,
+          configuracao: input.configuracao,
+          status: "conectado",
+        });
+        return { success: true };
+      }),
+
+    update: publicProcedure
+      .input(z.object({
+        id: z.number(),
+        nome: z.string().optional(),
+        status: z.string().optional(),
+        configuracao: z.record(z.string(), z.any()).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.updateDataSource(input.id, {
+          nome: input.nome,
+          status: input.status as any,
+          configuracao: input.configuracao,
+        });
+        return { success: true };
+      }),
+
+    delete: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteDataSource(input.id);
+        return { success: true };
+      }),
+
+    getSyncLogs: publicProcedure
+      .input(z.object({ dataSourceId: z.number(), limit: z.number().optional() }))
+      .query(async ({ input }) => {
+        return db.getSyncLogs(input.dataSourceId, input.limit || 20);
+      }),
+
+    createSyncLog: publicProcedure
+      .input(z.object({
+        dataSourceId: z.number(),
+        status: z.string(),
+        registrosLidos: z.number().optional(),
+        registrosGravados: z.number().optional(),
+        erros: z.number().optional(),
+        duracao: z.number().optional(),
+        mensagem: z.string().optional(),
+        errosDetalhados: z.record(z.string(), z.any()).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.createSyncLog({
+          dataSourceId: input.dataSourceId,
+          status: input.status,
+          registrosLidos: input.registrosLidos,
+          registrosGravados: input.registrosGravados,
+          erros: input.erros,
+          duracao: input.duracao,
+          mensagem: input.mensagem,
+          errosDetalhados: input.errosDetalhados,
+        });
+        return { success: true };
+      }),
+
+    getQualityScore: publicProcedure
+      .input(z.object({ dataSourceId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getDataQualityScore(input.dataSourceId);
+      }),
+
+    saveQualityScore: publicProcedure
+      .input(z.object({
+        dataSourceId: z.number(),
+        score: z.number(),
+        completude: z.number(),
+        duplicidade: z.number(),
+        atualidade: z.string(),
+        consistencia: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.saveDataQualityScore({
+          dataSourceId: input.dataSourceId,
+          score: input.score,
+          completude: input.completude,
+          duplicidade: input.duplicidade,
+          atualidade: input.atualidade,
+          consistencia: input.consistencia,
+        });
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

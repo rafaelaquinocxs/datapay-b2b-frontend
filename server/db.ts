@@ -1,6 +1,6 @@
-import { eq, and, gte, lte } from "drizzle-orm";
+import { eq, and, gte, lte, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa, fontesDados, InsertFonteDados, baseConhecimento, InsertBaseConhecimento, insightsIA, InsertInsightIA, acoesInteligentes, InsertAcaoInteligente, resultadosAcoes, InsertResultadoAcao, companyProfile, InsertCompanyProfile, companyProfileVersions, InsertCompanyProfileVersion, profileAuditLog, InsertProfileAuditLog, taxonomySectors, fieldPermissions, InsertFieldPermission, executiveSummaries, InsertExecutiveSummary, benchmarkData, benchmarkComparisons, InsertBenchmarkComparison, dataCopiloConversations, InsertDataCopiloConversation, profileWebhooks, InsertProfileWebhook } from "../drizzle/schema";
+import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa, fontesDados, InsertFonteDados, baseConhecimento, InsertBaseConhecimento, insightsIA, InsertInsightIA, acoesInteligentes, InsertAcaoInteligente, resultadosAcoes, InsertResultadoAcao, companyProfile, InsertCompanyProfile, companyProfileVersions, InsertCompanyProfileVersion, profileAuditLog, InsertProfileAuditLog, taxonomySectors, fieldPermissions, InsertFieldPermission, executiveSummaries, InsertExecutiveSummary, benchmarkData, benchmarkComparisons, InsertBenchmarkComparison, dataCopiloConversations, InsertDataCopiloConversation, profileWebhooks, InsertProfileWebhook, dataSources, InsertDataSource, syncLogs, InsertSyncLog, dataQualityScores, InsertDataQualityScore, fieldMappings, InsertFieldMapping, syncSchedules, InsertSyncSchedule, dataSourceWebhooks, InsertDataSourceWebhook, dataSourceAuditLog, InsertDataSourceAuditLog } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -710,5 +710,195 @@ export async function updateWebhookStatus(id: number, status: string) {
   await db.update(profileWebhooks)
     .set({ status: status as any })
     .where(eq(profileWebhooks.id, id));
+}
+
+
+
+
+/**
+ * Sprint A-C: Meus Dados - Data Sources Management
+ */
+
+export async function getDataSources(empresaId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db
+    .select()
+    .from(dataSources)
+    .where(eq(dataSources.empresaId, empresaId))
+    .orderBy(desc(dataSources.createdAt));
+}
+
+export async function getDataSourceById(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db
+    .select()
+    .from(dataSources)
+    .where(eq(dataSources.id, id))
+    .then((rows) => rows[0]);
+}
+
+export async function createDataSource(data: InsertDataSource) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(dataSources).values(data);
+  return result;
+}
+
+export async function updateDataSource(id: number, data: Partial<InsertDataSource>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db
+    .update(dataSources)
+    .set(data)
+    .where(eq(dataSources.id, id));
+}
+
+export async function deleteDataSource(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db
+    .delete(dataSources)
+    .where(eq(dataSources.id, id));
+}
+
+// Sync Logs
+export async function getSyncLogs(dataSourceId: number, limit = 20) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db
+    .select()
+    .from(syncLogs)
+    .where(eq(syncLogs.dataSourceId, dataSourceId))
+    .orderBy(desc(syncLogs.criadoEm))
+    .limit(limit);
+}
+
+export async function createSyncLog(data: InsertSyncLog) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.insert(syncLogs).values(data);
+}
+
+// Data Quality Scores
+export async function getDataQualityScore(dataSourceId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db
+    .select()
+    .from(dataQualityScores)
+    .where(eq(dataQualityScores.dataSourceId, dataSourceId))
+    .orderBy(desc(dataQualityScores.criadoEm))
+    .then((rows) => rows[0]);
+}
+
+export async function saveDataQualityScore(data: InsertDataQualityScore) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.insert(dataQualityScores).values(data);
+}
+
+// Field Mappings
+export async function getFieldMappings(dataSourceId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db
+    .select()
+    .from(fieldMappings)
+    .where(eq(fieldMappings.dataSourceId, dataSourceId));
+}
+
+export async function saveFieldMappings(dataSourceId: number, mappings: InsertFieldMapping[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db
+    .delete(fieldMappings)
+    .where(eq(fieldMappings.dataSourceId, dataSourceId));
+  
+  return db.insert(fieldMappings).values(mappings);
+}
+
+// Sync Schedules
+export async function getSyncSchedule(dataSourceId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db
+    .select()
+    .from(syncSchedules)
+    .where(eq(syncSchedules.dataSourceId, dataSourceId))
+    .then((rows) => rows[0]);
+}
+
+export async function saveSyncSchedule(data: InsertSyncSchedule) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await getSyncSchedule(data.dataSourceId);
+  if (existing) {
+    return db
+      .update(syncSchedules)
+      .set(data)
+      .where(eq(syncSchedules.dataSourceId, data.dataSourceId));
+  }
+  return db.insert(syncSchedules).values(data);
+}
+
+// Webhooks
+export async function getWebhookByDataSource(dataSourceId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db
+    .select()
+    .from(dataSourceWebhooks)
+    .where(eq(dataSourceWebhooks.dataSourceId, dataSourceId))
+    .then((rows) => rows[0]);
+}
+
+export async function saveDataSourceWebhook(data: InsertDataSourceWebhook) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await getWebhookByDataSource(data.dataSourceId);
+  if (existing) {
+    return db
+      .update(dataSourceWebhooks)
+      .set(data)
+      .where(eq(dataSourceWebhooks.dataSourceId, data.dataSourceId));
+  }
+  return db.insert(dataSourceWebhooks).values(data);
+}
+
+// Audit Log
+export async function createDataSourceAuditLog(data: InsertDataSourceAuditLog) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.insert(dataSourceAuditLog).values(data);
+}
+
+export async function getDataSourceAuditLog(dataSourceId: number, limit = 50) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db
+    .select()
+    .from(dataSourceAuditLog)
+    .where(eq(dataSourceAuditLog.dataSourceId, dataSourceId))
+    .orderBy(desc(dataSourceAuditLog.criadoEm))
+    .limit(limit);
 }
 

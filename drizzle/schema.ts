@@ -431,3 +431,129 @@ export const profileWebhooks = mysqlTable("profile_webhooks", {
 export type ProfileWebhook = typeof profileWebhooks.$inferSelect;
 export type InsertProfileWebhook = typeof profileWebhooks.$inferInsert;
 
+
+
+
+/**
+ * Sprint A-C: Meus Dados - Data Sources Management
+ */
+
+export const dataSources = mysqlTable("data_sources", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresaId").notNull(),
+  nome: varchar("nome", { length: 255 }).notNull(),
+  conector: varchar("conector", { length: 100 }).notNull(),
+  entidade: varchar("entidade", { length: 100 }),
+  status: mysqlEnum("status", ["conectado", "sincronizando", "erro", "desconectado"]).default("conectado"),
+  ultimaSincronizacao: timestamp("ultimaSincronizacao"),
+  proximaSincronizacao: timestamp("proximaSincronizacao"),
+  totalRegistros: int("totalRegistros").default(0),
+  configuracao: json("configuracao"),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+
+export type DataSource = typeof dataSources.$inferSelect;
+export type InsertDataSource = typeof dataSources.$inferInsert;
+
+/**
+ * Sprint B: Mapeamento de campos
+ */
+export const fieldMappings = mysqlTable("field_mappings", {
+  id: int("id").primaryKey().autoincrement(),
+  dataSourceId: int("dataSourceId").notNull(),
+  sourceField: varchar("sourceField", { length: 255 }).notNull(),
+  targetField: varchar("targetField", { length: 255 }).notNull(),
+  tipo: varchar("tipo", { length: 50 }),
+  validadores: json("validadores"),
+  transformacao: text("transformacao"),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type FieldMapping = typeof fieldMappings.$inferSelect;
+export type InsertFieldMapping = typeof fieldMappings.$inferInsert;
+
+/**
+ * Sprint B: Score de qualidade de dados
+ */
+export const dataQualityScores = mysqlTable("data_quality_scores", {
+  id: int("id").primaryKey().autoincrement(),
+  dataSourceId: int("dataSourceId").notNull(),
+  score: int("score"),
+  completude: int("completude"),
+  duplicidade: int("duplicidade"),
+  atualidade: varchar("atualidade", { length: 50 }),
+  consistencia: int("consistencia"),
+  criadoEm: timestamp("criadoEm").defaultNow(),
+});
+
+export type DataQualityScore = typeof dataQualityScores.$inferSelect;
+export type InsertDataQualityScore = typeof dataQualityScores.$inferInsert;
+
+/**
+ * Sprint A: Logs de sincronização
+ */
+export const syncLogs = mysqlTable("sync_logs", {
+  id: int("id").primaryKey().autoincrement(),
+  dataSourceId: int("dataSourceId").notNull(),
+  status: varchar("status", { length: 50 }).notNull(),
+  registrosLidos: int("registrosLidos").default(0),
+  registrosGravados: int("registrosGravados").default(0),
+  erros: int("erros").default(0),
+  duracao: int("duracao"),
+  mensagem: text("mensagem"),
+  errosDetalhados: json("errosDetalhados"),
+  criadoEm: timestamp("criadoEm").defaultNow(),
+});
+
+export type SyncLog = typeof syncLogs.$inferSelect;
+export type InsertSyncLog = typeof syncLogs.$inferInsert;
+
+/**
+ * Sprint C: Agendamento de sincronizações
+ */
+export const syncSchedules = mysqlTable("sync_schedules", {
+  id: int("id").primaryKey().autoincrement(),
+  dataSourceId: int("dataSourceId").notNull(),
+  tipo: varchar("tipo", { length: 50 }).notNull(),
+  expressao: varchar("expressao", { length: 255 }),
+  janelaInicio: varchar("janelaInicio", { length: 50 }),
+  janelaFim: varchar("janelaFim", { length: 50 }),
+  ativo: int("ativo").default(1),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type SyncSchedule = typeof syncSchedules.$inferSelect;
+export type InsertSyncSchedule = typeof syncSchedules.$inferInsert;
+
+/**
+ * Sprint C: Webhooks para sincronização em tempo real
+ */
+export const dataSourceWebhooks = mysqlTable("data_source_webhooks", {
+  id: int("id").primaryKey().autoincrement(),
+  dataSourceId: int("dataSourceId").notNull(),
+  url: varchar("url", { length: 500 }).notNull(),
+  secret: varchar("secret", { length: 255 }).notNull(),
+  eventos: json("eventos"),
+  ativo: int("ativo").default(1),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type DataSourceWebhook = typeof dataSourceWebhooks.$inferSelect;
+export type InsertDataSourceWebhook = typeof dataSourceWebhooks.$inferInsert;
+
+/**
+ * Sprint C: Auditoria de mudanças em data sources
+ */
+export const dataSourceAuditLog = mysqlTable("data_source_audit_log", {
+  id: int("id").primaryKey().autoincrement(),
+  dataSourceId: int("dataSourceId").notNull(),
+  userId: int("userId"),
+  acao: varchar("acao", { length: 100 }).notNull(),
+  mudancas: json("mudancas"),
+  criadoEm: timestamp("criadoEm").defaultNow(),
+});
+
+export type DataSourceAuditLog = typeof dataSourceAuditLog.$inferSelect;
+export type InsertDataSourceAuditLog = typeof dataSourceAuditLog.$inferInsert;
+
