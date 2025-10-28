@@ -21,17 +21,11 @@ export default function Registro() {
   const utils = trpc.useUtils();
 
   const registroMutation = trpc.auth.registro.useMutation({
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       toast.success("Conta criada com sucesso! Bem-vindo ao DataPay!");
-      setCarregando(false);
       
-      // Invalidar cache do useAuth para recarregar o usuário
-      await utils.auth.me.invalidate();
-      
-      // Redirecionar para o dashboard
-      setTimeout(() => {
-        window.location.href = "/dashboard";
-      }, 500);
+      // Redirecionar imediatamente para o dashboard
+      window.location.href = "/dashboard";
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao criar conta");

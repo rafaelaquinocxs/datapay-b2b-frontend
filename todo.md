@@ -393,3 +393,24 @@
 - [ ] Possível problema: wouter não está redirecionando corretamente
 - [ ] Solução: usar window.location.href ao invés de setLocation
 
+
+
+
+## 🚨 BUG CRÍTICO URGENTE - Login não funciona
+
+- [ ] Login mostra rodinha girando, pisca e volta para tela de login
+- [ ] window.location.href não está funcionando
+- [ ] Possível problema: cookie não está sendo salvo corretamente
+- [ ] Possível problema: auth.me está retornando null após login
+- [ ] Solução: verificar se cookie está sendo setado no response
+- [ ] Solução: verificar se auth.me está lendo o cookie corretamente
+
+
+
+
+## Ajustes para Apresentação ao Investidor
+
+- [x] Remover seção "CONFIADO POR GRANDES EMPRESAS" da landing page
+- [x] Remover logos: Magazine Luiza, Ambev, Nike, Renner
+- [x] Remover texto de empresas da página de Login
+

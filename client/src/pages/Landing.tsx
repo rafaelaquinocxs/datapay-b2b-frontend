@@ -135,20 +135,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Social Proof */}
-      <section className="container mx-auto px-4 py-16 bg-purple-50 rounded-3xl my-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-sm text-purple-600 font-semibold mb-4">
-            CONFIADO POR GRANDES EMPRESAS
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 text-gray-400">
-            <span className="text-2xl font-bold">Magazine Luiza</span>
-            <span className="text-2xl font-bold">Ambev</span>
-            <span className="text-2xl font-bold">Nike</span>
-            <span className="text-2xl font-bold">Renner</span>
-          </div>
-        </div>
-      </section>
 
       {/* Benefits */}
       <section className="container mx-auto px-4 py-16">

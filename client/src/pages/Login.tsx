@@ -18,20 +18,13 @@ export default function Login() {
   const utils = trpc.useUtils();
 
   const loginMutation = trpc.auth.login.useMutation({
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       console.log("Login bem-sucedido:", data);
       toast.success("Login realizado com sucesso!");
-      setCarregando(false);
       
-      // Invalidar cache do useAuth para recarregar o usuário
-      await utils.auth.me.invalidate();
-      
-      // Redirecionar para o dashboard com delay maior
+      // Redirecionar imediatamente para o dashboard
       console.log("Redirecionando para /dashboard...");
-      setTimeout(() => {
-        console.log("Executando redirecionamento");
-        window.location.href = "/dashboard";
-      }, 500);
+      window.location.href = "/dashboard";
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao fazer login");
@@ -215,11 +208,7 @@ export default function Login() {
             </div>
           </div>
 
-          <div className="pt-8 border-t border-white/20">
-            <p className="text-sm text-purple-100">
-              Usado por grandes empresas como Magazine Luiza, Ambev e Nike
-            </p>
-          </div>
+
         </div>
       </div>
     </div>
