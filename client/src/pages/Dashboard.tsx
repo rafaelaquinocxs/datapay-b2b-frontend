@@ -120,7 +120,7 @@ export default function Dashboard() {
           Como a Plataforma Funciona
         </h2>
         <p className="text-gray-600 mb-6">
-          Siga este fluxo de trabalho para transformar seus dados em a\u00e7\u00f5es que geram lucro:
+          Siga este fluxo de trabalho para transformar seus dados em ações que geram lucro:
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -146,7 +146,7 @@ export default function Dashboard() {
             </div>
             <h3 className="font-semibold text-gray-900 mb-2">Gere Insights com IA</h3>
             <p className="text-sm text-gray-600">
-              An\u00e1lise da IA identifica gaps e oportunidades
+              Análise da IA identifica gaps e oportunidades
             </p>
           </div>
 
@@ -161,7 +161,7 @@ export default function Dashboard() {
             </div>
             <h3 className="font-semibold text-gray-900 mb-2">Colete Mais Dados</h3>
             <p className="text-sm text-gray-600">
-              Formul\u00e1rios Inteligentes + Pesquisas
+              Formulários Inteligentes + Pesquisas
             </p>
           </div>
 
@@ -176,7 +176,7 @@ export default function Dashboard() {
             </div>
             <h3 className="font-semibold text-gray-900 mb-2">Execute Campanhas</h3>
             <p className="text-sm text-gray-600">
-              A\u00e7\u00f5es Inteligentes sugeridas pela IA
+              Ações Inteligentes sugeridas pela IA
             </p>
           </div>
 
@@ -191,7 +191,7 @@ export default function Dashboard() {
             </div>
             <h3 className="font-semibold text-gray-900 mb-2">Mea ROI</h3>
             <p className="text-sm text-gray-600">
-              Resultados + Relat\u00f3rios
+              Resultados + Relatórios
             </p>
           </div>
         </div>
@@ -200,16 +200,16 @@ export default function Dashboard() {
           <p className="text-sm text-gray-700 flex items-start gap-2">
             <Users className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
             <span>
-              <strong>Comece agora:</strong> Adicione informa\u00e7\u00f5es da sua empresa na Base de Conhecimento e conecte suas fontes de dados em Meus Dados.
+              <strong>Comece agora:</strong> Adicione informações da sua empresa na Base de Conhecimento e conecte suas fontes de dados em Meus Dados.
             </span>
           </p>
         </div>
       </Card>
 
-      {/* M\u00f3dulos */}
+      {/* Módulos */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          M\u00f3dulos da Plataforma
+          Módulos da Plataforma
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cards.map((card, index) => {

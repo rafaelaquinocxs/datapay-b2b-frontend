@@ -562,3 +562,12 @@
   - Tornar navegação mais intuitiva
   - Posicionar ANTES dos "Módulos da Plataforma"
 
+
+
+
+## 🐛 BUG - Acentos aparecendo como códigos Unicode
+
+- [ ] Corrigir todos os textos com acentos no Dashboard
+- [ ] Corrigir acentos em todas as páginas da plataforma
+- [ ] Garantir que acentos apareçam corretamente (ç, ã, é, etc)
+
