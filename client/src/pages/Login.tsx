@@ -19,16 +19,19 @@ export default function Login() {
 
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: async (data) => {
+      console.log("Login bem-sucedido:", data);
       toast.success("Login realizado com sucesso!");
       setCarregando(false);
       
       // Invalidar cache do useAuth para recarregar o usuário
       await utils.auth.me.invalidate();
       
-      // Redirecionar para o dashboard
+      // Redirecionar para o dashboard com delay maior
+      console.log("Redirecionando para /dashboard...");
       setTimeout(() => {
+        console.log("Executando redirecionamento");
         setLocation("/dashboard");
-      }, 100);
+      }, 500);
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao fazer login");

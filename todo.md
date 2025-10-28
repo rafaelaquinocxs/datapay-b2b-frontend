@@ -223,7 +223,9 @@
 
 ## 🐛 Bugs para Correção
 
-- [ ] Login não redireciona para dashboard após autenticação bem-sucedida
+- [ ] Login mostra "Login realizado com sucesso!" mas não redireciona para dashboard
+  - Problema: setTimeout de 100ms pode ser insuficiente
+  - Solução: Aumentar timeout e adicionar logs para debugar
 - [ ] Verificar fluxo completo de autenticação e persistência de sessão
 - [ ] Testar geração de insights com OpenAI GPT-4 no módulo Análise da IA
 - [ ] Validar salvamento de dados em todas as tabelas do banco
