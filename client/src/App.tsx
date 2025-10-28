@@ -18,6 +18,9 @@ import RespondePesquisa from "./pages/RespondePesquisa";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import FormularioInteligente from "./pages/FormularioInteligente";
+import ResumoPerfil from "./pages/ResumoPerfil";
+import Benchmarks from "./pages/Benchmarks";
+import CopilatoDados from "./pages/CopilatoDados";
 
 function Router() {
   return (
@@ -104,6 +107,24 @@ function Router() {
       </Route>
 
       {/* 404 */}
+
+      <Route path="/resumo-perfil">
+        <DashboardLayout>
+          <ResumoPerfil />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/benchmarks">
+        <DashboardLayout>
+          <Benchmarks />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/copiloto-dados">
+        <DashboardLayout>
+          <CopilatoDados />
+        </DashboardLayout>
+      </Route>
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

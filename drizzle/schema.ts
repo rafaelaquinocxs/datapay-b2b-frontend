@@ -226,3 +226,208 @@ export const resultadosAcoes = mysqlTable("resultados_acoes", {
 export type ResultadoAcao = typeof resultadosAcoes.$inferSelect;
 export type InsertResultadoAcao = typeof resultadosAcoes.$inferInsert;
 
+
+
+/**
+ * Tabela para armazenar perfil completo da empresa (Sprint 1 Base de Conhecimento)
+ */
+export const companyProfile = mysqlTable("company_profile", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresaId").notNull().unique(),
+  
+  // Bloco 1: Identidade & Mercado
+  missao: text("missao"),
+  visao: text("visao"),
+  valores: text("valores"),
+  publicoAlvo: text("publicoAlvo"),
+  personas: json("personas"),
+  segmentos: json("segmentos"),
+  concorrentes: json("concorrentes"),
+  
+  // Bloco 2: Operação & Dados
+  erpsUtilizados: json("erpsUtilizados"),
+  fontesConectadas: json("fontesConectadas"),
+  qualidadeDados: int("qualidadeDados"),
+  frequenciaAtualizacao: varchar("frequenciaAtualizacao", { length: 100 }),
+  
+  // Bloco 3: Objetivos & KPIs
+  metasTrimestrais: json("metasTrimestrais"),
+  restricoes: text("restricoes"),
+  budget: int("budget"),
+  
+  // Bloco 4: Regras & Política
+  lgpdCompliance: int("lgpdCompliance").default(0),
+  janelaComunicacao: varchar("janelaComunicacao", { length: 255 }),
+  sensibilidadeDados: varchar("sensibilidadeDados", { length: 50 }),
+  
+  // Metadados
+  status: mysqlEnum("status", ["rascunho", "em_revisao", "publicado"]).default("rascunho"),
+  versao: int("versao").default(1),
+  setor: varchar("setor", { length: 100 }),
+  dataQualityScore: int("dataQualityScore").default(0),
+  
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+  publishedAt: timestamp("publishedAt"),
+});
+
+export type CompanyProfile = typeof companyProfile.$inferSelect;
+export type InsertCompanyProfile = typeof companyProfile.$inferInsert;
+
+/**
+ * Tabela para armazenar histórico de versões do perfil
+ */
+export const companyProfileVersions = mysqlTable("company_profile_versions", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresaId").notNull(),
+  versao: int("versao").notNull(),
+  payload: json("payload").notNull(),
+  status: varchar("status", { length: 50 }).notNull(),
+  publishedBy: int("publishedBy"),
+  publishedAt: timestamp("publishedAt"),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type CompanyProfileVersion = typeof companyProfileVersions.$inferSelect;
+export type InsertCompanyProfileVersion = typeof companyProfileVersions.$inferInsert;
+
+/**
+ * Tabela para auditoria de mudanças no perfil
+ */
+export const profileAuditLog = mysqlTable("profile_audit_log", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresaId").notNull(),
+  userId: int("userId"),
+  fieldPath: varchar("fieldPath", { length: 255 }).notNull(),
+  oldValue: text("oldValue"),
+  newValue: text("newValue"),
+  action: varchar("action", { length: 50 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type ProfileAuditLog = typeof profileAuditLog.$inferSelect;
+export type InsertProfileAuditLog = typeof profileAuditLog.$inferInsert;
+
+/**
+ * Tabela para taxonomia de setores (CNAE) e mapeamento para playbooks
+ */
+export const taxonomySectors = mysqlTable("taxonomy_sectors", {
+  id: int("id").primaryKey().autoincrement(),
+  cnae: varchar("cnae", { length: 50 }).unique(),
+  label: varchar("label", { length: 255 }).notNull(),
+  playbooks: json("playbooks"),
+  keywords: json("keywords"),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type TaxonomySector = typeof taxonomySectors.$inferSelect;
+export type InsertTaxonomySector = typeof taxonomySectors.$inferInsert;
+
+
+
+
+/**
+ * Sprint 2: Tabela para RBAC por campo
+ */
+export const fieldPermissions = mysqlTable("field_permissions", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresaId").notNull(),
+  fieldPath: varchar("fieldPath", { length: 255 }).notNull(),
+  role: mysqlEnum("role", ["viewer", "editor", "approver", "admin"]).notNull(),
+  canView: int("canView").default(1),
+  canEdit: int("canEdit").default(0),
+  isSensitive: int("isSensitive").default(0),
+  maskingPattern: varchar("maskingPattern", { length: 100 }),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type FieldPermission = typeof fieldPermissions.$inferSelect;
+export type InsertFieldPermission = typeof fieldPermissions.$inferInsert;
+
+/**
+ * Sprint 2: Tabela para armazenar resumos executivos gerados
+ */
+export const executiveSummaries = mysqlTable("executive_summaries", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresaId").notNull(),
+  versao: int("versao").notNull(),
+  titulo: text("titulo"),
+  conteudo: text("conteudo"),
+  prioridades: json("prioridades"),
+  geradoEm: timestamp("geradoEm").defaultNow(),
+  urlPdf: varchar("urlPdf", { length: 500 }),
+});
+
+export type ExecutiveSummary = typeof executiveSummaries.$inferSelect;
+export type InsertExecutiveSummary = typeof executiveSummaries.$inferInsert;
+
+/**
+ * Sprint 3: Tabela para benchmarks por setor
+ */
+export const benchmarkData = mysqlTable("benchmark_data", {
+  id: int("id").primaryKey().autoincrement(),
+  setor: varchar("setor", { length: 100 }).notNull(),
+  porte: varchar("porte", { length: 50 }).notNull(),
+  metricaChave: varchar("metricaChave", { length: 100 }).notNull(),
+  mediana: int("mediana"),
+  p25: int("p25"),
+  p75: int("p75"),
+  p90: int("p90"),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type BenchmarkData = typeof benchmarkData.$inferSelect;
+export type InsertBenchmarkData = typeof benchmarkData.$inferInsert;
+
+/**
+ * Sprint 3: Tabela para armazenar comparações com benchmarks
+ */
+export const benchmarkComparisons = mysqlTable("benchmark_comparisons", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresaId").notNull(),
+  metricaChave: varchar("metricaChave", { length: 100 }).notNull(),
+  valorEmpresa: int("valorEmpresa"),
+  mediana: int("mediana"),
+  percentil: int("percentil"),
+  gap: int("gap"),
+  recomendacao: text("recomendacao"),
+  criadoEm: timestamp("criadoEm").defaultNow(),
+});
+
+export type BenchmarkComparison = typeof benchmarkComparisons.$inferSelect;
+export type InsertBenchmarkComparison = typeof benchmarkComparisons.$inferInsert;
+
+/**
+ * Sprint 3: Tabela para armazenar conversas com copiloto de dados
+ */
+export const dataCopiloConversations = mysqlTable("data_copilot_conversations", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresaId").notNull(),
+  pergunta: text("pergunta").notNull(),
+  resposta: text("resposta"),
+  contexto: json("contexto"),
+  modelo: varchar("modelo", { length: 50 }).default("gpt-4"),
+  criadoEm: timestamp("criadoEm").defaultNow(),
+});
+
+export type DataCopiloConversation = typeof dataCopiloConversations.$inferSelect;
+export type InsertDataCopiloConversation = typeof dataCopiloConversations.$inferInsert;
+
+/**
+ * Sprint 3: Tabela para webhooks de notificação
+ */
+export const profileWebhooks = mysqlTable("profile_webhooks", {
+  id: int("id").primaryKey().autoincrement(),
+  empresaId: int("empresaId").notNull(),
+  evento: varchar("evento", { length: 100 }).notNull(),
+  targetModule: varchar("targetModule", { length: 100 }).notNull(),
+  payload: json("payload"),
+  status: mysqlEnum("status", ["pendente", "enviado", "falha"]).default("pendente"),
+  tentativas: int("tentativas").default(0),
+  proximaTentativa: timestamp("proximaTentativa"),
+  criadoEm: timestamp("criadoEm").defaultNow(),
+});
+
+export type ProfileWebhook = typeof profileWebhooks.$inferSelect;
+export type InsertProfileWebhook = typeof profileWebhooks.$inferInsert;
+

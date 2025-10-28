@@ -63,8 +63,23 @@ const menuItems = [
   },
   {
     icon: FileBarChart,
-    label: "Relat\u00f3rios",
+    label: "Relatórios",
     path: "/relatorios",
+  },
+  {
+    icon: BookOpen,
+    label: "Resumo Perfil",
+    path: "/resumo-perfil",
+  },
+  {
+    icon: BarChart3,
+    label: "Benchmarks",
+    path: "/benchmarks",
+  },
+  {
+    icon: Brain,
+    label: "Copiloto de Dados",
+    path: "/copiloto-dados",
   },
 ];
 

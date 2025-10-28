@@ -30,7 +30,9 @@ const colorMap: Record<string, { bg: string; text: string; icon: string }> = {
   "Retenção": { bg: "bg-orange-100", text: "text-orange-700", icon: "text-orange-600" },
   "Upsell": { bg: "bg-green-100", text: "text-green-700", icon: "text-green-600" },
   "Default": { bg: "bg-blue-100", text: "text-blue-700", icon: "text-blue-600" },
-};export default function AcoesInteligentes() {
+};
+
+export default function AcoesInteligentes() {
   const [modalAberto, setModalAberto] = useState(false);
   const [acaoSelecionada, setAcaoSelecionada] = useState<any>(null);
   const empresaId = 1; // Mock para apresentaçãou00e7\u00e3o

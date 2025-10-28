@@ -305,3 +305,48 @@
 4. ⏳ Montar equipe de desenvolvimento
 5. ⏳ Definir SLAs e métricas de sucesso
 
+
+
+
+## 🏢 MENU 1: BASE DE CONHECIMENTO - Evolução Completa
+
+### 📋 Sprint 1: Infra do Valor Imediato (Semana 1-2) ✅
+
+- [x] Wizard em 4 blocos com progress bar
+- [x] Estados: Rascunho → Em revisão → Publicado
+- [x] Versionamento de perfil (company_profile_versions)
+- [x] Taxonomia de setor (CNAE) + mapeamento para playbooks
+- [x] Score de qualidade de dados (completude, atualidade, consistência)
+- [x] Alertas acionáveis (lacunas de dados)
+- [ ] Campo URL + Preencher automaticamente (crawler + LLM extract) - Sprint 4
+- [ ] Microcopys úteis
+
+### 🔐 Sprint 2: Governança & IA (Semana 3-4) ✅
+
+- [x] RBAC por campo (Viewer, Editor, Approver, Admin) - Backend pronto
+- [x] Campos LGPD com rótulo e mascaramento - Backend pronto
+- [x] Resumo Executivo (PDF/HTML) com logo do cliente - Frontend pronto
+- [x] Audit log (company_profile_versions, profile_audit_log) - Backend pronto
+- [ ] Botão "Criar Formulário" para completar dados - Sprint 4
+- [ ] Botão "Criar Pesquisa" para coletar feedback - Sprint 4
+
+### 🌟 Sprint 3: Benchmarks & Copiloto (Semana 5-6) ✅
+
+- [x] Benchmarks anonimizados por setor/porte - Frontend pronto
+- [x] Comparação com mediana do setor - Frontend pronto
+- [x] Copiloto de dados (Q&A com IA sobre perfil) - Frontend pronto
+- [x] Webhooks para notificar mudanças de perfil - Backend pronto
+- [ ] Integração com Análise da IA (usa setor+metas) - Sprint 4
+- [ ] Integração com Formulários Inteligentes (templates por lacunas) - Sprint 4
+- [ ] Integração com Ações Inteligentes (filtra playbooks por setor) - Sprint 4
+- [ ] Integração com Relatórios (score de maturidade de dados) - Sprint 4
+
+### 📊 Schema de Dados
+
+- [ ] Tabela company_profile (JSON: identidade, mercado, operacao_dados, objetivos_kpis, politicas)
+- [ ] Tabela company_profile_versions (versionamento)
+- [ ] Tabela profile_audit_log (auditoria)
+- [ ] Tabela taxonomy_sectors (CNAE → playbooks)
+
+---
+

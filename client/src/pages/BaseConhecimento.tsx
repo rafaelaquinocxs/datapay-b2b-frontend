@@ -1,224 +1,553 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-
-import { trpc } from "@/lib/trpc";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { BookOpen, Save, Loader2 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import {
+  ChevronRight,
+  ChevronLeft,
+  Save,
+  FileText,
+  Target,
+  Lock,
+  Loader,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
+
+const BLOCOS = [
+  {
+    id: 1,
+    titulo: "Identidade & Mercado",
+    descricao: "Missão, visão, valores e público-alvo",
+    icon: FileText,
+  },
+  {
+    id: 2,
+    titulo: "Operação & Dados",
+    descricao: "ERPs, fontes de dados e qualidade",
+    icon: Target,
+  },
+  {
+    id: 3,
+    titulo: "Objetivos & KPIs",
+    descricao: "Metas, restrições e budget",
+    icon: Target,
+  },
+  {
+    id: 4,
+    titulo: "Regras & Política",
+    descricao: "LGPD, comunicação e sensibilidade",
+    icon: Lock,
+  },
+];
 
 export default function BaseConhecimento() {
-  const empresa = { id: 1, nome: "Empresa Demo" }; // Mock para apresenta\u00e7\u00e3o
-  const [carregando, setCarregando] = useState(false);
+  const empresaId = 1;
+  const [blocoAtual, setBlocoAtual] = useState(1);
+  const [isSaving, setIsSaving] = useState(false);
+  const [dataQualityScore, setDataQualityScore] = useState(0);
 
-  // Estados do formulário
-  const [urlSite, setUrlSite] = useState("");
-  const [missao, setMissao] = useState("");
-  const [visao, setVisao] = useState("");
-  const [valores, setValores] = useState("");
-  const [produtosServicos, setProdutosServicos] = useState("");
-  const [publicoAlvo, setPublicoAlvo] = useState("");
-  const [diferenciais, setDiferenciais] = useState("");
-  const [historicoSucesso, setHistoricoSucesso] = useState("");
+  const [formData, setFormData] = useState({
+    missao: "",
+    visao: "",
+    valores: "",
+    publicoAlvo: "",
+    personas: [] as string[],
+    segmentos: [] as string[],
+    concorrentes: [] as string[],
+    erpsUtilizados: [] as string[],
+    fontesConectadas: [] as string[],
+    qualidadeDados: 0,
+    frequenciaAtualizacao: "diária",
+    metasTrimestrais: [] as string[],
+    restricoes: "",
+    budget: 0,
+    lgpdCompliance: 0,
+    janelaComunicacao: "",
+    sensibilidadeDados: "media",
+  });
 
-  // Query para obter base existente
-  const { data: baseExistente } = trpc.baseConhecimento.obter.useQuery(
-    { empresaId: empresa?.id || 0 },
-    { enabled: !!empresa?.id }
+  const { data: profile, isLoading } = trpc.companyProfile.get.useQuery(
+    { empresaId },
+    { enabled: !!empresaId }
   );
 
-  // Mutation para salvar
-  const salvarBase = trpc.baseConhecimento.salvar.useMutation({
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        missao: profile.missao || "",
+        visao: profile.visao || "",
+        valores: profile.valores || "",
+        publicoAlvo: profile.publicoAlvo || "",
+        personas: (profile.personas as string[]) || [],
+        segmentos: (profile.segmentos as string[]) || [],
+        concorrentes: (profile.concorrentes as string[]) || [],
+        erpsUtilizados: (profile.erpsUtilizados as string[]) || [],
+        fontesConectadas: (profile.fontesConectadas as string[]) || [],
+        qualidadeDados: profile.qualidadeDados || 0,
+        frequenciaAtualizacao: profile.frequenciaAtualizacao || "diária",
+        metasTrimestrais: (profile.metasTrimestrais as string[]) || [],
+        restricoes: profile.restricoes || "",
+        budget: profile.budget || 0,
+        lgpdCompliance: profile.lgpdCompliance || 0,
+        janelaComunicacao: profile.janelaComunicacao || "",
+        sensibilidadeDados: profile.sensibilidadeDados || "media",
+      });
+    }
+  }, [profile]);
+
+  const { data: qualityData } = trpc.companyProfile.calculateDataQuality.useQuery(
+    { empresaId },
+    { enabled: !!empresaId }
+  );
+
+  useEffect(() => {
+    if (qualityData) {
+      setDataQualityScore(qualityData.score);
+    }
+  }, [qualityData]);
+
+
+  const saveMutation = trpc.companyProfile.upsert.useMutation({
     onSuccess: () => {
-      toast.success("Base de conhecimento salva com sucesso!");
-      setCarregando(false);
+      toast.success("Perfil salvo com sucesso!");
     },
     onError: (error) => {
-      toast.error(error.message || "Erro ao salvar");
-      setCarregando(false);
+      toast.error("Erro ao salvar perfil");
+      console.error(error);
     },
   });
 
-  // Carregar dados existentes
-  useEffect(() => {
-    if (baseExistente) {
-      setUrlSite(baseExistente.urlSite || "");
-      setMissao(baseExistente.missao || "");
-      setVisao(baseExistente.visao || "");
-      setValores(baseExistente.valores || "");
-      setProdutosServicos(baseExistente.produtosServicos || "");
-      setPublicoAlvo(baseExistente.publicoAlvo || "");
-      setDiferenciais(baseExistente.diferenciais || "");
-      setHistoricoSucesso(baseExistente.historicoSucesso || "");
+  const publishMutation = trpc.companyProfile.publish.useMutation({
+    onSuccess: () => {
+      toast.success("Perfil publicado com sucesso!");
+    },
+    onError: (error) => {
+      toast.error("Erro ao publicar perfil");
+      console.error(error);
+    },
+  });
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await saveMutation.mutateAsync({
+        empresaId,
+        ...formData,
+      });
+    } finally {
+      setIsSaving(false);
     }
-  }, [baseExistente]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setCarregando(true);
-
-    if (!empresa?.id) {
-      toast.error("Empresa não identificada");
-      setCarregando(false);
-      return;
-    }
-
-    await salvarBase.mutateAsync({
-      empresaId: empresa.id,
-      urlSite,
-      missao,
-      visao,
-      valores,
-      produtosServicos,
-      publicoAlvo,
-      diferenciais,
-      historicoSucesso,
-    });
   };
 
+  const handlePublish = async () => {
+    if (dataQualityScore < 50) {
+      toast.error("Complete pelo menos 50% dos campos antes de publicar");
+      return;
+    }
+    await publishMutation.mutateAsync({ empresaId });
+  };
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleAddItem = (field: string, item: string) => {
+    if (item.trim()) {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: [...(prev[field as keyof typeof formData] as string[]), item],
+      }));
+    }
+  };
+
+  const handleRemoveItem = (field: string, index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: (prev[field as keyof typeof formData] as string[]).filter(
+        (_, i) => i !== index
+      ),
+    }));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-screen">
+        <Loader className="w-8 h-8 animate-spin text-purple-600" />
+      </div>
+    );
+  }
+
   return (
-    <div className="p-8">
+    <div className="p-8 space-y-8">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <BookOpen className="w-8 h-8 text-purple-600" />
-          <h1 className="text-3xl font-bold text-gray-900">
-            Base de Conhecimento
-          </h1>
+      <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl p-8 text-white">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold">Base de Conhecimento</h1>
+            <p className="text-purple-100 mt-1">
+              Construa o perfil completo da sua empresa
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-4xl font-bold">{dataQualityScore}%</div>
+            <p className="text-purple-100 text-sm">Qualidade de Dados</p>
+          </div>
         </div>
-        <p className="text-gray-600">
-          Forneça informações sobre sua empresa para que a IA gere insights mais
-          personalizados e relevantes
-        </p>
+
+        <div className="w-full bg-white/20 rounded-full h-2 mt-6">
+          <div
+            className="bg-white h-2 rounded-full transition-all duration-300"
+            style={{ width: `${(blocoAtual / 4) * 100}%` }}
+          />
+        </div>
       </div>
 
-      {/* Formulário */}
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Coluna 1 */}
-          <div className="space-y-6">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Informações Básicas
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <Label>URL do Site</Label>
-                  <Input
-                    placeholder="https://www.suaempresa.com.br"
-                    value={urlSite}
-                    onChange={(e) => setUrlSite(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Missão</Label>
-                  <Textarea
-                    placeholder="Qual é a missão da sua empresa?"
-                    rows={3}
-                    value={missao}
-                    onChange={(e) => setMissao(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Visão</Label>
-                  <Textarea
-                    placeholder="Qual é a visão de futuro da sua empresa?"
-                    rows={3}
-                    value={visao}
-                    onChange={(e) => setVisao(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Valores</Label>
-                  <Textarea
-                    placeholder="Quais são os valores da sua empresa?"
-                    rows={3}
-                    value={valores}
-                    onChange={(e) => setValores(e.target.value)}
-                  />
-                </div>
+      {/* Blocos de Navegação */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {BLOCOS.map((bloco) => (
+          <button
+            key={bloco.id}
+            onClick={() => setBlocoAtual(bloco.id)}
+            className={`p-4 rounded-lg border-2 transition-all text-left ${
+              blocoAtual === bloco.id
+                ? "border-purple-600 bg-purple-50"
+                : "border-gray-200 bg-white hover:border-purple-300"
+            }`}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                  blocoAtual === bloco.id
+                    ? "bg-purple-600 text-white"
+                    : "bg-gray-200 text-gray-600"
+                }`}
+              >
+                {bloco.id}
               </div>
-            </Card>
+              <h3 className="font-semibold text-gray-900">{bloco.titulo}</h3>
+            </div>
+            <p className="text-xs text-gray-500">{bloco.descricao}</p>
+          </button>
+        ))}
+      </div>
+
+      {/* Conteúdo do Bloco */}
+      <Card className="p-8">
+        {blocoAtual === 1 && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Identidade & Mercado
+            </h2>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Missão
+              </label>
+              <textarea
+                value={formData.missao}
+                onChange={(e) => handleInputChange("missao", e.target.value)}
+                placeholder="O que sua empresa faz?"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Visão
+              </label>
+              <textarea
+                value={formData.visao}
+                onChange={(e) => handleInputChange("visao", e.target.value)}
+                placeholder="Aonde sua empresa quer chegar?"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Valores
+              </label>
+              <textarea
+                value={formData.valores}
+                onChange={(e) => handleInputChange("valores", e.target.value)}
+                placeholder="Quais são os valores da sua empresa?"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Público-Alvo
+              </label>
+              <textarea
+                value={formData.publicoAlvo}
+                onChange={(e) =>
+                  handleInputChange("publicoAlvo", e.target.value)
+                }
+                placeholder="Quem são seus clientes ideais?"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                rows={3}
+              />
+            </div>
           </div>
+        )}
 
-          {/* Coluna 2 */}
+        {blocoAtual === 2 && (
           <div className="space-y-6">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Detalhes do Negócio
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <Label>Produtos e Serviços</Label>
-                  <Textarea
-                    placeholder="Descreva os principais produtos e serviços que você oferece"
-                    rows={3}
-                    value={produtosServicos}
-                    onChange={(e) => setProdutosServicos(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Público-Alvo</Label>
-                  <Textarea
-                    placeholder="Quem são seus clientes ideais? Idade, perfil, comportamento..."
-                    rows={3}
-                    value={publicoAlvo}
-                    onChange={(e) => setPublicoAlvo(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Diferenciais Competitivos</Label>
-                  <Textarea
-                    placeholder="O que te diferencia da concorrência?"
-                    rows={3}
-                    value={diferenciais}
-                    onChange={(e) => setDiferenciais(e.target.value)}
-                  />
-                </div>
-              </div>
-            </Card>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Operação & Dados
+            </h2>
 
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Histórico de Sucesso
-              </h3>
-              <div>
-                <Label>Campanhas e Ações que Funcionaram</Label>
-                <Textarea
-                  placeholder="Descreva campanhas, promoções ou ações de marketing que tiveram bons resultados no passado"
-                  rows={5}
-                  value={historicoSucesso}
-                  onChange={(e) => setHistoricoSucesso(e.target.value)}
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                ERPs Utilizados
+              </label>
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  placeholder="Ex: SAP, TOTVS, Salesforce"
+                  className="flex-1 p-2 border border-gray-300 rounded-lg"
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      handleAddItem(
+                        "erpsUtilizados",
+                        (e.target as HTMLInputElement).value
+                      );
+                      (e.target as HTMLInputElement).value = "";
+                    }
+                  }}
                 />
               </div>
-            </Card>
+              <div className="flex flex-wrap gap-2">
+                {formData.erpsUtilizados.map((erp, idx) => (
+                  <Badge key={idx} variant="secondary">
+                    {erp}
+                    <button
+                      onClick={() => handleRemoveItem("erpsUtilizados", idx)}
+                      className="ml-2 text-xs"
+                    >
+                      ✕
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Frequência de Atualização de Dados
+              </label>
+              <select
+                value={formData.frequenciaAtualizacao}
+                onChange={(e) =>
+                  handleInputChange("frequenciaAtualizacao", e.target.value)
+                }
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+              >
+                <option value="diária">Diária</option>
+                <option value="semanal">Semanal</option>
+                <option value="mensal">Mensal</option>
+                <option value="trimestral">Trimestral</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Qualidade de Dados Esperada (%)
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={formData.qualidadeDados}
+                onChange={(e) =>
+                  handleInputChange("qualidadeDados", parseInt(e.target.value))
+                }
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
+            </div>
           </div>
+        )}
+
+        {blocoAtual === 3 && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Objetivos & KPIs
+            </h2>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Restrições Operacionais
+              </label>
+              <textarea
+                value={formData.restricoes}
+                onChange={(e) => handleInputChange("restricoes", e.target.value)}
+                placeholder="Quais são as limitações ou restrições?"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                rows={4}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Budget Mensal (R$)
+              </label>
+              <input
+                type="number"
+                value={formData.budget}
+                onChange={(e) =>
+                  handleInputChange("budget", parseInt(e.target.value))
+                }
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+          </div>
+        )}
+
+        {blocoAtual === 4 && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Regras & Política
+            </h2>
+
+            <div>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.lgpdCompliance === 1}
+                  onChange={(e) =>
+                    handleInputChange("lgpdCompliance", e.target.checked ? 1 : 0)
+                  }
+                  className="w-4 h-4"
+                />
+                <span className="text-sm font-semibold text-gray-900">
+                  Empresa está em conformidade com LGPD
+                </span>
+              </label>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Janela de Comunicação (ex: seg-sex 9-18)
+              </label>
+              <input
+                type="text"
+                value={formData.janelaComunicacao}
+                onChange={(e) =>
+                  handleInputChange("janelaComunicacao", e.target.value)
+                }
+                placeholder="seg-sex 9-18"
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Sensibilidade de Dados
+              </label>
+              <select
+                value={formData.sensibilidadeDados}
+                onChange={(e) =>
+                  handleInputChange("sensibilidadeDados", e.target.value)
+                }
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              >
+                <option value="baixa">Baixa</option>
+                <option value="media">Média</option>
+                <option value="alta">Alta</option>
+              </select>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* Botões de Ação */}
+      <div className="flex items-center justify-between">
+        <div className="flex gap-3">
+          <Button
+            onClick={() => setBlocoAtual(Math.max(1, blocoAtual - 1))}
+            disabled={blocoAtual === 1}
+            variant="outline"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Anterior
+          </Button>
+
+          <Button
+            onClick={() => setBlocoAtual(Math.min(4, blocoAtual + 1))}
+            disabled={blocoAtual === 4}
+            variant="outline"
+          >
+            Próximo
+            <ChevronRight className="w-4 h-4 ml-2" />
+          </Button>
         </div>
 
-        {/* Botão Salvar */}
-        <div className="flex justify-end">
+        <div className="flex gap-3">
           <Button
-            type="submit"
-            disabled={carregando}
-            className="bg-purple-600 hover:bg-purple-700"
-            size="lg"
+            onClick={handleSave}
+            disabled={isSaving || saveMutation.isPending}
+            variant="outline"
           >
-            {carregando ? (
+            {isSaving || saveMutation.isPending ? (
               <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                <Loader className="w-4 h-4 mr-2 animate-spin" />
                 Salvando...
               </>
             ) : (
               <>
-                <Save className="w-5 h-5 mr-2" />
-                Salvar Base de Conhecimento
+                <Save className="w-4 h-4 mr-2" />
+                Salvar Rascunho
+              </>
+            )}
+          </Button>
+
+          <Button
+            onClick={handlePublish}
+            disabled={dataQualityScore < 50 || publishMutation.isPending}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {publishMutation.isPending ? (
+              <>
+                <Loader className="w-4 h-4 mr-2 animate-spin" />
+                Publicando...
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+                Publicar Perfil
               </>
             )}
           </Button>
         </div>
-      </form>
+      </div>
+
+      {/* Alertas */}
+      {dataQualityScore < 50 && (
+        <Card className="p-4 bg-yellow-50 border-yellow-200">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <h3 className="font-semibold text-yellow-900">
+                Complete seu perfil
+              </h3>
+              <p className="text-sm text-yellow-800 mt-1">
+                Você precisa completar pelo menos 50% dos campos para publicar
+                seu perfil. Qualidade atual: {dataQualityScore}%
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }

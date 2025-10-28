@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, and, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa, fontesDados, InsertFonteDados, baseConhecimento, InsertBaseConhecimento, insightsIA, InsertInsightIA, acoesInteligentes, InsertAcaoInteligente, resultadosAcoes, InsertResultadoAcao } from "../drizzle/schema";
+import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa, fontesDados, InsertFonteDados, baseConhecimento, InsertBaseConhecimento, insightsIA, InsertInsightIA, acoesInteligentes, InsertAcaoInteligente, resultadosAcoes, InsertResultadoAcao, companyProfile, InsertCompanyProfile, companyProfileVersions, InsertCompanyProfileVersion, profileAuditLog, InsertProfileAuditLog, taxonomySectors, fieldPermissions, InsertFieldPermission, executiveSummaries, InsertExecutiveSummary, benchmarkData, benchmarkComparisons, InsertBenchmarkComparison, dataCopiloConversations, InsertDataCopiloConversation, profileWebhooks, InsertProfileWebhook } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -443,5 +443,272 @@ export async function updateResultadoAcao(id: number, updates: Partial<InsertRes
   }
 
   await db.update(resultadosAcoes).set(updates).where(eq(resultadosAcoes.id, id));
+}
+
+
+
+
+// ===== Company Profile (Sprint 1 Base de Conhecimento) =====
+
+export async function getCompanyProfile(empresaId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.select().from(companyProfile).where(eq(companyProfile.empresaId, empresaId)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function upsertCompanyProfile(data: InsertCompanyProfile) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await getCompanyProfile(data.empresaId!);
+  
+  if (existing) {
+    await db.update(companyProfile).set(data).where(eq(companyProfile.empresaId, data.empresaId!));
+    return existing.id;
+  } else {
+    const result = await db.insert(companyProfile).values(data);
+    return Number(result[0].insertId);
+  }
+}
+
+export async function saveProfileVersion(empresaId: number, payload: any, status: string, publishedBy?: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const profile = await getCompanyProfile(empresaId);
+  const versao = profile?.versao || 1;
+  
+  await db.insert(companyProfileVersions).values({
+    empresaId,
+    versao,
+    payload,
+    status,
+    publishedBy,
+    publishedAt: status === "publicado" ? new Date() : undefined,
+  });
+}
+
+export async function publishCompanyProfile(empresaId: number, userId?: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const profile = await getCompanyProfile(empresaId);
+  if (!profile) throw new Error("Profile not found");
+  
+  // Salvar versão publicada
+  await saveProfileVersion(empresaId, profile, "publicado", userId);
+  
+  // Atualizar status e data de publicação
+  await db.update(companyProfile)
+    .set({
+      status: "publicado",
+      versao: (profile.versao || 1) + 1,
+      publishedAt: new Date(),
+    })
+    .where(eq(companyProfile.empresaId, empresaId));
+}
+
+export async function logProfileChange(empresaId: number, fieldPath: string, oldValue: any, newValue: any, userId?: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(profileAuditLog).values({
+    empresaId,
+    userId,
+    fieldPath,
+    oldValue: JSON.stringify(oldValue),
+    newValue: JSON.stringify(newValue),
+    action: "update",
+  });
+}
+
+export async function getTaxonomySectorByKeywords(keywords: string[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const sectors = await db.select().from(taxonomySectors);
+  
+  for (const sector of sectors) {
+    const sectorKeywords = (sector.keywords as string[]) || [];
+    for (const keyword of keywords) {
+      if (sectorKeywords.some(k => k.toLowerCase().includes(keyword.toLowerCase()))) {
+        return sector;
+      }
+    }
+  }
+  
+  return null;
+}
+
+export async function calculateDataQualityScore(empresaId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const profile = await getCompanyProfile(empresaId);
+  if (!profile) return 0;
+  
+  let score = 0;
+  let totalFields = 0;
+  
+  // Verificar completude de campos
+  const fields = [
+    profile.missao,
+    profile.visao,
+    profile.valores,
+    profile.publicoAlvo,
+    profile.personas,
+    profile.segmentos,
+    profile.erpsUtilizados,
+    profile.fontesConectadas,
+    profile.metasTrimestrais,
+  ];
+  
+  fields.forEach(field => {
+    totalFields++;
+    if (field) score += 1;
+  });
+  
+  // Calcular score percentual (0-100)
+  return Math.round((score / totalFields) * 100);
+}
+
+
+
+
+// ===== Sprint 2: Field Permissions & Executive Summary =====
+
+export async function setFieldPermission(data: InsertFieldPermission) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await db.select().from(fieldPermissions)
+    .where(and(
+      eq(fieldPermissions.empresaId, data.empresaId!),
+      eq(fieldPermissions.fieldPath, data.fieldPath!),
+      eq(fieldPermissions.role, data.role!)
+    ))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    await db.update(fieldPermissions).set(data).where(eq(fieldPermissions.id, existing[0].id));
+  } else {
+    await db.insert(fieldPermissions).values(data);
+  }
+}
+
+export async function getFieldPermissions(empresaId: number, fieldPath: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.select().from(fieldPermissions)
+    .where(and(
+      eq(fieldPermissions.empresaId, empresaId),
+      eq(fieldPermissions.fieldPath, fieldPath)
+    ));
+}
+
+export async function saveExecutiveSummary(data: InsertExecutiveSummary) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(executiveSummaries).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function getExecutiveSummary(empresaId: number, versao?: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const whereConditions = versao
+    ? and(
+        eq(executiveSummaries.empresaId, empresaId),
+        eq(executiveSummaries.versao, versao)
+      )
+    : eq(executiveSummaries.empresaId, empresaId);
+  
+  const result = await db.select().from(executiveSummaries)
+    .where(whereConditions)
+    .orderBy(executiveSummaries.versao)
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : null;
+}
+
+// ===== Sprint 3: Benchmarks & Copilot =====
+
+export async function getBenchmarkData(setor: string, porte: string, metricaChave: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.select().from(benchmarkData)
+    .where(and(
+      eq(benchmarkData.setor, setor),
+      eq(benchmarkData.porte, porte),
+      eq(benchmarkData.metricaChave, metricaChave)
+    ))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function saveBenchmarkComparison(data: InsertBenchmarkComparison) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(benchmarkComparisons).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function getBenchmarkComparisons(empresaId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.select().from(benchmarkComparisons)
+    .where(eq(benchmarkComparisons.empresaId, empresaId));
+}
+
+export async function saveDataCopiloConversation(data: InsertDataCopiloConversation) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(dataCopiloConversations).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function getDataCopiloHistory(empresaId: number, limit: number = 10) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.select().from(dataCopiloConversations)
+    .where(eq(dataCopiloConversations.empresaId, empresaId))
+    .orderBy(dataCopiloConversations.criadoEm)
+    .limit(limit);
+}
+
+export async function saveProfileWebhook(data: InsertProfileWebhook) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(profileWebhooks).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function getPendingWebhooks() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.select().from(profileWebhooks)
+    .where(eq(profileWebhooks.status, "pendente"));
+}
+
+export async function updateWebhookStatus(id: number, status: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(profileWebhooks)
+    .set({ status: status as any })
+    .where(eq(profileWebhooks.id, id));
 }
 

@@ -832,6 +832,170 @@ Forneca a resposta em formato JSON:
         }
       }),
   }),
+
+  // Company Profile (Sprint 1 Base de Conhecimento)
+  companyProfile: router({
+    get: publicProcedure
+      .input(z.object({ empresaId: z.number() }))
+      .query(async ({ input }) => {
+        const profile = await db.getCompanyProfile(input.empresaId);
+        return profile;
+      }),
+
+    upsert: publicProcedure
+      .input(z.object({
+        empresaId: z.number(),
+        missao: z.string().optional(),
+        visao: z.string().optional(),
+        valores: z.string().optional(),
+        publicoAlvo: z.string().optional(),
+        personas: z.any().optional(),
+        segmentos: z.any().optional(),
+        concorrentes: z.any().optional(),
+        erpsUtilizados: z.any().optional(),
+        fontesConectadas: z.any().optional(),
+        qualidadeDados: z.number().optional(),
+        frequenciaAtualizacao: z.string().optional(),
+        metasTrimestrais: z.any().optional(),
+        restricoes: z.string().optional(),
+        budget: z.number().optional(),
+        lgpdCompliance: z.number().optional(),
+        janelaComunicacao: z.string().optional(),
+        sensibilidadeDados: z.string().optional(),
+        setor: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const profileId = await db.upsertCompanyProfile(input);
+        return { success: true, profileId };
+      }),
+
+    publish: publicProcedure
+      .input(z.object({ empresaId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.publishCompanyProfile(input.empresaId);
+        return { success: true };
+      }),
+
+    calculateDataQuality: publicProcedure
+      .input(z.object({ empresaId: z.number() }))
+      .query(async ({ input }) => {
+        const score = await db.calculateDataQualityScore(input.empresaId);
+        return { score };
+      }),
+  }),
+
+  // Sprint 2: Governança & IA
+  profileGovernance: router({
+    setFieldPermission: publicProcedure
+      .input(z.object({
+        empresaId: z.number(),
+        fieldPath: z.string(),
+        role: z.enum(["viewer", "editor", "approver", "admin"]),
+        canView: z.number().optional(),
+        canEdit: z.number().optional(),
+        isSensitive: z.number().optional(),
+        maskingPattern: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.setFieldPermission(input);
+        return { success: true };
+      }),
+
+    getFieldPermissions: publicProcedure
+      .input(z.object({
+        empresaId: z.number(),
+        fieldPath: z.string(),
+      }))
+      .query(async ({ input }) => {
+        return db.getFieldPermissions(input.empresaId, input.fieldPath);
+      }),
+
+    saveExecutiveSummary: publicProcedure
+      .input(z.object({
+        empresaId: z.number(),
+        versao: z.number(),
+        titulo: z.string().optional(),
+        conteudo: z.string().optional(),
+        prioridades: z.any().optional(),
+        urlPdf: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const id = await db.saveExecutiveSummary(input);
+        return { success: true, id };
+      }),
+
+    getExecutiveSummary: publicProcedure
+      .input(z.object({
+        empresaId: z.number(),
+        versao: z.number().optional(),
+      }))
+      .query(async ({ input }) => {
+        return db.getExecutiveSummary(input.empresaId, input.versao);
+      }),
+  }),
+
+  // Sprint 3: Benchmarks & Copilot
+  benchmarking: router({
+    getBenchmarkData: publicProcedure
+      .input(z.object({
+        setor: z.string(),
+        porte: z.string(),
+        metricaChave: z.string(),
+      }))
+      .query(async ({ input }) => {
+        return db.getBenchmarkData(input.setor, input.porte, input.metricaChave);
+      }),
+
+    saveBenchmarkComparison: publicProcedure
+      .input(z.object({
+        empresaId: z.number(),
+        metricaChave: z.string(),
+        valorEmpresa: z.number().optional(),
+        mediana: z.number().optional(),
+        percentil: z.number().optional(),
+        gap: z.number().optional(),
+        recomendacao: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const id = await db.saveBenchmarkComparison(input);
+        return { success: true, id };
+      }),
+
+    getBenchmarkComparisons: publicProcedure
+      .input(z.object({ empresaId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getBenchmarkComparisons(input.empresaId);
+      }),
+  }),
+
+  dataCopilot: router({
+    askQuestion: publicProcedure
+      .input(z.object({
+        empresaId: z.number(),
+        pergunta: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const profile = await db.getCompanyProfile(input.empresaId);
+        if (!profile) throw new Error("Perfil não encontrado");
+
+        const resposta = `Baseado no seu perfil: ${profile.missao || "sem missão definida"}. Recomendações: Complete todos os blocos do seu perfil para obter insights mais precisos.`;
+
+        const id = await db.saveDataCopiloConversation({
+          empresaId: input.empresaId,
+          pergunta: input.pergunta,
+          resposta,
+          contexto: { profileId: profile.id },
+        });
+
+        return { success: true, resposta, id };
+      }),
+
+    getHistory: publicProcedure
+      .input(z.object({ empresaId: z.number(), limit: z.number().optional() }))
+      .query(async ({ input }) => {
+        return db.getDataCopiloHistory(input.empresaId, input.limit);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
