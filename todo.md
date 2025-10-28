@@ -410,3 +410,58 @@
   - Solucao: Detectar rota com useLocation + implementar modais com Dialog
   - Status: RESOLVIDO
 
+
+
+
+## 🚀 NOVA FASE: LABORATÓRIO PRODUCTION-READY (SPRINT ATUAL)
+
+### Backend - Tabelas e Schemas
+- [ ] Criar tabela synthetic_datasets (id, empresaId, name, recordCount, regions, seasonality, calibration, createdAt)
+- [ ] Criar tabela campaign_simulations (id, empresaId, datasetId, campaignName, budget, expectedROI, results, createdAt)
+- [ ] Criar tabela insight_validations (id, empresaId, insightName, scenarioCount, accuracy, results, createdAt)
+- [ ] Criar tabela survey_predictions (id, empresaId, surveyName, expectedResponseRate, quality, factors, createdAt)
+- [ ] Criar tabela result_forecasts (id, empresaId, actionName, estimatedROI, impact, timeline, createdAt)
+- [ ] Criar tabela simulation_history (id, empresaId, toolType, parameters, results, accuracy, createdAt)
+
+### Backend - APIs (tRPC Routers)
+- [ ] Router syntheticData.generate - Gerar dados sintéticos com IA
+- [ ] Router syntheticData.list - Listar datasets gerados
+- [ ] Router syntheticData.export - Exportar em CSV/Excel
+- [ ] Router campaignSimulator.simulate - Simular campanha
+- [ ] Router campaignSimulator.history - Histórico de simulações
+- [ ] Router insightValidator.validate - Validar insights
+- [ ] Router surveyPredictor.predict - Prever taxa de resposta
+- [ ] Router resultForecaster.forecast - Prever ROI
+- [ ] Router simulationHistory.getAll - Histórico completo
+
+### Frontend - Integração com APIs
+- [ ] Gerador: Conectar botão "Gerar Dataset" com API
+- [ ] Gerador: Mostrar preview dos dados gerados
+- [ ] Gerador: Implementar exportação (CSV/Excel)
+- [ ] Simulador: Formulário para simular campanha
+- [ ] Simulador: Gráficos de resultados
+- [ ] Testador: Validar insights com múltiplos cenários
+- [ ] Validador: Prever taxa de resposta de pesquisas
+- [ ] Previsor: Simular ROI de ações
+- [ ] Histórico: Dashboard com todas as simulações
+
+### Integração com IA (OpenAI)
+- [ ] Usar GPT para gerar padrões de dados sintéticos realistas
+- [ ] Usar GPT para analisar impacto de campanhas
+- [ ] Usar GPT para validar insights
+- [ ] Usar GPT para prever resultados
+
+### Testes e Qualidade
+- [ ] Testar geração de dados com 1k, 100k, 1M registros
+- [ ] Testar simulações de campanhas
+- [ ] Testar validação de insights
+- [ ] Testar previsões de ROI
+- [ ] Performance testing com grandes volumes
+
+### Deploy e Produção
+- [ ] Migrations do banco de dados
+- [ ] Variáveis de ambiente configuradas
+- [ ] Logs e monitoramento
+- [ ] Backup e recovery
+- [ ] Documentação de APIs
+

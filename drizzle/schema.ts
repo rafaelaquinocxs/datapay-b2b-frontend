@@ -877,3 +877,5 @@ export const simulationHistory = mysqlTable('simulation_history', {
   simulationType: varchar('simulation_type', { length: 50 }),
 });
 
+
+
