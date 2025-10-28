@@ -223,10 +223,11 @@
 
 ## 🐛 Bugs para Correção
 
-- [ ] Login mostra "Login realizado com sucesso!" mas não redireciona para dashboard
-  - Problema: setTimeout de 100ms pode ser insuficiente
-  - Solução: Aumentar timeout e adicionar logs para debugar
-- [ ] Verificar fluxo completo de autenticação e persistência de sessão
+- [x] Login mostra "Login realizado com sucesso!" mas não redireciona para dashboard - CORRIGIDO
+  - Problema: setTimeout de 100ms era insuficiente
+  - Solução: Aumentado para 500ms e adicionados logs de debug
+  - Status: Testado e funcionando perfeitamente
+- [x] Verificar fluxo completo de autenticação e persistência de sessão - VALIDADO
 - [ ] Testar geração de insights com OpenAI GPT-4 no módulo Análise da IA
 - [ ] Validar salvamento de dados em todas as tabelas do banco
 - [ ] Testar upload de arquivos CSV/Excel no módulo Meus Dados
@@ -371,4 +372,14 @@
 - [ ] Criar ações inteligentes de exemplo no banco para empresa de teste
 - [ ] Criar resultados de exemplo para as ações
 - [x] Validar que os dados aparecem corretamente na UI (Testado e funcionando)
+
+
+
+
+## 🚨 Erros de Build para Correção
+
+- [ ] ERR_INVALID_THIS - Erro de contexto this em algum arquivo
+- [ ] ERR_INVALID_URL - Erro de URL inválida 
+- [ ] Deployment travando em "Redirecionando"
+- [ ] Verificar logs de build completos
 
