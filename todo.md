@@ -587,3 +587,14 @@
 - [x] Verificar se mutation está configurada corretamente
 - [x] Testar geração de sugestões de formulários com dados reais
 
+
+
+
+## 🐛 BUG CRÍTICO - Página Ações Inteligentes não existe (404)
+
+- [x] Criar página AcoesInteligentes.tsx completa
+- [ ] Adicionar botão "Gerar Ações" na página
+- [ ] Criar rota backend gerarAcoesInteligentes baseada nos insights
+- [x] Adicionar rota /acoes-inteligentes no App.tsx
+- [ ] Testar geração de ações com dados reais do pet shop
+

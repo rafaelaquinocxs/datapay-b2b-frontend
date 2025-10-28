@@ -85,6 +85,12 @@ function Router() {
         </DashboardLayout>
       </Route>
 
+      <Route path="/acoes-inteligentes">
+        <DashboardLayout>
+          <AcoesInteligentes />
+        </DashboardLayout>
+      </Route>
+
       <Route path="/resultados">
         <DashboardLayout>
           <Resultados />

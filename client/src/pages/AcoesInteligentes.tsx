@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 import { trpc } from "@/lib/trpc";
 import {
@@ -34,11 +35,31 @@ const colorMap: Record<string, { bg: string; text: string; icon: string }> = {
 export default function AcoesInteligentes() {
   const empresaId = 1; // Mock para apresenta\u00e7\u00e3o
 
-  // Buscar ações inteligentes
-  const { data: acoes = [], isLoading } = trpc.acoesInteligentes.listar.useQuery(
+  // Buscar a\u00e7\u00f5es inteligentes
+  const { data: acoes = [], isLoading, refetch } = trpc.acoesInteligentes.listar.useQuery(
     { empresaId },
     { enabled: !!empresaId }
   );
+
+  // Mutation para gerar a\u00e7\u00f5es
+  const gerarAcoesMutation = trpc.acoesInteligentes.gerarAcoesInteligentes.useMutation({
+    onSuccess: (data) => {
+      toast.success(`${data.count} a\u00e7\u00f5es geradas com sucesso!`);
+      refetch();
+    },
+    onError: (error) => {
+      console.error("Erro ao gerar a\u00e7\u00f5es:", error);
+      toast.error("Erro ao gerar a\u00e7\u00f5es. Verifique se h\u00e1 insights gerados.");
+    },
+  });
+
+  const handleGerarAcoes = async () => {
+    if (!empresaId) {
+      toast.error("Empresa n\u00e3o identificada");
+      return;
+    }
+    await gerarAcoesMutation.mutateAsync({ empresaId });
+  };
 
   const acoesRecomendadas = acoes.filter((a: any) => a.status === "recomendada");
   const acoesEmAndamento = acoes.filter((a: any) => a.status === "em_andamento");
@@ -61,16 +82,35 @@ export default function AcoesInteligentes() {
     <div className="p-8 space-y-8">
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl p-8 text-white">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-            <Zap className="w-6 h-6" />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+              <Zap className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold">Ações Inteligentes</h1>
+              <p className="text-purple-100 mt-1">
+                {acoesRecomendadas.length} campanhas recomendadas pela IA • Potencial de R$ {(totalPotencial / 1000).toFixed(0)}k/mês
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold">Ações Inteligentes</h1>
-            <p className="text-purple-100 mt-1">
-              {acoesRecomendadas.length} campanhas recomendadas pela IA • Potencial de R$ {(totalPotencial / 1000).toFixed(0)}k/mês
-            </p>
-          </div>
+          <Button
+            onClick={handleGerarAcoes}
+            disabled={gerarAcoesMutation.isPending}
+            className="bg-white text-purple-600 hover:bg-purple-50"
+          >
+            {gerarAcoesMutation.isPending ? (
+              <>
+                <Loader className="w-4 h-4 mr-2 animate-spin" />
+                Gerando...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 mr-2" />
+                Gerar A\u00e7\u00f5es
+              </>
+            )}
+          </Button>
         </div>
 
         <div className="flex items-center gap-2 mt-4">

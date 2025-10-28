@@ -188,15 +188,15 @@ export const acoesInteligentes = mysqlTable("acoes_inteligentes", {
   id: int("id").primaryKey().autoincrement(),
   empresaId: int("empresaId").notNull(),
   titulo: varchar("titulo", { length: 255 }).notNull(),
-  tipo: varchar("tipo", { length: 100 }).notNull(), // 'Parceria', 'Retenção', 'Upsell', etc
+  tipo: varchar("tipo", { length: 100 }).notNull(), // 'Parceria', 'Reten\u00e7\u00e3o', 'Upsell', etc
   descricao: text("descricao").notNull(),
-  baseadoEm: text("baseadoEm"), // Descrição do que gerou a recomendação
-  potencialLucro: varchar("potencialLucro", { length: 100 }), // Ex: "R$ 45k/mês"
-  roi: varchar("roi", { length: 50 }), // Ex: "320%"
-  implementacao: varchar("implementacao", { length: 100 }), // Ex: "2 semanas"
+  baseadoEm: text("baseadoEm"), // Descri\u00e7\u00e3o do que gerou a recomenda\u00e7\u00e3o
+  potencialLucro: text("potencialLucro"), // Ex: "R$ 45k/m\u00eas"
+  roi: text("roi"), // Ex: "320%"
+  implementacao: text("implementacao"), // Ex: "2 semanas"
   status: mysqlEnum("status", ["recomendada", "em_andamento", "concluida", "descartada"]).default("recomendada"),
-  prioridade: mysqlEnum("prioridade", ["Baixa", "Média", "Alta", "Crítica"]).default("Média"),
-  acoes: json("acoes"), // Array de ações a executar
+  prioridade: mysqlEnum("prioridade", ["Baixa", "M\u00e9dia", "Alta", "Cr\u00edtica"]).default("M\u00e9dia"),
+  acoes: json("acoes"), // Array de a\u00e7\u00f5es a executar
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
 });

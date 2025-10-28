@@ -692,6 +692,80 @@ Forneca a resposta em formato JSON com a seguinte estrutura:
           throw error;
         }
       }),
+
+    gerarAcoesInteligentes: publicProcedure
+      .input(z.object({ empresaId: z.number() }))
+      .mutation(async ({ input }) => {
+        try {
+          // Buscar insights da empresa
+          const insights = await db.getInsightsByEmpresa(input.empresaId);
+          if (insights.length === 0) {
+            throw new Error("Nenhum insight encontrado. Gere insights primeiro.");
+          }
+
+          const { invokeLLM } = await import("./_core/llm");
+
+          const insightsTexto = insights.map((i: any, idx: number) => 
+            `${idx + 1}. ${i.titulo} (${i.categoria}) - ${i.descricao}`
+          ).join("\n");
+
+          const prompt = `Voce eh um especialista em marketing e vendas. Baseado nos insights abaixo, sugira 3-5 acoes inteligentes praticas que a empresa pode executar.
+
+Insights da IA:
+${insightsTexto}
+
+Para cada acao, forneca:
+- titulo: Nome da campanha/acao
+- tipo: Tipo de acao (ex: "Email Marketing", "Programa de Fidelidade", "Parceria", etc)
+- descricao: Descricao detalhada da acao
+- baseadoEm: Qual insight motivou esta acao
+- potencialLucro: Estimativa de lucro (ex: "R$ 15.000/mes")
+- roi: ROI estimado em % (ex: "250%")
+- implementacao: Passos para implementar
+- prioridade: "Alta", "Media" ou "Baixa"
+- acoes: Array de 3-5 passos praticos
+
+Forneca a resposta em formato JSON:
+{"acoes": [{"titulo": "...", "tipo": "...", "descricao": "...", "baseadoEm": "...", "potencialLucro": "...", "roi": "...", "implementacao": "...", "prioridade": "Alta", "acoes": ["..."]}]}`;
+
+          const response = await invokeLLM({
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 3000,
+          });
+
+          const content = response.choices[0]?.message?.content || "";
+          const jsonMatch = typeof content === "string" ? content.match(/\{[\s\S]*\}/) : null;
+          if (!jsonMatch) {
+            throw new Error("Nao foi possivel extrair JSON da resposta");
+          }
+
+          const resultado = JSON.parse(jsonMatch[0]);
+          
+          // Criar acoes no banco
+          const acoesIds = [];
+          for (const acao of resultado.acoes) {
+            const id = await db.createAcaoInteligente({
+              empresaId: input.empresaId,
+              titulo: acao.titulo,
+              tipo: acao.tipo,
+              descricao: acao.descricao,
+              baseadoEm: acao.baseadoEm,
+              potencialLucro: acao.potencialLucro,
+              roi: acao.roi,
+              implementacao: acao.implementacao,
+              status: "recomendada",
+              prioridade: acao.prioridade,
+              acoes: acao.acoes,
+            });
+            acoesIds.push(id);
+          }
+
+          return { success: true, acoesIds, count: acoesIds.length };
+        } catch (error) {
+          console.error("[AcoesInteligentes] Erro ao gerar:", error);
+          throw error;
+        }
+      }),
   }),
 
   resultados: router({
