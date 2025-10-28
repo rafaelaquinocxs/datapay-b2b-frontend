@@ -5,6 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Plus,
   Loader,
   Database,
@@ -82,6 +88,14 @@ export default function MeusDados() {
       erros: 0,
       duracao: 0,
     });
+  };
+
+  const handleDeleteSource = async (sourceId: number, sourceName: string) => {
+    if (confirm(`Tem certeza que deseja apagar "${sourceName}"?`)) {
+      setDataSources(dataSources.filter(s => s.id !== sourceId));
+      setSelectedSource(null);
+      toast.success("Fonte de dados removida com sucesso!");
+    }
   };
 
   const filteredSources = dataSources.filter((source) => {
@@ -226,9 +240,43 @@ export default function MeusDados() {
                       </p>
                     </div>
                   </div>
-                  <button className="p-1 hover:bg-gray-100 rounded">
-                    <MoreVertical className="w-4 h-4 text-gray-400" />
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="p-1 hover:bg-gray-100 rounded">
+                        <MoreVertical className="w-4 h-4 text-gray-400" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedSource(source);
+                        }}
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        Previsualizar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedSource(source);
+                        }}
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteSource(source.id, source.nome);
+                        }}
+                        className="text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Apagar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 {/* Status */}
