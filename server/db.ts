@@ -1,6 +1,6 @@
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa, fontesDados, InsertFonteDados, baseConhecimento, InsertBaseConhecimento, insightsIA, InsertInsightIA, acoesInteligentes, InsertAcaoInteligente, resultadosAcoes, InsertResultadoAcao, companyProfile, InsertCompanyProfile, companyProfileVersions, InsertCompanyProfileVersion, profileAuditLog, InsertProfileAuditLog, taxonomySectors, fieldPermissions, InsertFieldPermission, executiveSummaries, InsertExecutiveSummary, benchmarkData, benchmarkComparisons, InsertBenchmarkComparison, dataCopiloConversations, InsertDataCopiloConversation, profileWebhooks, InsertProfileWebhook, dataSources, InsertDataSource, syncLogs, InsertSyncLog, dataQualityScores, InsertDataQualityScore, fieldMappings, InsertFieldMapping, syncSchedules, InsertSyncSchedule, dataSourceWebhooks, InsertDataSourceWebhook, dataSourceAuditLog, InsertDataSourceAuditLog } from "../drizzle/schema";
+import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa, fontesDados, InsertFonteDados, baseConhecimento, InsertBaseConhecimento, insightsIA, InsertInsightIA, acoesInteligentes, InsertAcaoInteligente, resultadosAcoes, InsertResultadoAcao, companyProfile, InsertCompanyProfile, companyProfileVersions, InsertCompanyProfileVersion, profileAuditLog, InsertProfileAuditLog, taxonomySectors, fieldPermissions, InsertFieldPermission, executiveSummaries, InsertExecutiveSummary, benchmarkData, benchmarkComparisons, InsertBenchmarkComparison, dataCopiloConversations, InsertDataCopiloConversation, profileWebhooks, InsertProfileWebhook, dataSources, InsertDataSource, syncLogs, InsertSyncLog, dataQualityScores, InsertDataQualityScore, fieldMappings, InsertFieldMapping, syncSchedules, InsertSyncSchedule, dataSourceWebhooks, InsertDataSourceWebhook, dataSourceAuditLog, InsertDataSourceAuditLog, insights, InsertInsight, insightSegments, insightActions, insightResults, insightAudit } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -900,5 +900,92 @@ export async function getDataSourceAuditLog(dataSourceId: number, limit = 50) {
     .where(eq(dataSourceAuditLog.dataSourceId, dataSourceId))
     .orderBy(desc(dataSourceAuditLog.criadoEm))
     .limit(limit);
+}
+
+
+
+
+/**
+ * Análise da IA - Insights
+ */
+export async function getInsights(empresaId: number, filtros?: { familia?: string; estado?: string; limit?: number }) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const conditions = [eq(insights.empresaId, empresaId)];
+  
+  if (filtros?.familia) {
+    conditions.push(eq(insights.familia, filtros.familia));
+  }
+  if (filtros?.estado) {
+    conditions.push(eq(insights.estado, filtros.estado));
+  }
+  
+  return db.select().from(insights).where(and(...conditions)).orderBy(desc(insights.priorityScore)).limit(filtros?.limit || 50);
+}
+
+export async function getInsightById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db.select().from(insights).where(eq(insights.id, id));
+  return result[0] || null;
+}
+
+export async function createInsight(data: InsertInsight) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(insights).values(data);
+  return result;
+}
+
+export async function updateInsightEstado(id: number, estado: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return db.update(insights).set({ estado }).where(eq(insights.id, id));
+}
+
+export async function createInsightAction(data: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return db.insert(insightActions).values(data);
+}
+
+export async function getInsightActions(insightId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(insightActions).where(eq(insightActions.insightId, insightId));
+}
+
+export async function createInsightResult(data: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return db.insert(insightResults).values(data);
+}
+
+export async function getInsightResults(insightId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(insightResults).where(eq(insightResults.insightId, insightId));
+}
+
+export async function createInsightAuditLog(data: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return db.insert(insightAudit).values(data);
+}
+
+export async function getInsightAuditLog(insightId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(insightAudit).where(eq(insightAudit.insightId, insightId)).orderBy(desc(insightAudit.quando));
 }
 

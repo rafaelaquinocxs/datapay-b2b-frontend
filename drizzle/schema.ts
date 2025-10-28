@@ -1,4 +1,4 @@
-import { int, json, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, json, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -556,4 +556,75 @@ export const dataSourceAuditLog = mysqlTable("data_source_audit_log", {
 
 export type DataSourceAuditLog = typeof dataSourceAuditLog.$inferSelect;
 export type InsertDataSourceAuditLog = typeof dataSourceAuditLog.$inferInsert;
+
+
+
+
+/**
+ * Análise da IA - Insights & Recomendações
+ */
+export const insights = mysqlTable("insights", {
+  id: int("id").autoincrement().primaryKey(),
+  empresaId: int("empresaId").notNull(),
+  familia: varchar("familia", { length: 50 }).notNull(), // "segmentacao", "propensao", "market_basket", "uplift"
+  area: varchar("area", { length: 100 }).notNull(), // "recompra", "churn", "upsell", etc
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  resumo: text("resumo"),
+  priorityScore: decimal("priorityScore", { precision: 5, scale: 2 }), // 0-100
+  estado: varchar("estado", { length: 20 }).default("novo"), // "novo", "visualizado", "aplicado", "descartado"
+  geradoEm: timestamp("geradoEm").defaultNow(),
+  modeloVersao: varchar("modeloVersao", { length: 50 }),
+  confianca: decimal("confianca", { precision: 5, scale: 2 }), // 0-100
+  potencialR$: decimal("potencialR$", { precision: 15, scale: 2 }),
+  tamanhoSegmento: int("tamanhoSegmento"),
+  criteriosJson: json("criteriosJson"),
+  criadoPor: int("criadoPor"),
+  criadoEm: timestamp("criadoEm").defaultNow(),
+});
+
+export const insightSegments = mysqlTable("insightSegments", {
+  id: int("id").autoincrement().primaryKey(),
+  insightId: int("insightId").notNull().references(() => insights.id),
+  segmentoId: int("segmentoId"),
+  tamanho: int("tamanho"),
+  criteriosJson: json("criteriosJson"),
+});
+
+export const insightActions = mysqlTable("insightActions", {
+  id: int("id").autoincrement().primaryKey(),
+  insightId: int("insightId").notNull().references(() => insights.id),
+  tipo: varchar("tipo", { length: 50 }).notNull(), // "criar_tarefa", "exportar", "criar_campanha", "marcar_aplicado"
+  payloadJson: json("payloadJson"),
+  criadoEm: timestamp("criadoEm").defaultNow(),
+  criadoPor: int("criadoPor"),
+  status: varchar("status", { length: 20 }).default("pendente"), // "pendente", "em_progresso", "concluido", "erro"
+});
+
+export const insightResults = mysqlTable("insightResults", {
+  id: int("id").autoincrement().primaryKey(),
+  insightId: int("insightId").notNull().references(() => insights.id),
+  periodo: varchar("periodo", { length: 50 }), // "7d", "30d", "90d"
+  kpi: varchar("kpi", { length: 100 }), // "conversao", "aov", "roi", "uplift"
+  valor: decimal("valor", { precision: 15, scale: 2 }),
+  baseline: decimal("baseline", { precision: 15, scale: 2 }),
+  uplift: decimal("uplift", { precision: 15, scale: 2 }), // percentual
+  pValor: decimal("pValor", { precision: 5, scale: 4 }), // significância estatística
+  criadoEm: timestamp("criadoEm").defaultNow(),
+});
+
+export const insightAudit = mysqlTable("insightAudit", {
+  id: int("id").autoincrement().primaryKey(),
+  insightId: int("insightId").notNull().references(() => insights.id),
+  evento: varchar("evento", { length: 100 }).notNull(), // "criado", "visualizado", "acao_criada", "aplicado", "resultado_adicionado"
+  quem: int("quem"),
+  quando: timestamp("quando").defaultNow(),
+  diffJson: json("diffJson"),
+});
+
+export type Insight = typeof insights.$inferSelect;
+export type InsertInsight = typeof insights.$inferInsert;
+export type InsightSegment = typeof insightSegments.$inferSelect;
+export type InsightAction = typeof insightActions.$inferSelect;
+export type InsightResult = typeof insightResults.$inferSelect;
+export type InsightAuditLog = typeof insightAudit.$inferSelect;
 

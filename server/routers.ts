@@ -1222,6 +1222,84 @@ Forneca a resposta em formato JSON:
         return { success: true };
       }),
   }),
+
+  /**
+   * Análise da IA - Insights
+   */
+  insights: router({
+    getAll: publicProcedure
+      .input(z.object({ empresaId: z.number(), familia: z.string().optional(), estado: z.string().optional() }))
+      .query(async ({ input }) => {
+        return db.getInsights(input.empresaId, { familia: input.familia, estado: input.estado });
+      }),
+
+    getById: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return db.getInsightById(input.id);
+      }),
+
+    create: publicProcedure
+      .input(z.object({
+        empresaId: z.number(),
+        familia: z.string(),
+        area: z.string(),
+        titulo: z.string(),
+        resumo: z.string().optional(),
+        priorityScore: z.number().optional(),
+        confianca: z.number().optional(),
+        potencialR$: z.number().optional(),
+        tamanhoSegmento: z.number().optional(),
+        criteriosJson: z.any().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        return db.createInsight(input as any);
+      }),
+
+    updateEstado: publicProcedure
+      .input(z.object({ id: z.number(), estado: z.string() }))
+      .mutation(async ({ input }) => {
+        return db.updateInsightEstado(input.id, input.estado);
+      }),
+
+    createAction: publicProcedure
+      .input(z.object({
+        insightId: z.number(),
+        tipo: z.string(),
+        payloadJson: z.any().optional(),
+        criadoPor: z.number().optional(),
+        status: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        return db.createInsightAction(input);
+      }),
+
+    getActions: publicProcedure
+      .input(z.object({ insightId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getInsightActions(input.insightId);
+      }),
+
+    createResult: publicProcedure
+      .input(z.object({
+        insightId: z.number(),
+        periodo: z.string().optional(),
+        kpi: z.string().optional(),
+        valor: z.number().optional(),
+        baseline: z.number().optional(),
+        uplift: z.number().optional(),
+        pValor: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        return db.createInsightResult(input);
+      }),
+
+    getResults: publicProcedure
+      .input(z.object({ insightId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getInsightResults(input.insightId);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
