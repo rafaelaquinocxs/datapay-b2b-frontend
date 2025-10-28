@@ -439,3 +439,15 @@
   - Se usuário NÃO autenticado → Mostra Landing Page
   - Se usuário ESTÁ autenticado → Redireciona automaticamente para `/dashboard`
 
+
+
+
+## 🎯 Feature: Botão de Logout na Sidebar
+
+- [x] Adicionar botão de logout funcional na sidebar do DashboardLayout
+  - Deve aparecer no final da sidebar (footer)
+  - Ícone de logout (LogOut do lucide-react)
+  - Ao clicar, chama trpc.auth.logout.useMutation()
+  - Após logout, redireciona para a landing page (/)
+  - Mostrar toast notification de sucesso
+

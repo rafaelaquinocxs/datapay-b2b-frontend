@@ -11,8 +11,11 @@ import {
   FileBarChart,
   BookOpen,
   Lightbulb,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -77,7 +80,25 @@ const menuItems = [
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
+
+  const logoutMutation = trpc.auth.logout.useMutation({
+    onSuccess: () => {
+      toast.success("Logout realizado com sucesso!");
+      // Redirecionar para a landing page após logout
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 500);
+    },
+    onError: (error) => {
+      toast.error("Erro ao fazer logout");
+      console.error("[Logout] Erro:", error);
+    },
+  });
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -148,8 +169,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           })}
         </nav>
 
-        {/* Settings at bottom */}
-        <div className="p-4 border-t border-gray-200">
+        {/* Settings and Logout at bottom */}
+        <div className="p-4 border-t border-gray-200 space-y-1">
           <Link href="/configuracoes">
             <div
               className={cn(
@@ -175,6 +196,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </span>
             </div>
           </Link>
+
+          <button
+            onClick={handleLogout}
+            disabled={logoutMutation.isPending}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-gray-600 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="text-sm font-medium">
+              {logoutMutation.isPending ? "Saindo..." : "Sair"}
+            </span>
+          </button>
         </div>
       </aside>
 
