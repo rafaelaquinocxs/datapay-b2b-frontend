@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO empresas (id, nome, email, senha, clientesAtivos, clientesInativos, investimentoMarketing, ticketMedio, taxaRecompra, createdAt, updatedAt) \nVALUES (1, 'Pet Shop Jaime', 'jaime@petshop.com', 'senha123', 2000, 500, 5000.00, 150.00, 45.5, NOW(), NOW())\nON DUPLICATE KEY UPDATE \n  nome = 'Pet Shop Jaime',\n  clientesAtivos = 2000,\n  clientesInativos = 500,\n  investimentoMarketing = 5000.00,\n  ticketMedio = 150.00,\n  taxaRecompra = 45.5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute INSERT INTO empresas (id, nome, email, senha, clientesAtivos, clientesInativos, investimentoMarketing, ticketMedio, taxaRecompra, createdAt, updatedAt) \nVALUES (1, 'Pet Shop Jaime', 'jaime@petshop.com', 'senha123', 2000, 500, 5000.00, 150.00, 45.5, NOW(), NOW())\nON DUPLICATE KEY UPDATE \n  nome = 'Pet Shop Jaime',\n  clientesAtivos = 2000,\n  clientesInativos = 500,\n  investimentoMarketing = 5000.00,\n  ticketMedio = 150.00,\n  taxaRecompra = 45.5;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'senha' in 'field list'"
+  ]
+}

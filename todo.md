@@ -577,3 +577,13 @@
 ## 🐛 BUG - Dados mockados na página Análise da - [x] Remover todos os dados mockados/fake da p\u00e1gina AnaliseIA.- [x] Deixar p\u00e1gina vazia (0 insights) at\u00e9 conectar- [x] Garantir que an\u00e1lises venham do banco de dados reall
 - [ ] Testar upload de Excel e geração de insights reais com OpenAI
 
+
+
+
+## 🐛 BUG PRIORITÁRIO - Botão "Gerar Sugestões" não funciona
+
+- [x] Botão "Gerar Sugestões" no Formulário Inteligente não responde ao clique
+- [x] Verificar se função gerarSugestoes() está sendo chamada corretamente
+- [x] Verificar se mutation está configurada corretamente
+- [x] Testar geração de sugestões de formulários com dados reais
+
