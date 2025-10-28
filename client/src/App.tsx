@@ -20,6 +20,7 @@ import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 import RespondePesquisa from "./pages/RespondePesquisa";
 import Landing from "./pages/Landing";
+import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import FormularioInteligente from "./pages/FormularioInteligente";
 
@@ -27,7 +28,8 @@ function Router() {
   return (
     <Switch>
       {/* Rotas públicas (sem autenticação) */}
-      <Route path="/" component={Landing} />
+      <Route path="/" component={Home} />
+      <Route path="/landing" component={Landing} />
       <Route path="/login" component={Login} />
       <Route path="/registro" component={Registro} />
       <Route path="/diagnostico" component={Diagnostico} />

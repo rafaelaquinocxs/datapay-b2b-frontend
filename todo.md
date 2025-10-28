@@ -426,3 +426,16 @@
 - [x] Solução: Ajustado sameSite para "lax" em HTTP e "none" em HTTPS
 - [ ] Testar login em produção após correção
 
+
+
+
+## 🚨 BUG CRÍTICO - Loop de Redirecionamento após Login
+
+- [x] Corrigir loop de redirecionamento após login com Google OAuth
+  - Problema: Rota `/` mostra Landing Page mesmo quando usuário está autenticado
+  - Após login, sistema redireciona para `/` que mostra Landing Page novamente
+  - Usuário clica em "Entrar" e entra em loop infinito
+  - Solução: Implementar lógica de redirecionamento inteligente na rota `/`
+  - Se usuário NÃO autenticado → Mostra Landing Page
+  - Se usuário ESTÁ autenticado → Redireciona automaticamente para `/dashboard`
+
