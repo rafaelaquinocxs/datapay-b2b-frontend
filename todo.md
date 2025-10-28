@@ -402,3 +402,11 @@
   - Solução: Adicionadas rotas dinâmicas para /laboratorio/gerador, /laboratorio/simulador, /laboratorio/testador
   - Status: RESOLVIDO
 
+
+
+- [x] BUG: Abas do Laboratorio nao mudam automaticamente ao navegar
+  - Todas as rotas apontam para o mesmo componente
+  - Cards das ferramentas nao abrem detalhes
+  - Solucao: Detectar rota com useLocation + implementar modais com Dialog
+  - Status: RESOLVIDO
+

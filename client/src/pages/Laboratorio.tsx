@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,23 +8,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Download, Zap, TrendingUp, BarChart3, Settings, FileText } from 'lucide-react';
-import { Link } from 'wouter';
+import { Download, Zap, TrendingUp, BarChart3, Settings, FileText, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function Laboratorio() {
-  // Redirecionar para /laboratorio/gerador se acessar /laboratorio diretamente
-  const [redirected] = useState(() => {
-    if (typeof window !== 'undefined' && window.location.pathname === '/laboratorio') {
-      window.location.pathname = '/laboratorio/gerador';
-    }
-    return true;
-  });
+  const [location] = useLocation();
   const [activeTab, setActiveTab] = useState('gerador');
   const [recordCount, setRecordCount] = useState([100000]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>(['SP', 'RJ', 'MG']);
   const [seasonality, setSeasonality] = useState<string[]>(['black_friday']);
   const [calibrationEnabled, setCalibrationEnabled] = useState(false);
   const [realDatasetSize, setRealDatasetSize] = useState('10000');
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
 
   const regions = ['SP', 'RJ', 'MG', 'BA', 'RS', 'SC', 'PE', 'CE'];
   const ageRanges = ['18-25', '26-35', '36-45', '46-55', '56+'];
@@ -42,6 +38,7 @@ export default function Laboratorio() {
       description: 'Crie datasets sintéticos realistas com parâmetros avançados',
       icon: Zap,
       color: 'bg-blue-50 border-blue-200',
+      content: 'Configure quantidade de registros, regiões, faixa etária e sazonalidade para gerar dados realistas.'
     },
     {
       id: 'simulador',
@@ -49,6 +46,7 @@ export default function Laboratorio() {
       description: 'Teste campanhas em dados sintéticos antes de executar',
       icon: TrendingUp,
       color: 'bg-purple-50 border-purple-200',
+      content: 'Simule o desempenho de campanhas em diferentes cenários com dados sintéticos.'
     },
     {
       id: 'testador',
@@ -56,6 +54,7 @@ export default function Laboratorio() {
       description: 'Valide insights em múltiplos cenários sintéticos',
       icon: BarChart3,
       color: 'bg-green-50 border-green-200',
+      content: 'Valide a precisão de seus insights testando em múltiplos cenários.'
     },
     {
       id: 'validador',
@@ -63,6 +62,7 @@ export default function Laboratorio() {
       description: 'Preveja taxa de resposta e qualidade de dados',
       icon: FileText,
       color: 'bg-orange-50 border-orange-200',
+      content: 'Preveja taxa de resposta e qualidade de dados antes de lançar pesquisas.'
     },
     {
       id: 'previsor',
@@ -70,6 +70,7 @@ export default function Laboratorio() {
       description: 'Simule ROI e impacto de ações antes de executar',
       icon: TrendingUp,
       color: 'bg-pink-50 border-pink-200',
+      content: 'Simule ROI e impacto financeiro de ações antes de executá-las.'
     },
     {
       id: 'historico',
@@ -77,8 +78,25 @@ export default function Laboratorio() {
       description: 'Acompanhe acurácia das previsões vs resultados reais',
       icon: BarChart3,
       color: 'bg-indigo-50 border-indigo-200',
+      content: 'Visualize histórico de simulações e compare previsões com resultados reais.'
     },
   ];
+
+  // Detectar rota e mudar aba automaticamente
+  useEffect(() => {
+    if (location === '/laboratorio/gerador') {
+      setActiveTab('gerador');
+      setSelectedTool(null);
+    } else if (location === '/laboratorio/simulador') {
+      setSelectedTool('simulador');
+      setActiveTab('ferramentas');
+    } else if (location === '/laboratorio/testador') {
+      setSelectedTool('testador');
+      setActiveTab('ferramentas');
+    }
+  }, [location]);
+
+  const selectedToolData = tools.find(t => t.id === selectedTool);
 
   return (
     <div className="space-y-6">
@@ -303,7 +321,11 @@ export default function Laboratorio() {
             {tools.map((tool) => {
               const IconComponent = tool.icon;
               return (
-                <Card key={tool.id} className={`border-2 cursor-pointer hover:shadow-lg transition-shadow ${tool.color}`}>
+                <Card 
+                  key={tool.id} 
+                  className={`border-2 cursor-pointer hover:shadow-lg transition-shadow ${tool.color}`}
+                  onClick={() => setSelectedTool(tool.id)}
+                >
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -314,7 +336,7 @@ export default function Laboratorio() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full" onClick={() => setSelectedTool(tool.id)}>
                       Acessar
                     </Button>
                   </CardContent>
@@ -324,6 +346,32 @@ export default function Laboratorio() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Modal de Ferramenta */}
+      <Dialog open={!!selectedTool} onOpenChange={(open) => !open && setSelectedTool(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedToolData && selectedToolData.title}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedToolData && (
+            <div className="space-y-4">
+              <p className="text-gray-600">{selectedToolData.description}</p>
+              <p className="text-sm text-gray-500">{selectedToolData.content}</p>
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <p className="text-sm font-semibold text-blue-900">
+                  ℹ️ Esta ferramenta está em desenvolvimento. Em breve você poderá usar todos os recursos aqui!
+                </p>
+              </div>
+              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                Acessar {selectedToolData.title.split(' ')[1]}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
