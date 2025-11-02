@@ -1258,16 +1258,22 @@ export async function createDemoRequest(data: {
   nome: string;
   email: string;
   empresa: string;
+  cargo: string;
   telefone?: string;
   mensagem?: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  // Usar query raw para inserir na tabela demo_requests
+  const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'icloud.com', 'aol.com'];
+  const emailDomain = data.email.split('@')[1]?.toLowerCase();
+  if (emailDomains.includes(emailDomain)) {
+    throw new Error("Por favor, use um email profissional");
+  }
+  
   return db.execute(sql.raw(`
-    INSERT INTO demo_requests (nome, email, empresa, telefone, mensagem, status)
-    VALUES ('${data.nome}', '${data.email}', '${data.empresa}', '${data.telefone || null}', '${data.mensagem || null}', 'novo')
+    INSERT INTO demo_requests (nome, email, empresa, cargo, telefone, mensagem, status)
+    VALUES ('${data.nome}', '${data.email}', '${data.empresa}', '${data.cargo}', '${data.telefone || null}', '${data.mensagem || null}', 'novo')
   `));
 }
 

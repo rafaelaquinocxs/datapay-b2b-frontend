@@ -9,7 +9,7 @@ export default function Landing() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [demoFormData, setDemoFormData] = useState({ nome: "", email: "", empresa: "", telefone: "", mensagem: "" });
+  const [demoFormData, setDemoFormData] = useState({ nome: "", email: "", empresa: "", cargo: "", telefone: "", mensagem: "" });
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoMessage, setDemoMessage] = useState("");
 
@@ -477,6 +477,13 @@ export default function Landing() {
               className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
             />
             <input
+              type="text"
+              placeholder="Seu cargo"
+              value={demoFormData.cargo}
+              onChange={(e) => setDemoFormData({...demoFormData, cargo: e.target.value})}
+              className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+            />
+            <input
               type="tel"
               placeholder="Telefone (opcional)"
               value={demoFormData.telefone}
@@ -493,8 +500,14 @@ export default function Landing() {
             <Button
               className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
               onClick={async () => {
-                if (!demoFormData.nome || !demoFormData.email || !demoFormData.empresa) {
-                  setDemoMessage("Por favor, preencha os campos obrigatórios");
+                if (!demoFormData.nome || !demoFormData.email || !demoFormData.empresa || !demoFormData.cargo) {
+                  setDemoMessage("Por favor, preencha todos os campos obrigatórios");
+                  return;
+                }
+                const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'icloud.com', 'aol.com'];
+                const emailDomain = demoFormData.email.split('@')[1]?.toLowerCase();
+                if (emailDomains.includes(emailDomain)) {
+                  setDemoMessage("Por favor, use um email profissional (domínio da empresa)");
                   return;
                 }
                 setDemoLoading(true);
@@ -508,7 +521,7 @@ export default function Landing() {
                     setDemoMessage("Solicitação enviada com sucesso! Entraremos em contato em breve.");
                     setTimeout(() => {
                       setShowDemoModal(false);
-                      setDemoFormData({ nome: "", email: "", empresa: "", telefone: "", mensagem: "" });
+                      setDemoFormData({ nome: "", email: "", empresa: "", cargo: "", telefone: "", mensagem: "" });
                       setDemoMessage("");
                     }, 2000);
                   } else {

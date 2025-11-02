@@ -1793,6 +1793,7 @@ Forneca a resposta em formato JSON:
         nome: z.string().min(3),
         email: z.string().email(),
         empresa: z.string().min(2),
+        cargo: z.string().min(2),
         telefone: z.string().optional(),
         mensagem: z.string().optional(),
       }))
@@ -1803,9 +1804,9 @@ Forneca a resposta em formato JSON:
             success: true,
             message: "Solicitação de demo enviada com sucesso! Entraremos em contato em breve.",
           };
-        } catch (error) {
+        } catch (error: any) {
           console.error("Erro ao criar requisição de demo:", error);
-          throw new Error("Erro ao enviar solicitação de demo");
+          throw new Error(error.message || "Erro ao enviar solicitação de demo");
         }
       }),
     
