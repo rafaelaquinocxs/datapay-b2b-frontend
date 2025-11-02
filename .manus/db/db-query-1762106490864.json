@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, nome, email FROM empresas LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute SELECT id, nome, email FROM empresas LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "nome": "Pet Shop Jaime",
+      "email": "jaime@petshop.com"
+    },
+    {
+      "id": "150001",
+      "nome": "Inter Esportes",
+      "email": "contato@inter.com"
+    },
+    {
+      "id": "150002",
+      "nome": "Teste DataPay",
+      "email": "teste@datapay.com"
+    },
+    {
+      "id": "180001",
+      "nome": "Datapay",
+      "email": "datapay@datapay.com"
+    },
+    {
+      "id": "210001",
+      "nome": "Synape",
+      "email": "synape@synape.com.br"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnome\temail\n1\tPet Shop Jaime\tjaime@petshop.com\n150001\tInter Esportes\tcontato@inter.com\n150002\tTeste DataPay\tteste@datapay.com\n180001\tDatapay\tdatapay@datapay.com\n210001\tSynape\tsynape@synape.com.br\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}
