@@ -29,9 +29,9 @@ import Laboratorio from "./pages/Laboratorio";
 function Router() {
   return (
     <Switch>
-      {/* Rota raiz redireciona para dashboard */}
+      {/* Rota raiz redireciona para landing page */}
       <Route path="/">
-        {() => <Redirect to="/dashboard" />}
+        {() => <Redirect to="/landing" />}
       </Route>
 
       {/* Landing page */}
