@@ -1,6 +1,6 @@
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa, fontesDados, InsertFonteDados, baseConhecimento, InsertBaseConhecimento, insightsIA, InsertInsightIA, acoesInteligentes, InsertAcaoInteligente, resultadosAcoes, InsertResultadoAcao, companyProfile, InsertCompanyProfile, companyProfileVersions, InsertCompanyProfileVersion, profileAuditLog, InsertProfileAuditLog, taxonomySectors, fieldPermissions, InsertFieldPermission, executiveSummaries, InsertExecutiveSummary, benchmarkData, benchmarkComparisons, InsertBenchmarkComparison, dataCopiloConversations, InsertDataCopiloConversation, profileWebhooks, InsertProfileWebhook, dataSources, InsertDataSource, syncLogs, InsertSyncLog, dataQualityScores, InsertDataQualityScore, fieldMappings, InsertFieldMapping, syncSchedules, InsertSyncSchedule, dataSourceWebhooks, InsertDataSourceWebhook, dataSourceAuditLog, InsertDataSourceAuditLog, insights, InsertInsight, insightSegments, insightActions, insightResults, insightAudit } from "../drizzle/schema";
+import { InsertUser, users, empresas, InsertEmpresa, diagnosticos, InsertDiagnostico, pesquisas, InsertPesquisa, respostasPesquisas, InsertRespostaPesquisa, fontesDados, InsertFonteDados, baseConhecimento, InsertBaseConhecimento, insightsIA, InsertInsightIA, acoesInteligentes, InsertAcaoInteligente, resultadosAcoes, InsertResultadoAcao, companyProfile, InsertCompanyProfile, companyProfileVersions, InsertCompanyProfileVersion, profileAuditLog, InsertProfileAuditLog, taxonomySectors, fieldPermissions, InsertFieldPermission, executiveSummaries, InsertExecutiveSummary, benchmarkData, benchmarkComparisons, InsertBenchmarkComparison, dataCopiloConversations, InsertDataCopiloConversation, profileWebhooks, InsertProfileWebhook, dataSources, InsertDataSource, syncLogs, InsertSyncLog, dataQualityScores, InsertDataQualityScore, fieldMappings, InsertFieldMapping, syncSchedules, InsertSyncSchedule, dataSourceWebhooks, InsertDataSourceWebhook, dataSourceAuditLog, InsertDataSourceAuditLog, insights, InsertInsight, insightSegments, insightActions, insightResults, insightAudit, roles, InsertRole, colaboradores, InsertColaborador, permissoes, InsertPermissao, auditLogs, InsertAuditLog, configuracoesEmpresa, InsertConfiguracaoEmpresa, alertasSeguranca, InsertAlertaSeguranca } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -987,5 +987,263 @@ export async function getInsightAuditLog(insightId: number) {
   if (!db) return [];
 
   return db.select().from(insightAudit).where(eq(insightAudit.insightId, insightId)).orderBy(desc(insightAudit.quando));
+}
+
+
+
+
+/**
+ * CONFIGURAÇÕES ENTERPRISE
+ * Funções para gerenciar colaboradores, roles, permissões e auditoria
+ */
+
+// ============================================================================
+// ROLES (Papéis/Funções)
+// ============================================================================
+
+export async function getRolesByEmpresa(empresaId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(roles).where(eq(roles.empresaId, empresaId)).orderBy(roles.nome);
+}
+
+export async function createRole(data: InsertRole) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(roles).values(data);
+  return result;
+}
+
+export async function updateRole(roleId: number, data: Partial<InsertRole>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.update(roles).set(data).where(eq(roles.id, roleId));
+}
+
+export async function deleteRole(roleId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.delete(roles).where(eq(roles.id, roleId));
+}
+
+// ============================================================================
+// COLABORADORES (Usuários da Empresa)
+// ============================================================================
+
+export async function getColaboradoresByEmpresa(empresaId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(colaboradores)
+    .where(eq(colaboradores.empresaId, empresaId))
+    .orderBy(desc(colaboradores.criadoEm));
+}
+
+export async function getColaboradorById(colaboradorId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(colaboradores).where(eq(colaboradores.id, colaboradorId)).limit(1);
+  return result[0] || null;
+}
+
+export async function createColaborador(data: InsertColaborador) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(colaboradores).values(data);
+  return result;
+}
+
+export async function updateColaborador(colaboradorId: number, data: Partial<InsertColaborador>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.update(colaboradores).set(data).where(eq(colaboradores.id, colaboradorId));
+}
+
+export async function deleteColaborador(colaboradorId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.delete(colaboradores).where(eq(colaboradores.id, colaboradorId));
+}
+
+export async function getColaboradorByEmail(empresaId: number, email: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(colaboradores)
+    .where(and(eq(colaboradores.empresaId, empresaId), eq(colaboradores.email, email)))
+    .limit(1);
+  return result[0] || null;
+}
+
+// ============================================================================
+// PERMISSÕES
+// ============================================================================
+
+export async function getPermissoesByRole(roleId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(permissoes).where(eq(permissoes.roleId, roleId));
+}
+
+export async function createPermissao(data: InsertPermissao) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.insert(permissoes).values(data);
+}
+
+export async function updatePermissao(permissaoId: number, data: Partial<InsertPermissao>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.update(permissoes).set(data).where(eq(permissoes.id, permissaoId));
+}
+
+export async function deletePermissao(permissaoId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.delete(permissoes).where(eq(permissoes.id, permissaoId));
+}
+
+export async function getPermissaoByRoleAndModulo(roleId: number, modulo: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(permissoes)
+    .where(and(eq(permissoes.roleId, roleId), eq(permissoes.modulo, modulo)))
+    .limit(1);
+  return result[0] || null;
+}
+
+// ============================================================================
+// AUDIT LOGS
+// ============================================================================
+
+export async function createAuditLog(data: InsertAuditLog) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Audit] Database not available, skipping log");
+    return;
+  }
+  
+  try {
+    await db.insert(auditLogs).values(data);
+  } catch (error) {
+    console.error("[Audit] Failed to create log:", error);
+  }
+}
+
+export async function getAuditLogsByEmpresa(empresaId: number, limit: number = 100) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(auditLogs)
+    .where(eq(auditLogs.empresaId, empresaId))
+    .orderBy(desc(auditLogs.criadoEm))
+    .limit(limit);
+}
+
+export async function getAuditLogsByUsuario(empresaId: number, usuarioId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(auditLogs)
+    .where(and(eq(auditLogs.empresaId, empresaId), eq(auditLogs.usuarioId, usuarioId)))
+    .orderBy(desc(auditLogs.criadoEm))
+    .limit(limit);
+}
+
+export async function getAuditLogsByModulo(empresaId: number, modulo: string, limit: number = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(auditLogs)
+    .where(and(eq(auditLogs.empresaId, empresaId), eq(auditLogs.modulo, modulo)))
+    .orderBy(desc(auditLogs.criadoEm))
+    .limit(limit);
+}
+
+// ============================================================================
+// CONFIGURAÇÕES DA EMPRESA
+// ============================================================================
+
+export async function getConfiguracaoEmpresa(empresaId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(configuracoesEmpresa)
+    .where(eq(configuracoesEmpresa.empresaId, empresaId))
+    .limit(1);
+  return result[0] || null;
+}
+
+export async function createConfiguracaoEmpresa(data: InsertConfiguracaoEmpresa) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.insert(configuracoesEmpresa).values(data);
+}
+
+export async function updateConfiguracaoEmpresa(empresaId: number, data: Partial<InsertConfiguracaoEmpresa>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.update(configuracoesEmpresa).set(data).where(eq(configuracoesEmpresa.empresaId, empresaId));
+}
+
+// ============================================================================
+// ALERTAS DE SEGURANÇA
+// ============================================================================
+
+export async function createAlertaSeguranca(data: InsertAlertaSeguranca) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.insert(alertasSeguranca).values(data);
+}
+
+export async function getAlertasSegurancaByEmpresa(empresaId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(alertasSeguranca)
+    .where(eq(alertasSeguranca.empresaId, empresaId))
+    .orderBy(desc(alertasSeguranca.criadoEm))
+    .limit(limit);
+}
+
+export async function getAlertasNaoLidos(empresaId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(alertasSeguranca)
+    .where(and(eq(alertasSeguranca.empresaId, empresaId), eq(alertasSeguranca.lido, false)))
+    .orderBy(desc(alertasSeguranca.criadoEm));
+}
+
+export async function marcarAlertaComoLido(alertaId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.update(alertasSeguranca).set({ lido: true }).where(eq(alertasSeguranca.id, alertaId));
+}
+
+export async function resolverAlerta(alertaId: number, notasResolucao: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.update(alertasSeguranca)
+    .set({ resolvido: true, notasResolucao, resolvidoEm: new Date() })
+    .where(eq(alertasSeguranca.id, alertaId));
 }
 

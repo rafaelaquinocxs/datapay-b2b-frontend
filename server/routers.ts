@@ -1519,6 +1519,270 @@ Forneca a resposta em formato JSON:
         return getSimulationHistory('company_1');
       }),
   }),
+
+  // ============================================================================
+  // CONFIGURAÇÕES ENTERPRISE
+  // ============================================================================
+  configuracoes: router({
+    // ========== COLABORADORES ==========
+    colaboradores: router({
+      listar: publicProcedure
+        .query(async ({ ctx }) => {
+          if (!ctx.empresa) throw new Error("Empresa não autenticada");
+          return db.getColaboradoresByEmpresa(ctx.empresa.id);
+        }),
+      
+      obter: publicProcedure
+        .input(z.object({ id: z.number() }))
+        .query(async ({ input }) => {
+          return db.getColaboradorById(input.id);
+        }),
+      
+      criar: publicProcedure
+        .input(z.object({
+          email: z.string().email(),
+          nome: z.string(),
+          roleId: z.number(),
+          departamento: z.string().optional(),
+          cargo: z.string().optional(),
+          telefone: z.string().optional(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          if (!ctx.empresa) throw new Error("Empresa não autenticada");
+          
+          // Verificar se email já existe
+          const existente = await db.getColaboradorByEmail(ctx.empresa.id, input.email);
+          if (existente) throw new Error("Colaborador com este email já existe");
+          
+          const result = await db.createColaborador({
+            empresaId: ctx.empresa.id,
+            email: input.email,
+            nome: input.nome,
+            roleId: input.roleId,
+            departamento: input.departamento,
+            cargo: input.cargo,
+            telefone: input.telefone,
+            status: "pendente",
+            criadoPor: ctx.empresa.id,
+          });
+          
+          // Log de auditoria
+          await db.createAuditLog({
+            empresaId: ctx.empresa.id,
+            acao: "criar",
+            modulo: "configuracoes",
+            descricao: `Colaborador ${input.email} convidado`,
+            resultado: "sucesso",
+          });
+          
+          return result;
+        }),
+      
+      atualizar: publicProcedure
+        .input(z.object({
+          id: z.number(),
+          roleId: z.number().optional(),
+          departamento: z.string().optional(),
+          cargo: z.string().optional(),
+          status: z.enum(["ativo", "inativo", "pendente"]).optional(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          if (!ctx.empresa) throw new Error("Empresa não autenticada");
+          
+          const result = await db.updateColaborador(input.id, {
+            roleId: input.roleId,
+            departamento: input.departamento,
+            cargo: input.cargo,
+            status: input.status as any,
+          });
+          
+          await db.createAuditLog({
+            empresaId: ctx.empresa.id,
+            acao: "editar",
+            modulo: "configuracoes",
+            recursoId: input.id,
+            recursoTipo: "colaborador",
+            descricao: `Colaborador atualizado`,
+            resultado: "sucesso",
+          });
+          
+          return result;
+        }),
+      
+      deletar: publicProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input, ctx }) => {
+          if (!ctx.empresa) throw new Error("Empresa não autenticada");
+          
+          const result = await db.deleteColaborador(input.id);
+          
+          await db.createAuditLog({
+            empresaId: ctx.empresa.id,
+            acao: "deletar",
+            modulo: "configuracoes",
+            recursoId: input.id,
+            recursoTipo: "colaborador",
+            descricao: `Colaborador removido`,
+            resultado: "sucesso",
+          });
+          
+          return result;
+        }),
+    }),
+
+    // ========== ROLES ==========
+    roles: router({
+      listar: publicProcedure
+        .query(async ({ ctx }) => {
+          if (!ctx.empresa) throw new Error("Empresa não autenticada");
+          return db.getRolesByEmpresa(ctx.empresa.id);
+        }),
+      
+      criar: publicProcedure
+        .input(z.object({
+          nome: z.string(),
+          descricao: z.string().optional(),
+          cor: z.string().optional(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          if (!ctx.empresa) throw new Error("Empresa não autenticada");
+          
+          return db.createRole({
+            empresaId: ctx.empresa.id,
+            nome: input.nome,
+            descricao: input.descricao,
+            cor: input.cor,
+          });
+        }),
+    }),
+
+    // ========== PERMISSÕES ==========
+    permissoes: router({
+      porRole: publicProcedure
+        .input(z.object({ roleId: z.number() }))
+        .query(async ({ input }) => {
+          return db.getPermissoesByRole(input.roleId);
+        }),
+      
+      atualizar: publicProcedure
+        .input(z.object({
+          roleId: z.number(),
+          modulo: z.string(),
+          pode_visualizar: z.boolean().optional(),
+          pode_criar: z.boolean().optional(),
+          pode_editar: z.boolean().optional(),
+          pode_deletar: z.boolean().optional(),
+          pode_exportar: z.boolean().optional(),
+          pode_compartilhar: z.boolean().optional(),
+          pode_executar_acoes: z.boolean().optional(),
+          pode_gerar_relatorios: z.boolean().optional(),
+          pode_usar_laboratorio: z.boolean().optional(),
+          pode_gerenciar_usuarios: z.boolean().optional(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          if (!ctx.empresa) throw new Error("Empresa não autenticada");
+          
+          const permissao = await db.getPermissaoByRoleAndModulo(input.roleId, input.modulo);
+          
+          if (permissao) {
+            return db.updatePermissao(permissao.id, input);
+          } else {
+            return db.createPermissao({
+              roleId: input.roleId,
+              modulo: input.modulo,
+              pode_visualizar: input.pode_visualizar ?? false,
+              pode_criar: input.pode_criar ?? false,
+              pode_editar: input.pode_editar ?? false,
+              pode_deletar: input.pode_deletar ?? false,
+              pode_exportar: input.pode_exportar ?? false,
+              pode_compartilhar: input.pode_compartilhar ?? false,
+              pode_executar_acoes: input.pode_executar_acoes ?? false,
+              pode_gerar_relatorios: input.pode_gerar_relatorios ?? false,
+              pode_usar_laboratorio: input.pode_usar_laboratorio ?? false,
+              pode_gerenciar_usuarios: input.pode_gerenciar_usuarios ?? false,
+            });
+          }
+        }),
+    }),
+
+    // ========== AUDITORIA ==========
+    auditoria: router({
+      listar: publicProcedure
+        .query(async ({ ctx }) => {
+          if (!ctx.empresa) throw new Error("Empresa não autenticada");
+          return db.getAuditLogsByEmpresa(ctx.empresa.id, 100);
+        }),
+      
+      porModulo: publicProcedure
+        .input(z.object({ modulo: z.string() }))
+        .query(async ({ input, ctx }) => {
+          if (!ctx.empresa) throw new Error("Empresa não autenticada");
+          return db.getAuditLogsByModulo(ctx.empresa.id, input.modulo, 50);
+        }),
+    }),
+
+    // ========== ALERTAS DE SEGURANÇA ==========
+    alertas: router({
+      listar: publicProcedure
+        .query(async ({ ctx }) => {
+          if (!ctx.empresa) throw new Error("Empresa não autenticada");
+          return db.getAlertasSegurancaByEmpresa(ctx.empresa.id, 50);
+        }),
+      
+      naoLidos: publicProcedure
+        .query(async ({ ctx }) => {
+          if (!ctx.empresa) throw new Error("Empresa não autenticada");
+          return db.getAlertasNaoLidos(ctx.empresa.id);
+        }),
+      
+      marcarComoLido: publicProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          return db.marcarAlertaComoLido(input.id);
+        }),
+      
+      resolver: publicProcedure
+        .input(z.object({ id: z.number(), notas: z.string() }))
+        .mutation(async ({ input }) => {
+          return db.resolverAlerta(input.id, input.notas);
+        }),
+    }),
+
+    // ========== CONFIGURAÇÕES DA EMPRESA ==========
+    empresa: router({
+      obter: publicProcedure
+        .query(async ({ ctx }) => {
+          if (!ctx.empresa) throw new Error("Empresa não autenticada");
+          return db.getConfiguracaoEmpresa(ctx.empresa.id);
+        }),
+      
+      atualizar: publicProcedure
+        .input(z.object({
+          autenticacao2FA: z.boolean().optional(),
+          ssoAtivo: z.boolean().optional(),
+          urlSSO: z.string().optional(),
+          notificacoesEmail: z.boolean().optional(),
+          notificacoesSlack: z.boolean().optional(),
+          webhookSlack: z.string().optional(),
+          idioma: z.string().optional(),
+          fuso: z.string().optional(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          if (!ctx.empresa) throw new Error("Empresa não autenticada");
+          
+          const config = await db.getConfiguracaoEmpresa(ctx.empresa.id);
+          
+          if (config) {
+            return db.updateConfiguracaoEmpresa(ctx.empresa.id, input);
+          } else {
+            return db.createConfiguracaoEmpresa({
+              empresaId: ctx.empresa.id,
+              ...input,
+            });
+          }
+        }),
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

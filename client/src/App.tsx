@@ -25,6 +25,7 @@ import AdicionarFonte from "./pages/AdicionarFonte";
 import MapeamentoFontes from "./pages/MapeamentoFontes";
 import ConfiguracaoSincronizacao from "./pages/ConfiguracaoSincronizacao";
 import Laboratorio from "./pages/Laboratorio";
+import Configuracoes from "./pages/Configuracoes";
 
 function Router() {
   return (
@@ -169,6 +170,12 @@ function Router() {
       <Route path="/configuracao-sincronizacao">
         <DashboardLayout>
           <ConfiguracaoSincronizacao />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/configuracoes">
+        <DashboardLayout>
+          <Configuracoes />
         </DashboardLayout>
       </Route>
 

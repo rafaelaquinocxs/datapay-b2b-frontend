@@ -112,6 +112,15 @@ const menuItems: any[] = [
     label: "Resumo Perfil",
     path: "/resumo-perfil",
   },
+  {
+    type: 'section',
+    label: 'Administração',
+  },
+  {
+    icon: Settings,
+    label: "Configurações",
+    path: "/configuracoes",
+  },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {

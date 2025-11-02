@@ -879,3 +879,183 @@ export const simulationHistory = mysqlTable('simulation_history', {
 
 
 
+
+/**
+ * CONFIGURAÇÕES ENTERPRISE
+ * Tabelas para gerenciamento de colaboradores, controle de acesso e auditoria
+ */
+
+/**
+ * Tabela de Roles (Papéis/Funções)
+ * Define os diferentes níveis de acesso na plataforma
+ */
+export const roles = mysqlTable("roles", {
+  id: int("id").autoincrement().primaryKey(),
+  empresaId: int("empresaId").notNull().references(() => empresas.id, { onDelete: "cascade" }),
+  nome: varchar("nome", { length: 100 }).notNull(), // 'Admin', 'Gerente', 'Analista', 'Visualizador'
+  descricao: text("descricao"),
+  cor: varchar("cor", { length: 20 }), // Para UI: 'red', 'blue', 'green', etc
+  ativo: boolean("ativo").default(true).notNull(),
+  criadoEm: timestamp("criadoEm").defaultNow().notNull(),
+  atualizadoEm: timestamp("atualizadoEm").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Role = typeof roles.$inferSelect;
+export type InsertRole = typeof roles.$inferInsert;
+
+/**
+ * Tabela de Colaboradores (Usuários da Empresa)
+ * Relaciona usuários com empresas e roles
+ */
+export const colaboradores = mysqlTable("colaboradores", {
+  id: int("id").autoincrement().primaryKey(),
+  empresaId: int("empresaId").notNull().references(() => empresas.id, { onDelete: "cascade" }),
+  usuarioId: int("usuarioId").references(() => users.id, { onDelete: "set null" }),
+  email: varchar("email", { length: 320 }).notNull(),
+  nome: varchar("nome", { length: 255 }).notNull(),
+  roleId: int("roleId").notNull().references(() => roles.id, { onDelete: "restrict" }),
+  
+  // Status do colaborador
+  status: mysqlEnum("status", ["ativo", "inativo", "pendente"]).default("pendente").notNull(),
+  dataConvite: timestamp("dataConvite").defaultNow().notNull(),
+  dataAceite: timestamp("dataAceite"),
+  
+  // Informações adicionais
+  departamento: varchar("departamento", { length: 100 }),
+  cargo: varchar("cargo", { length: 100 }),
+  telefone: varchar("telefone", { length: 50 }),
+  
+  // Auditoria
+  criadoEm: timestamp("criadoEm").defaultNow().notNull(),
+  atualizadoEm: timestamp("atualizadoEm").defaultNow().onUpdateNow().notNull(),
+  criadoPor: int("criadoPor").references(() => users.id, { onDelete: "set null" }),
+});
+
+export type Colaborador = typeof colaboradores.$inferSelect;
+export type InsertColaborador = typeof colaboradores.$inferInsert;
+
+/**
+ * Tabela de Permissões por Módulo
+ * Define o que cada role pode fazer em cada módulo
+ */
+export const permissoes = mysqlTable("permissoes", {
+  id: int("id").autoincrement().primaryKey(),
+  roleId: int("roleId").notNull().references(() => roles.id, { onDelete: "cascade" }),
+  modulo: varchar("modulo", { length: 100 }).notNull(), // 'meus_dados', 'analise_ia', 'pesquisas', 'acoes', 'relatorios', 'laboratorio', 'configuracoes'
+  
+  // Permissões CRUD
+  pode_visualizar: boolean("pode_visualizar").default(false).notNull(),
+  pode_criar: boolean("pode_criar").default(false).notNull(),
+  pode_editar: boolean("pode_editar").default(false).notNull(),
+  pode_deletar: boolean("pode_deletar").default(false).notNull(),
+  pode_exportar: boolean("pode_exportar").default(false).notNull(),
+  pode_compartilhar: boolean("pode_compartilhar").default(false).notNull(),
+  
+  // Permissões específicas por módulo
+  pode_executar_acoes: boolean("pode_executar_acoes").default(false), // Para ações inteligentes
+  pode_gerar_relatorios: boolean("pode_gerar_relatorios").default(false), // Para relatórios
+  pode_usar_laboratorio: boolean("pode_usar_laboratorio").default(false), // Para laboratório
+  pode_gerenciar_usuarios: boolean("pode_gerenciar_usuarios").default(false), // Para configurações
+  
+  criadoEm: timestamp("criadoEm").defaultNow().notNull(),
+  atualizadoEm: timestamp("atualizadoEm").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Permissao = typeof permissoes.$inferSelect;
+export type InsertPermissao = typeof permissoes.$inferInsert;
+
+/**
+ * Tabela de Logs de Auditoria
+ * Rastreia todas as ações importantes na plataforma
+ */
+export const auditLogs = mysqlTable("audit_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  empresaId: int("empresaId").notNull().references(() => empresas.id, { onDelete: "cascade" }),
+  usuarioId: int("usuarioId").references(() => users.id, { onDelete: "set null" }),
+  
+  // Ação realizada
+  acao: varchar("acao", { length: 100 }).notNull(), // 'criar', 'editar', 'deletar', 'visualizar', 'exportar', 'compartilhar'
+  modulo: varchar("modulo", { length: 100 }).notNull(), // Qual módulo foi afetado
+  recursoId: int("recursoId"), // ID do recurso afetado (fonte de dados, pesquisa, etc)
+  recursoTipo: varchar("recursoTipo", { length: 100 }), // Tipo do recurso
+  
+  // Detalhes da mudança
+  descricao: text("descricao"),
+  mudancasAntes: json("mudancasAntes"), // JSON com valores anteriores
+  mudancasDepois: json("mudancasDepois"), // JSON com valores novos
+  
+  // Contexto
+  enderecoIP: varchar("enderecoIP", { length: 45 }),
+  userAgent: text("userAgent"),
+  resultado: mysqlEnum("resultado", ["sucesso", "erro", "acesso_negado"]).default("sucesso").notNull(),
+  mensagemErro: text("mensagemErro"),
+  
+  criadoEm: timestamp("criadoEm").defaultNow().notNull(),
+});
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = typeof auditLogs.$inferInsert;
+
+/**
+ * Tabela de Configurações da Empresa
+ * Armazena preferências e configurações globais
+ */
+export const configuracoesEmpresa = mysqlTable("configuracoes_empresa", {
+  id: int("id").autoincrement().primaryKey(),
+  empresaId: int("empresaId").notNull().unique().references(() => empresas.id, { onDelete: "cascade" }),
+  
+  // Segurança
+  autenticacao2FA: boolean("autenticacao2FA").default(false).notNull(),
+  ssoAtivo: boolean("ssoAtivo").default(false).notNull(),
+  urlSSO: varchar("urlSSO", { length: 255 }),
+  
+  // Notificações
+  notificacoesEmail: boolean("notificacoesEmail").default(true).notNull(),
+  notificacoesSlack: boolean("notificacoesSlack").default(false).notNull(),
+  webhookSlack: varchar("webhookSlack", { length: 500 }),
+  
+  // Conformidade
+  conformidadeLGPD: boolean("conformidadeLGPD").default(true).notNull(),
+  retencaoDados: int("retencaoDados"), // Dias para retenção de dados
+  
+  // Preferências
+  idioma: varchar("idioma", { length: 10 }).default("pt-BR").notNull(),
+  fuso: varchar("fuso", { length: 50 }).default("America/Sao_Paulo").notNull(),
+  
+  criadoEm: timestamp("criadoEm").defaultNow().notNull(),
+  atualizadoEm: timestamp("atualizadoEm").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ConfiguracaoEmpresa = typeof configuracoesEmpresa.$inferSelect;
+export type InsertConfiguracaoEmpresa = typeof configuracoesEmpresa.$inferInsert;
+
+/**
+ * Tabela de Alertas de Segurança
+ * Rastreia atividades suspeitas ou importantes
+ */
+export const alertasSeguranca = mysqlTable("alertas_seguranca", {
+  id: int("id").autoincrement().primaryKey(),
+  empresaId: int("empresaId").notNull().references(() => empresas.id, { onDelete: "cascade" }),
+  
+  tipo: mysqlEnum("tipo", ["acesso_negado", "multiplas_tentativas_falhas", "mudanca_permissoes", "exclusao_dados", "acesso_inusitado", "outro"]).notNull(),
+  severidade: mysqlEnum("severidade", ["baixa", "media", "alta", "critica"]).default("media").notNull(),
+  
+  descricao: text("descricao").notNull(),
+  usuarioId: int("usuarioId").references(() => users.id, { onDelete: "set null" }),
+  
+  // Contexto
+  enderecoIP: varchar("enderecoIP", { length: 45 }),
+  localizacao: varchar("localizacao", { length: 100 }),
+  
+  // Status
+  lido: boolean("lido").default(false).notNull(),
+  resolvido: boolean("resolvido").default(false).notNull(),
+  notasResolucao: text("notasResolucao"),
+  
+  criadoEm: timestamp("criadoEm").defaultNow().notNull(),
+  resolvidoEm: timestamp("resolvidoEm"),
+});
+
+export type AlertaSeguranca = typeof alertasSeguranca.$inferSelect;
+export type InsertAlertaSeguranca = typeof alertasSeguranca.$inferInsert;
+
