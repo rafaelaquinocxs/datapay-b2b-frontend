@@ -533,3 +533,15 @@
 - [ ] Backup e recovery
 - [ ] Documentação de APIs
 
+
+
+### Formulário "Peça uma Demo" - EM PROGRESSO
+- [ ] Criar tabela de banco para requisições de demo
+- [ ] Implementar API tRPC para criar requisição de demo
+- [ ] Criar modal com formulário na Landing Page
+- [ ] Integrar com botão "Peça uma Demo" no Hero
+- [ ] Validação de campos (Nome, Email, Empresa, Telefone, Mensagem)
+- [ ] Envio de email de confirmação
+- [ ] Mensagem de sucesso/erro com toast
+- [ ] Testar formulário completo
+

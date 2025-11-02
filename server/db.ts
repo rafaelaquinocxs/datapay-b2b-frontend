@@ -1247,3 +1247,49 @@ export async function resolverAlerta(alertaId: number, notasResolucao: string) {
     .where(eq(alertasSeguranca.id, alertaId));
 }
 
+
+
+
+// ============================================================================
+// REQUISIÇÕES DE DEMO
+// ============================================================================
+
+export async function createDemoRequest(data: {
+  nome: string;
+  email: string;
+  empresa: string;
+  telefone?: string;
+  mensagem?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Usar query raw para inserir na tabela demo_requests
+  return db.execute(sql.raw(`
+    INSERT INTO demo_requests (nome, email, empresa, telefone, mensagem, status)
+    VALUES ('${data.nome}', '${data.email}', '${data.empresa}', '${data.telefone || null}', '${data.mensagem || null}', 'novo')
+  `));
+}
+
+export async function getDemoRequests(limit: number = 100) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Usar query raw para selecionar da tabela demo_requests
+  return db.execute(sql.raw(`SELECT * FROM demo_requests ORDER BY criadoEm DESC LIMIT ${limit}`));
+}
+
+export async function getDemoRequestsByStatus(status: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.execute(sql.raw(`SELECT * FROM demo_requests WHERE status = '${status}' ORDER BY criadoEm DESC`));
+}
+
+export async function updateDemoRequestStatus(demoId: number, status: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.execute(sql.raw(`UPDATE demo_requests SET status = '${status}', atualizadoEm = NOW() WHERE id = ${demoId}`));
+}
+

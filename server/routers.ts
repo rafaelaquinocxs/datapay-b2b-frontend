@@ -1783,6 +1783,37 @@ Forneca a resposta em formato JSON:
         }),
     }),
   }),
+
+  // ============================================================================
+  // REQUISIÇÕES DE DEMO
+  // ============================================================================
+  demo: router({
+    solicitar: publicProcedure
+      .input(z.object({
+        nome: z.string().min(3),
+        email: z.string().email(),
+        empresa: z.string().min(2),
+        telefone: z.string().optional(),
+        mensagem: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        try {
+          const result = await db.createDemoRequest(input);
+          return {
+            success: true,
+            message: "Solicitação de demo enviada com sucesso! Entraremos em contato em breve.",
+          };
+        } catch (error) {
+          console.error("Erro ao criar requisição de demo:", error);
+          throw new Error("Erro ao enviar solicitação de demo");
+        }
+      }),
+    
+    listar: publicProcedure
+      .query(async () => {
+        return db.getDemoRequests(100);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

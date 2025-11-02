@@ -7,7 +7,11 @@ import { ChevronDown, Menu, X, CheckCircle2, ArrowRight, Zap, Brain, BarChart3, 
 export default function Landing() {
   const [, setLocation] = useLocation();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showDemoModal, setShowDemoModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [demoFormData, setDemoFormData] = useState({ nome: "", email: "", empresa: "", telefone: "", mensagem: "" });
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoMessage, setDemoMessage] = useState("");
 
   const handleLogin = (provider: string) => {
     const clientId = import.meta.env[`VITE_${provider.toUpperCase()}_CLIENT_ID`];
@@ -40,7 +44,10 @@ export default function Landing() {
 
           <div className="flex items-center gap-4">
             <Button variant="ghost" onClick={() => setShowLoginModal(true)}>Entrar</Button>
-            <Button className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white">
+            <Button 
+              className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
+              onClick={() => setShowDemoModal(true)}
+            >
               Peça uma Demo
             </Button>
           </div>
@@ -433,6 +440,91 @@ export default function Landing() {
           <p className="text-xs text-gray-500 text-center mt-6">
             Ao continuar, você concorda com nossos <a href="#" className="underline hover:text-gray-700">Termos de Serviço</a> e <a href="#" className="underline hover:text-gray-700">Política de Privacidade</a>
           </p>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Demo */}
+      <Dialog open={showDemoModal} onOpenChange={setShowDemoModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Peça uma Demo</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {demoMessage && (
+              <div className={`p-3 rounded-lg text-sm ${demoMessage.includes("sucesso") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                {demoMessage}
+              </div>
+            )}
+            <input
+              type="text"
+              placeholder="Seu nome"
+              value={demoFormData.nome}
+              onChange={(e) => setDemoFormData({...demoFormData, nome: e.target.value})}
+              className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+            />
+            <input
+              type="email"
+              placeholder="Seu email"
+              value={demoFormData.email}
+              onChange={(e) => setDemoFormData({...demoFormData, email: e.target.value})}
+              className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+            />
+            <input
+              type="text"
+              placeholder="Sua empresa"
+              value={demoFormData.empresa}
+              onChange={(e) => setDemoFormData({...demoFormData, empresa: e.target.value})}
+              className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+            />
+            <input
+              type="tel"
+              placeholder="Telefone (opcional)"
+              value={demoFormData.telefone}
+              onChange={(e) => setDemoFormData({...demoFormData, telefone: e.target.value})}
+              className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+            />
+            <textarea
+              placeholder="Mensagem (opcional)"
+              value={demoFormData.mensagem}
+              onChange={(e) => setDemoFormData({...demoFormData, mensagem: e.target.value})}
+              rows={3}
+              className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+            />
+            <Button
+              className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
+              onClick={async () => {
+                if (!demoFormData.nome || !demoFormData.email || !demoFormData.empresa) {
+                  setDemoMessage("Por favor, preencha os campos obrigatórios");
+                  return;
+                }
+                setDemoLoading(true);
+                try {
+                  const response = await fetch("/api/trpc/demo.solicitar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ input: demoFormData }),
+                  });
+                  if (response.ok) {
+                    setDemoMessage("Solicitação enviada com sucesso! Entraremos em contato em breve.");
+                    setTimeout(() => {
+                      setShowDemoModal(false);
+                      setDemoFormData({ nome: "", email: "", empresa: "", telefone: "", mensagem: "" });
+                      setDemoMessage("");
+                    }, 2000);
+                  } else {
+                    setDemoMessage("Erro ao enviar solicitação. Tente novamente.");
+                  }
+                } catch (error) {
+                  setDemoMessage("Erro ao enviar solicitação. Tente novamente.");
+                } finally {
+                  setDemoLoading(false);
+                }
+              }}
+              disabled={demoLoading}
+            >
+              {demoLoading ? "Enviando..." : "Enviar Solicitação"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
