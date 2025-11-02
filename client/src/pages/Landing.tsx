@@ -151,11 +151,13 @@ export default function Landing() {
             {/* Right Image - Executivo */}
             <div className="relative h-96 md:h-full">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-green-400 rounded-3xl opacity-20 blur-2xl"></div>
-              <div className="relative bg-gradient-to-br from-purple-100 to-green-100 rounded-3xl p-8 h-full flex items-center justify-center border-2 border-purple-200">
-                <div className="text-center">
-                  <div className="text-6xl mb-4">👨‍💼</div>
-                  <p className="text-gray-600 font-medium">Executivo transformando dados em resultados</p>
-                </div>
+              <div className="relative bg-gradient-to-br from-purple-100 to-green-100 rounded-3xl p-0 h-full overflow-hidden border-2 border-purple-200 shadow-2xl">
+                <img 
+                  src="/executivo-hero.jpg" 
+                  alt="Executivo transformando dados em resultados"
+                  className="w-full h-full object-cover object-center"
+                  loading="lazy"
+                />
               </div>
             </div>
           </div>
