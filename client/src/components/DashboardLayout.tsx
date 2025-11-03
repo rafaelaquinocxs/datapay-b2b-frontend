@@ -116,11 +116,6 @@ const menuItems: any[] = [
     type: 'section',
     label: 'Administração',
   },
-  {
-    icon: Settings,
-    label: "Configurações",
-    path: "/configuracoes",
-  },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -176,8 +171,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           })}
         </nav>
 
-        {/* Settings at bottom */}
-        <div className="p-4 border-t border-gray-200">
+        {/* Settings and Logout at bottom */}
+        <div className="p-4 border-t border-gray-200 space-y-2">
           <Link href="/configuracoes">
             <div
               className={cn(
@@ -199,10 +194,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   location === "/configuracoes" ? "text-white" : "text-gray-700"
                 )}
               >
-                Configura\u00e7\u00f5es
+                Configurações
               </span>
             </div>
           </Link>
+          
+          <button
+            onClick={() => {
+              localStorage.removeItem('auth_token');
+              document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+              setLocation('/landing');
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all cursor-pointer text-gray-600 hover:bg-red-50 hover:text-red-600"
+          >
+            <LogOut className="w-5 h-5 text-gray-500 group-hover:text-red-600" />
+            <span className="text-sm font-medium text-gray-700 group-hover:text-red-600">
+              Sair
+            </span>
+          </button>
         </div>
       </aside>
 
