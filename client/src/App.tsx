@@ -185,6 +185,7 @@ function Router() {
   );
 }
 
+// DataPay Enterprise UI - Versão Final Pronta para Publicação
 function App() {
   return (
     <ErrorBoundary>
