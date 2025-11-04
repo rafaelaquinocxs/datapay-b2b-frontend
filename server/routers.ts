@@ -88,8 +88,13 @@ export const appRouter = router({
         });
 
         return {
-          success: true,
-          empresa: novaEmpresa,
+          sucesso: true,
+          usuario: {
+            id: novaEmpresa.id,
+            nome: novaEmpresa.nome,
+            email: novaEmpresa.email,
+            token,
+          },
         };
       }),
 
@@ -129,13 +134,12 @@ export const appRouter = router({
         });
 
         return {
-          success: true,
-          empresa: {
+          sucesso: true,
+          usuario: {
             id: empresa.id,
             nome: empresa.nome,
             email: empresa.email,
-            plano: empresa.plano,
-            assinaturaStatus: empresa.assinaturaStatus,
+            token,
           },
         };
       }),
@@ -1816,83 +1820,7 @@ Forneca a resposta em formato JSON:
       }),
   }),
 
-  // Router de Autenticação JWT
-  auth: router({
-    registro: publicProcedure
-      .input(
-        z.object({
-          nome: z.string().min(3),
-          email: z.string().email(),
-          senha: z.string().min(6),
-          empresa: z.string().optional(),
-          cargo: z.string().optional(),
-        })
-      )
-      .mutation(async ({ input }) => {
-        try {
-          const resultado = await db.registrarUsuario({
-            nome: input.nome,
-            email: input.email,
-            senha: input.senha,
-            empresa: input.empresa,
-            cargo: input.cargo,
-          });
-          return {
-            sucesso: true,
-            mensagem: "Usuário registrado com sucesso",
-            usuario: resultado,
-          };
-        } catch (error: any) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: error.message || "Erro ao registrar usuário",
-          });
-        }
-      }),
 
-    login: publicProcedure
-      .input(
-        z.object({
-          email: z.string().email(),
-          senha: z.string().min(6),
-        })
-      )
-      .mutation(async ({ input }) => {
-        try {
-          const resultado = await db.fazerLogin({
-            email: input.email,
-            senha: input.senha,
-          });
-          return {
-            sucesso: true,
-            mensagem: "Login realizado com sucesso",
-            usuario: resultado,
-          };
-        } catch (error: any) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: error.message || "Email ou senha inválidos",
-          });
-        }
-      }),
-
-    verificarToken: publicProcedure
-      .input(z.object({ token: z.string() }))
-      .query(({ input }) => {
-        try {
-          const payload = db.verificarToken(input.token);
-          return {
-            valido: true,
-            usuario: payload,
-          };
-        } catch (error: any) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Token inválido ou expirado",
-          });
-        }
-      }),
-  }),
 
   // Router de Chat com GPT
   chat: router({
