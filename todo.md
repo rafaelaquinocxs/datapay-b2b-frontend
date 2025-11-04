@@ -466,7 +466,27 @@
 
 - [x] BUG: Páginas do Laboratório não abrem (Gerador, Simulador, Testador)
   - Sidebar mostra links mas não navega para as páginas
-  - Problema: Rotas não estavam definidas em App.tsx
+  - Problema: Rotas não estavam definidas em A...
+
+## 🆕 BUGS - 2025-11-04 - RESOLVIDOS
+
+- [x] Remover/filtrar dados de petshop que aparecem para novo usuário
+  - Novo usuário estava vendo dados de um petshop (seed data)
+  - Problema: MeusDados.tsx tinha empresaId hardcoded como 1
+  - Solução: Alterado para usar usuario?.id do localStorage
+  - Status: RESOLVIDO ✅
+
+- [x] Corrigir link "Início" que estava deslogando
+  - Clique em "Início" na navbar desconectava e voltava à Landing Page
+  - Problema: Link apontava para "/" em vez de "/inicio"
+  - Solução: Mudado para rota correta /inicio em DashboardLayout.tsx
+  - Status: RESOLVIDO ✅
+
+- [x] Adicionar página "Início" no dashboard
+  - Faltava uma página home/dashboard principal
+  - Problema: Página Inicio.tsx estava incompleta
+  - Solução: Reescrita com KPIs, próximos passos, atividades e dicas
+  - Status: RESOLVIDO ✅tsx
   - Solução: Adicionadas rotas dinâmicas para /laboratorio/gerador, /laboratorio/simulador, /laboratorio/testador
   - Status: RESOLVIDO
 

@@ -24,7 +24,7 @@ const menuItems: any[] = [
   {
     icon: LayoutDashboard,
     label: "Início",
-    path: "/",
+    path: "/inicio",
   },
   {
     icon: BookOpen,

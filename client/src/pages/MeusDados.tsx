@@ -48,7 +48,7 @@ const CONNECTOR_ICONS: Record<string, string> = {
 };
 
 export default function MeusDados() {
-  const empresaId = 1;
+  const [usuario, setUsuario] = useState<any>(null);
   const [dataSources, setDataSources] = useState<DataSource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSource, setSelectedSource] = useState<DataSource | null>(null);
@@ -56,8 +56,17 @@ export default function MeusDados() {
   const [filterCategoria, setFilterCategoria] = useState("todos");
   const [searchTerm, setSearchTerm] = useState("");
 
+  useEffect(() => {
+    const usuarioJson = localStorage.getItem("usuario");
+    if (usuarioJson) {
+      setUsuario(JSON.parse(usuarioJson));
+    }
+  }, []);
+
+  const empresaId = usuario?.id;
+
   const { data: sources } = trpc.dataSources.getAll.useQuery(
-    { empresaId },
+    { empresaId: empresaId || 0 },
     { enabled: !!empresaId }
   );
 

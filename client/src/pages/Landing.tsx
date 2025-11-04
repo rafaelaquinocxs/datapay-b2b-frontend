@@ -18,9 +18,9 @@ import {
   TrendingUp,
   Database,
   Network,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { APP_LOGO, APP_TITLE } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -36,7 +36,6 @@ export default function Landing() {
 
   // Estados de Login
   const [loginData, setLoginData] = useState({ email: "", senha: "" });
-  const [loginLoading, setLoginLoading] = useState(false);
 
   // Estados de Registro
   const [registerData, setRegisterData] = useState({
@@ -47,7 +46,6 @@ export default function Landing() {
     empresa: "",
     cargo: "",
   });
-  const [registerLoading, setRegisterLoading] = useState(false);
 
   // Estados de Demo
   const [demoFormData, setDemoFormData] = useState({
@@ -60,60 +58,39 @@ export default function Landing() {
   });
   const [demoLoading, setDemoLoading] = useState(false);
 
-  // Funções de Login
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginLoading(true);
-
-    try {
-      const resultado = await trpc.auth.login.mutate({
-        email: loginData.email,
-        senha: loginData.senha,
-      });
-
+  // Hooks de Mutação tRPC
+  const loginMutation = trpc.auth.login.useMutation({
+    onSuccess: (resultado) => {
       if (resultado.sucesso) {
         localStorage.setItem("token", resultado.usuario.token);
         localStorage.setItem("usuario", JSON.stringify(resultado.usuario));
-
         toast.success("Login realizado com sucesso!");
         setShowLoginModal(false);
         setLoginData({ email: "", senha: "" });
-
         setTimeout(() => {
           setLocation("/meus-dados");
         }, 1000);
       }
-    } catch (error: any) {
+    },
+    onError: (error) => {
       toast.error(error.message || "Erro ao fazer login");
-    } finally {
-      setLoginLoading(false);
-    }
+    },
+  });
+
+  // Funções de Login
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    loginMutation.mutate({
+      email: loginData.email,
+      senha: loginData.senha,
+    });
   };
 
-  // Funções de Registro
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (registerData.senha !== registerData.senhaConfirm) {
-      toast.error("As senhas não coincidem");
-      return;
-    }
-
-    setRegisterLoading(true);
-
-    try {
-      const resultado = await trpc.auth.registro.mutate({
-        nome: registerData.nome,
-        email: registerData.email,
-        senha: registerData.senha,
-        empresa: registerData.empresa,
-        cargo: registerData.cargo,
-      });
-
+  const registerMutation = trpc.auth.registro.useMutation({
+    onSuccess: (resultado) => {
       if (resultado.sucesso) {
         localStorage.setItem("token", resultado.usuario.token);
         localStorage.setItem("usuario", JSON.stringify(resultado.usuario));
-
         toast.success("Conta criada com sucesso!");
         setShowRegisterModal(false);
         setRegisterData({
@@ -124,16 +101,32 @@ export default function Landing() {
           empresa: "",
           cargo: "",
         });
-
         setTimeout(() => {
           setLocation("/meus-dados");
         }, 1000);
       }
-    } catch (error: any) {
+    },
+    onError: (error) => {
       toast.error(error.message || "Erro ao criar conta");
-    } finally {
-      setRegisterLoading(false);
+    },
+  });
+
+  // Funções de Registro
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (registerData.senha !== registerData.senhaConfirm) {
+      toast.error("As senhas não coincidem");
+      return;
     }
+
+    registerMutation.mutate({
+      nome: registerData.nome,
+      email: registerData.email,
+      senha: registerData.senha,
+      empresa: registerData.empresa,
+      cargo: registerData.cargo,
+    });
   };
 
   // Funções de Demo
@@ -607,312 +600,344 @@ export default function Landing() {
         </div>
       </footer>
 
-      {/* MODAL: LOGIN */}
-      <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Entrar na Plataforma</DialogTitle>
-          </DialogHeader>
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input
-                type="email"
-                value={loginData.email}
-                onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="seu@email.com"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={loginData.senha}
-                  onChange={(e) => setLoginData({ ...loginData, senha: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                  placeholder="••••••••"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-gray-500"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={loginLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
-            >
-              {loginLoading ? "Entrando..." : "Entrar"}
-            </Button>
-
-            <p className="text-center text-sm text-gray-600">
-              Não tem conta?{" "}
+      {/* MODAL: LOGIN - SIMPLES E FUNCIONAL */}
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Entrar na Plataforma</h2>
               <button
-                type="button"
-                onClick={() => {
-                  setShowLoginModal(false);
-                  setShowRegisterModal(true);
-                }}
-                className="text-purple-600 hover:text-purple-700 font-medium"
+                onClick={() => setShowLoginModal(false)}
+                className="text-gray-500 hover:text-gray-700"
               >
-                Registre-se aqui
+                <X className="w-6 h-6" />
               </button>
-            </p>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* MODAL: REGISTRO */}
-      <Dialog open={showRegisterModal} onOpenChange={setShowRegisterModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Criar Conta</DialogTitle>
-          </DialogHeader>
-
-          <form onSubmit={handleRegister} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
-              <input
-                type="text"
-                value={registerData.nome}
-                onChange={(e) => setRegisterData({ ...registerData, nome: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="Seu nome"
-                required
-              />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email Corporativo</label>
-              <input
-                type="email"
-                value={registerData.email}
-                onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="seu@empresa.com"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Empresa</label>
-              <input
-                type="text"
-                value={registerData.empresa}
-                onChange={(e) => setRegisterData({ ...registerData, empresa: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="Sua empresa"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
-              <input
-                type="text"
-                value={registerData.cargo}
-                onChange={(e) => setRegisterData({ ...registerData, cargo: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="Seu cargo"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
-              <div className="relative">
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input
-                  type={showPassword ? "text" : "password"}
-                  value={registerData.senha}
-                  onChange={(e) => setRegisterData({ ...registerData, senha: e.target.value })}
+                  type="email"
+                  value={loginData.email}
+                  onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                  placeholder="••••••••"
+                  placeholder="seu@email.com"
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-gray-500"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
-              <div className="relative">
-                <input
-                  type={showPasswordConfirm ? "text" : "password"}
-                  value={registerData.senhaConfirm}
-                  onChange={(e) => setRegisterData({ ...registerData, senhaConfirm: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                  placeholder="••••••••"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
-                  className="absolute right-3 top-2.5 text-gray-500"
-                >
-                  {showPasswordConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Senha</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={loginData.senha}
+                    onChange={(e) => setLoginData({ ...loginData, senha: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-2.5 text-gray-500"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <Button
-              type="submit"
-              disabled={registerLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
-            >
-              {registerLoading ? "Criando conta..." : "Criar Conta"}
-            </Button>
-
-            <p className="text-center text-sm text-gray-600">
-              Já tem conta?{" "}
               <button
-                type="button"
-                onClick={() => {
-                  setShowRegisterModal(false);
-                  setShowLoginModal(true);
-                }}
-                className="text-purple-600 hover:text-purple-700 font-medium"
+                type="submit"
+                disabled={loginMutation.isPending}
+                className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Faça login aqui
+                {loginMutation.isPending ? "Entrando..." : "Entrar"}
               </button>
-            </p>
-          </form>
-        </DialogContent>
-      </Dialog>
+
+              <p className="text-center text-sm text-gray-600">
+                Não tem conta?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLoginModal(false);
+                    setShowRegisterModal(true);
+                  }}
+                  className="text-purple-600 hover:text-purple-700 font-medium"
+                >
+                  Registre-se aqui
+                </button>
+              </p>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: REGISTRO - SIMPLES E FUNCIONAL */}
+      {showRegisterModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 my-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Criar Conta</h2>
+              <button
+                onClick={() => setShowRegisterModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRegister} className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                <input
+                  type="text"
+                  value={registerData.nome}
+                  onChange={(e) => setRegisterData({ ...registerData, nome: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  placeholder="Seu nome"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email Corporativo</label>
+                <input
+                  type="email"
+                  value={registerData.email}
+                  onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  placeholder="seu@empresa.com"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Empresa</label>
+                <input
+                  type="text"
+                  value={registerData.empresa}
+                  onChange={(e) => setRegisterData({ ...registerData, empresa: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  placeholder="Sua empresa"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+                <input
+                  type="text"
+                  value={registerData.cargo}
+                  onChange={(e) => setRegisterData({ ...registerData, cargo: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  placeholder="Seu cargo"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={registerData.senha}
+                    onChange={(e) => setRegisterData({ ...registerData, senha: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-2.5 text-gray-500"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
+                <div className="relative">
+                  <input
+                    type={showPasswordConfirm ? "text" : "password"}
+                    value={registerData.senhaConfirm}
+                    onChange={(e) => setRegisterData({ ...registerData, senhaConfirm: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                    className="absolute right-3 top-2.5 text-gray-500"
+                  >
+                    {showPasswordConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={registerMutation.isPending}
+                className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {registerMutation.isPending ? "Criando conta..." : "Criar Conta"}
+              </button>
+
+              <p className="text-center text-sm text-gray-600">
+                Já tem conta?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowRegisterModal(false);
+                    setShowLoginModal(true);
+                  }}
+                  className="text-purple-600 hover:text-purple-700 font-medium"
+                >
+                  Faça login aqui
+                </button>
+              </p>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* MODAL: DEMONSTRAÇÃO */}
-      <Dialog open={showDemoModal} onOpenChange={setShowDemoModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Solicitar Demonstração</DialogTitle>
-          </DialogHeader>
-
-          <form onSubmit={handleDemoSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
-              <input
-                type="text"
-                value={demoFormData.nome}
-                onChange={(e) => setDemoFormData({ ...demoFormData, nome: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="Seu nome"
-                required
-              />
+      {showDemoModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Solicitar Demonstração</h2>
+              <button
+                onClick={() => setShowDemoModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-6 h-6" />
+              </button>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email Corporativo</label>
-              <input
-                type="email"
-                value={demoFormData.email}
-                onChange={(e) => setDemoFormData({ ...demoFormData, email: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="seu@empresa.com"
-                required
-              />
-            </div>
+            <form onSubmit={handleDemoSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nome</label>
+                <input
+                  type="text"
+                  value={demoFormData.nome}
+                  onChange={(e) => setDemoFormData({ ...demoFormData, nome: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  placeholder="Seu nome"
+                  required
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Empresa</label>
-              <input
-                type="text"
-                value={demoFormData.empresa}
-                onChange={(e) => setDemoFormData({ ...demoFormData, empresa: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="Sua empresa"
-                required
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email Corporativo</label>
+                <input
+                  type="email"
+                  value={demoFormData.email}
+                  onChange={(e) => setDemoFormData({ ...demoFormData, email: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  placeholder="seu@empresa.com"
+                  required
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
-              <input
-                type="tel"
-                value={demoFormData.telefone}
-                onChange={(e) => setDemoFormData({ ...demoFormData, telefone: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="(11) 9999-9999"
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Empresa</label>
+                <input
+                  type="text"
+                  value={demoFormData.empresa}
+                  onChange={(e) => setDemoFormData({ ...demoFormData, empresa: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  placeholder="Sua empresa"
+                  required
+                />
+              </div>
 
-            <Button
-              type="submit"
-              disabled={demoLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
-            >
-              {demoLoading ? "Enviando..." : "Solicitar Demonstração"}
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Telefone</label>
+                <input
+                  type="tel"
+                  value={demoFormData.telefone}
+                  onChange={(e) => setDemoFormData({ ...demoFormData, telefone: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  placeholder="(11) 9999-9999"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={demoLoading}
+                className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
+              >
+                {demoLoading ? "Enviando..." : "Solicitar Demonstração"}
+              </Button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* MODAL: FALAR COM ESPECIALISTA */}
-      <Dialog open={showExpertModal} onOpenChange={setShowExpertModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Falar com Especialista</DialogTitle>
-          </DialogHeader>
-
-          <form onSubmit={handleExpertSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
-              <input
-                type="text"
-                value={demoFormData.nome}
-                onChange={(e) => setDemoFormData({ ...demoFormData, nome: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="Seu nome"
-                required
-              />
+      {showExpertModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Falar com Especialista</h2>
+              <button
+                onClick={() => setShowExpertModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-6 h-6" />
+              </button>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email Corporativo</label>
-              <input
-                type="email"
-                value={demoFormData.email}
-                onChange={(e) => setDemoFormData({ ...demoFormData, email: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="seu@empresa.com"
-                required
-              />
-            </div>
+            <form onSubmit={handleExpertSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nome</label>
+                <input
+                  type="text"
+                  value={demoFormData.nome}
+                  onChange={(e) => setDemoFormData({ ...demoFormData, nome: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  placeholder="Seu nome"
+                  required
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
-              <textarea
-                value={demoFormData.mensagem}
-                onChange={(e) => setDemoFormData({ ...demoFormData, mensagem: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="Sua mensagem"
-                rows={4}
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email Corporativo</label>
+                <input
+                  type="email"
+                  value={demoFormData.email}
+                  onChange={(e) => setDemoFormData({ ...demoFormData, email: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  placeholder="seu@empresa.com"
+                  required
+                />
+              </div>
 
-            <Button
-              type="submit"
-              disabled={demoLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
-            >
-              {demoLoading ? "Enviando..." : "Enviar Mensagem"}
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Mensagem</label>
+                <textarea
+                  value={demoFormData.mensagem}
+                  onChange={(e) => setDemoFormData({ ...demoFormData, mensagem: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  placeholder="Sua mensagem"
+                  rows={4}
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={demoLoading}
+                className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
+              >
+                {demoLoading ? "Enviando..." : "Enviar Mensagem"}
+              </Button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
