@@ -51,6 +51,8 @@ export const appRouter = router({
           email: z.string().email(),
           senha: z.string().min(6),
           telefone: z.string().optional(),
+          empresa: z.string().optional(),
+          cargo: z.string().optional(),
         })
       )
       .mutation(async ({ input, ctx }) => {

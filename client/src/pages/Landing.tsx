@@ -552,6 +552,116 @@ export default function Landing() {
         </DialogContent>
       </Dialog>
 
+      {/* Seção O Desafio */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-16">O Desafio das Grandes Corporações</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              { icon: Brain, title: "Bases Dispersas", desc: "Dados espalhados em múltiplos sistemas sem integração" },
+              { icon: Zap, title: "Campanhas sem Previsibilidade", desc: "Falta de insights para decisões estratégicas" },
+              { icon: BarChart3, title: "Custos Altos", desc: "ROI incerto em projetos de dados" },
+              { icon: Shield, title: "Riscos de LGPD", desc: "Compliance complexo e exposição de dados" },
+            ].map((item, i) => (
+              <div key={i} className="bg-white p-6 rounded-xl border-l-4 border-purple-600">
+                <item.icon className="w-12 h-12 text-purple-600 mb-4" />
+                <h3 className="font-bold text-lg mb-2">{item.title}</h3>
+                <p className="text-gray-600 text-sm">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Seção Como Funciona */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-16">Como DataPay Transforma Seus Dados</h2>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {[
+              { num: "1", title: "Conectar", desc: "Integre seus dados de qualquer fonte" },
+              { num: "2", title: "Sintetizar", desc: "IA cria dados seguros e realistas" },
+              { num: "3", title: "Analisar", desc: "Insights profundos sem riscos" },
+              { num: "4", title: "Decidir", desc: "Decisões baseadas em dados" },
+              { num: "5", title: "Escalar", desc: "Crescimento sustentável e seguro" },
+            ].map((item, i) => (
+              <div key={i} className="text-center">
+                <div className="bg-gradient-to-r from-purple-600 to-green-500 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 font-bold text-lg">{item.num}</div>
+                <h3 className="font-bold mb-2">{item.title}</h3>
+                <p className="text-gray-600 text-sm">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Seção Laboratório */}
+      <section id="laboratorio" className="py-20 bg-gradient-to-b from-purple-50 to-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-16">Laboratório de Dados Sintéticos</h2>
+          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">Teste antes de investir. Simule cenários, reduza custos e aumente a precisão sem expor dados reais.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: Brain, title: "Reduza Custos", desc: "Simule campanhas com dados sintéticos" },
+              { icon: BarChart3, title: "Aumente Precisão", desc: "Testes sem risco de falhas" },
+              { icon: Shield, title: "Elimine Riscos", desc: "Zero exposição de dados reais" },
+            ].map((item, i) => (
+              <div key={i} className="bg-white p-8 rounded-xl border border-gray-200 text-center">
+                <item.icon className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+                <h3 className="font-bold text-lg mb-2">{item.title}</h3>
+                <p className="text-gray-600">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Seção Integração */}
+      <section id="integracao" className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-16">Integrado com Seus Sistemas</h2>
+          <div className="flex justify-center gap-8 flex-wrap">
+            {['SAP', 'Salesforce', 'Power BI', 'Tableau', 'Google Analytics', 'AWS'].map((system) => (
+              <div key={system} className="bg-gray-100 px-6 py-3 rounded-lg font-medium text-gray-700">{system}</div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Seção Propósito */}
+      <section id="proposito" className="py-20 bg-gradient-to-b from-purple-50 to-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-16">Nosso Propósito</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: Heart, title: "Ética", desc: "Dados humanizados, não explorados" },
+              { icon: Zap, title: "Inovação", desc: "Tecnologia a serviço do bem" },
+              { icon: Globe, title: "Desenvolvimento 100% Nacional", desc: "Soberania de dados brasileiros" },
+            ].map((item, i) => (
+              <div key={i} className="text-center">
+                <item.icon className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+                <h3 className="font-bold text-lg mb-2">{item.title}</h3>
+                <p className="text-gray-600">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Seção Diagnóstico */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold mb-6">Pronto para Transformar Seus Dados?</h2>
+          <p className="text-xl text-gray-600 mb-8">Receba uma análise executiva gratuita de como DataPay pode impactar sua empresa</p>
+          <Button
+            className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white px-8 py-6 text-lg"
+            onClick={() => setShowDemoModal(true)}
+          >
+            Solicitar Diagnóstico <ArrowRight className="ml-2 w-5 h-5" />
+          </Button>
+        </div>
+      </section>
+
       {/* Seções restantes da Landing Page */}
       <section id="solucao" className="py-20 bg-gradient-to-b from-purple-50 to-white">
         <div className="max-w-7xl mx-auto px-4">
