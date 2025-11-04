@@ -29,7 +29,8 @@ export default function Landing() {
 
   const handleLogin = (provider: string) => {
     console.log(`Login com ${provider}`);
-    setShowLoginModal(false);
+    // Redirecionar para rota de signin
+    window.location.href = `/api/oauth/signin/${provider.toLowerCase()}`;
   };
 
   return (
