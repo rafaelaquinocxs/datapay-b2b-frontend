@@ -1,377 +1,445 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
+import {
+  Lock,
+  Brain,
+  BarChart3,
+  Shield,
+  Users,
+  Zap,
+  ArrowRight,
+  MessageSquare,
+  CheckCircle,
+  Heart,
+  Globe,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronDown, Menu, X, CheckCircle2, ArrowRight, Zap, Brain, BarChart3, TrendingUp, Users, Shield, Database, Lock, Gauge } from "lucide-react";
+import { APP_LOGO, APP_TITLE } from "@/const";
 
 export default function Landing() {
   const [, setLocation] = useLocation();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showDemoModal, setShowDemoModal] = useState(false);
+  const [showExpertModal, setShowExpertModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [demoFormData, setDemoFormData] = useState({ nome: "", email: "", empresa: "", cargo: "", telefone: "", mensagem: "" });
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoMessage, setDemoMessage] = useState("");
 
   const handleLogin = (provider: string) => {
-    const clientId = import.meta.env[`VITE_${provider.toUpperCase()}_CLIENT_ID`];
-    if (!clientId) {
-      setLocation("/dashboard");
-      return;
-    }
     console.log(`Login com ${provider}`);
+    setShowLoginModal(false);
   };
 
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-green-500 rounded-lg flex items-center justify-center text-white font-bold">
-              D
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Link href="/">
+            <div className="flex items-center gap-3 cursor-pointer">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-green-500 flex items-center justify-center">
+                <span className="text-white font-bold">D</span>
+              </div>
+              <div>
+                <h1 className="font-bold text-gray-900">DataPay</h1>
+                <p className="text-xs text-gray-500">Enterprise</p>
+              </div>
             </div>
-            <span className="font-bold text-lg text-gray-900">DataPay</span>
-          </div>
+          </Link>
 
           {/* Desktop Menu */}
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="#solucao" className="text-gray-700 hover:text-purple-600 font-medium">Solução</a>
-            <a href="#como-funciona" className="text-gray-700 hover:text-purple-600 font-medium">Como Funciona</a>
-            <a href="#laboratorio" className="text-gray-700 hover:text-purple-600 font-medium">Laboratório</a>
-            <a href="#beneficios" className="text-gray-700 hover:text-purple-600 font-medium">Benefícios</a>
+          <nav className="hidden md:flex gap-8">
+            <a href="#solucao" className="text-gray-600 hover:text-purple-600 font-medium">Solução</a>
+            <a href="#laboratorio" className="text-gray-600 hover:text-purple-600 font-medium">Laboratório</a>
+            <a href="#integracao" className="text-gray-600 hover:text-purple-600 font-medium">Integração</a>
+            <a href="#proposito" className="text-gray-600 hover:text-purple-600 font-medium">Propósito</a>
           </nav>
 
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => setShowLoginModal(true)}>Entrar</Button>
-            <Button 
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowLoginModal(true)}
+              className="hidden md:flex"
+            >
+              Entrar
+            </Button>
+            <Button
               className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
               onClick={() => setShowDemoModal(true)}
             >
-              Peça uma Demo
+              Solicitar Demonstração
             </Button>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-green-50"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-200 rounded-full blur-3xl opacity-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-green-200 rounded-full blur-3xl opacity-10"></div>
-
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight">
-                  Transforme Dados em <span className="bg-gradient-to-r from-purple-600 to-green-500 bg-clip-text text-transparent">Decisões Estratégicas</span>
-                </h1>
-                <p className="text-xl text-gray-600 leading-relaxed">
-                  DataPay é a plataforma completa que organiza, estrutura e transforma seus dados em ações inteligentes que impulsionam crescimento real. De empresas em crescimento a corporações de 50M+, nós entendemos seus desafios.
-                </p>
+      <section className="bg-white py-20">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+              <span className="text-gray-900">O Cofre Digital</span>
+              <br />
+              <span className="bg-gradient-to-r from-purple-600 to-green-500 bg-clip-text text-transparent">
+                de Dados da sua Empresa
+              </span>
+            </h1>
+            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+              O DataPay é uma plataforma de inteligência que une tecnologia e propósito. Com IA Sintética e governança automatizada, transformamos dados dispersos em insights acionáveis, sem abrir mão da privacidade nem da ética.
+            </p>
+            <div className="flex gap-4">
+              <Button
+                className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white px-8 py-6 text-lg"
+                onClick={() => setShowDemoModal(true)}
+              >
+                Comece Agora <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+              <Button
+                variant="outline"
+                className="px-8 py-6 text-lg border-2"
+                onClick={() => setShowExpertModal(true)}
+              >
+                Falar com Especialista
+              </Button>
+            </div>
+            <div className="mt-12 grid grid-cols-3 gap-6">
+              <div>
+                <p className="text-3xl font-bold text-purple-600">500+</p>
+                <p className="text-gray-600">Empresas em crescimento</p>
               </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  size="lg"
-                  className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white text-lg h-14"
-                  onClick={() => setShowLoginModal(true)}
-                >
-                  Comece Agora <ArrowRight className="ml-2" size={20} />
-                </Button>
-                <Button 
-                  size="lg"
-                  variant="outline"
-                  className="text-lg h-14 border-2 border-gray-300 hover:border-purple-600"
-                >
-                  Agendar Demonstração
-                </Button>
+              <div>
+                <p className="text-3xl font-bold text-green-500">90%</p>
+                <p className="text-gray-600">Satisfação de clientes</p>
               </div>
-
-              {/* Trust Indicators */}
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-200">
-                <div>
-                  <div className="text-3xl font-bold text-purple-600">500+</div>
-                  <p className="text-sm text-gray-600">Empresas em crescimento</p>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-green-600">90%</div>
-                  <p className="text-sm text-gray-600">Satisfação de clientes</p>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-blue-600">24/7</div>
-                  <p className="text-sm text-gray-600">Suporte dedicado</p>
-                </div>
+              <div>
+                <p className="text-3xl font-bold text-blue-600">24/7</p>
+                <p className="text-gray-600">Suporte dedicado</p>
               </div>
             </div>
-
-            {/* Right Image */}
-            <div className="relative h-96 md:h-full">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-green-400 rounded-3xl opacity-20 blur-2xl"></div>
-              <div className="relative bg-gradient-to-br from-purple-100 to-green-100 rounded-3xl p-0 h-full overflow-hidden border-2 border-purple-200 shadow-2xl">
-                <img 
-                  src="/executivo-hero.jpg" 
-                  alt="Executivo transformando dados em resultados"
-                  className="w-full h-full object-cover object-center"
-                  loading="lazy"
-                />
-              </div>
+          </div>
+          <div className="bg-gradient-to-br from-purple-100 to-green-100 rounded-2xl p-8 flex items-center justify-center min-h-96">
+            <div className="text-center">
+              <Lock className="w-24 h-24 text-purple-600 mx-auto mb-4" />
+              <p className="text-gray-600 font-medium">Segurança e Confiança</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* O Problema */}
-      <section id="solucao" className="py-20 md:py-32 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              O Desafio dos Dados Desorganizados
-            </h2>
-            <p className="text-xl text-gray-600">
-              Seus dados estão espalhados em múltiplos sistemas. Você não sabe quais insights importam. As decisões são baseadas em intuição, não em dados. E o tempo passa enquanto seus concorrentes avançam.
+      {/* O Desafio */}
+      <section id="solucao" className="bg-gray-50 py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold mb-4 text-gray-900">O Desafio das Grandes Empresas</h2>
+          <p className="text-xl text-gray-600 mb-12">
+            Grandes empresas têm dados em abundância — mas falta clareza, integração e confiança para agir.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white p-8 rounded-xl border-2 border-red-200">
+              <div className="text-4xl mb-4">🔸</div>
+              <h3 className="text-xl font-bold mb-2">Bases Dispersas</h3>
+              <p className="text-gray-600">Dados espalhados em múltiplos sistemas sem integração real.</p>
+            </div>
+            <div className="bg-white p-8 rounded-xl border-2 border-orange-200">
+              <div className="text-4xl mb-4">🔸</div>
+              <h3 className="text-xl font-bold mb-2">Campanhas sem Previsibilidade</h3>
+              <p className="text-gray-600">Decisões baseadas em intuição, não em dados confiáveis.</p>
+            </div>
+            <div className="bg-white p-8 rounded-xl border-2 border-yellow-200">
+              <div className="text-4xl mb-4">🔸</div>
+              <h3 className="text-xl font-bold mb-2">Custos Altos e Resultados Incertos</h3>
+              <p className="text-gray-600">Impossível medir ROI real e otimizar investimentos.</p>
+            </div>
+            <div className="bg-white p-8 rounded-xl border-2 border-purple-200">
+              <div className="text-4xl mb-4">🔸</div>
+              <h3 className="text-xl font-bold mb-2">Dúvidas sobre LGPD e Privacidade</h3>
+              <p className="text-gray-600">Risco de exposição de dados e não conformidade regulatória.</p>
+            </div>
+          </div>
+
+          <div className="mt-12 bg-gradient-to-r from-purple-600 to-green-500 text-white p-12 rounded-2xl text-center">
+            <p className="text-2xl font-bold mb-4">O DataPay nasceu para resolver isso</p>
+            <p className="text-lg opacity-90">Com uma visão mais humana sobre o poder dos dados.</p>
+            <Button
+              className="mt-6 bg-white text-purple-600 hover:bg-gray-100"
+              onClick={() => setShowDemoModal(true)}
+            >
+              Solicitar Demonstração
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Solução */}
+      <section className="bg-white py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold mb-12 text-gray-900 text-center">A Solução DataPay</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-8 rounded-xl">
+              <Brain className="w-12 h-12 text-purple-600 mb-4" />
+              <h3 className="text-2xl font-bold mb-4">IA Sintética</h3>
+              <p className="text-gray-700">Previsões baseadas em comportamento real, sem uso de dados pessoais. Teste cenários antes de investir.</p>
+            </div>
+            <div className="bg-gradient-to-br from-green-50 to-green-100 p-8 rounded-xl">
+              <Shield className="w-12 h-12 text-green-600 mb-4" />
+              <h3 className="text-2xl font-bold mb-4">Governança Inteligente</h3>
+              <p className="text-gray-700">Integração segura com seus sistemas, dentro da LGPD. Rastreabilidade total e compliance garantido.</p>
+            </div>
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-xl">
+              <BarChart3 className="w-12 h-12 text-blue-600 mb-4" />
+              <h3 className="text-2xl font-bold mb-4">Painéis Executivos</h3>
+              <p className="text-gray-700">Clareza total sobre performance, engajamento e ROI. Dashboards inteligentes e em tempo real.</p>
+            </div>
+            <div className="bg-gradient-to-br from-pink-50 to-pink-100 p-8 rounded-xl">
+              <Users className="w-12 h-12 text-pink-600 mb-4" />
+              <h3 className="text-2xl font-bold mb-4">Suporte Consultivo</h3>
+              <p className="text-gray-700">Acompanhamento humano com especialistas em dados e marketing. Orientação estratégica contínua.</p>
+            </div>
+          </div>
+
+          <div className="mt-12 text-center">
+            <Button
+              className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white px-8 py-6 text-lg"
+              onClick={() => setShowDemoModal(true)}
+            >
+              Entenda Mais
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Laboratório */}
+      <section id="laboratorio" className="bg-gradient-to-br from-purple-100 to-purple-50 py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <p className="text-purple-600 font-bold text-lg mb-2">Inteligência é quando os números fazem sentido para as pessoas.</p>
+            <h2 className="text-4xl font-bold mb-6 text-gray-900">Teste Antes de Investir</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              No Laboratório de IA Sintética do DataPay, você pode prever resultados antes de investir. Nossa IA cria simulações comportamentais seguras, que mostram quais campanhas, canais e mensagens terão melhor desempenho — tudo sem usar dados reais de clientes.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-6">
-            {[
-              { icon: Database, title: "Dados Desorganizados", desc: "Informações espalhadas em múltiplos sistemas sem integração" },
-              { icon: Brain, title: "Falta de Insights", desc: "Impossível identificar oportunidades e gaps nos dados" },
-              { icon: TrendingUp, title: "Decisões Lentas", desc: "Processos manuais consomem tempo e recursos" },
-              { icon: Gauge, title: "ROI Incerto", desc: "Impossível medir o impacto real das ações" }
-            ].map((item, i) => (
-              <div key={i} className="bg-white p-8 rounded-2xl border border-gray-200 hover:border-purple-300 transition">
-                <item.icon className="w-12 h-12 text-purple-600 mb-4" />
-                <h3 className="font-bold text-lg text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-gray-600">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Como Funciona */}
-      <section id="como-funciona" className="py-20 md:py-32">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Como DataPay Transforma Seus Dados
-            </h2>
-            <p className="text-xl text-gray-600">
-              Um fluxo de trabalho simples mas poderoso que leva você de dados desorganizados para decisões estratégicas em dias, não meses.
-            </p>
-          </div>
-
-          {/* 5 Passos */}
-          <div className="space-y-12">
-            {[
-              {
-                num: "1",
-                title: "Conecte Suas Fontes de Dados",
-                desc: "Integre CRM, ERP, analytics, redes sociais e qualquer outra fonte. DataPay organiza tudo em um único lugar.",
-                icon: Database
-              },
-              {
-                num: "2",
-                title: "Estruture e Valide",
-                desc: "Nossa IA identifica gaps, valida consistência e estrutura seus dados automaticamente. Sem trabalho manual.",
-                icon: Shield
-              },
-              {
-                num: "3",
-                title: "Gere Insights com IA",
-                desc: "Análises automáticas identificam padrões, oportunidades e riscos que você nunca veria manualmente.",
-                icon: Brain
-              },
-              {
-                num: "4",
-                title: "Teste Antes de Executar",
-                desc: "Nosso Laboratório de Dados Sintéticos simula campanhas e prevê resultados com 85% de precisão.",
-                icon: Zap
-              },
-              {
-                num: "5",
-                title: "Execute e Meça ROI",
-                desc: "Implemente as ações recomendadas e acompanhe resultados em tempo real com dashboards inteligentes.",
-                icon: TrendingUp
-              }
-            ].map((step, i) => (
-              <div key={i} className="flex gap-8 items-start">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-r from-purple-600 to-green-500 text-white font-bold text-2xl">
-                    {step.num}
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">{step.title}</h3>
-                  <p className="text-lg text-gray-600 mb-4">{step.desc}</p>
-                  {i < 4 && <div className="h-12 w-1 bg-gradient-to-b from-purple-600 to-green-500 ml-8"></div>}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Screenshot da Plataforma */}
-          <div className="mt-20 bg-gray-50 rounded-3xl p-8 border border-gray-200">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Veja a Plataforma em Ação</h3>
-            <img 
-              src="/dashboard-screenshot.webp" 
-              alt="Dashboard DataPay"
-              className="w-full rounded-2xl shadow-lg"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Laboratório de Dados Sintéticos */}
-      <section id="laboratorio" className="py-20 md:py-32 bg-gradient-to-br from-purple-50 to-green-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Laboratório de Dados Sintéticos
-            </h2>
-            <p className="text-xl text-gray-600">
-              Teste campanhas, simule cenários e preveja resultados ANTES de gastar um real. Reduza riscos e maximize ROI.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="text-2xl font-bold text-gray-900">Simule Qualquer Cenário</h3>
-                <p className="text-lg text-gray-600">
-                  Gere dados sintéticos realistas baseados no seu histórico. Teste campanhas, mudanças de preço, segmentações - tudo sem risco.
-                </p>
-                <ul className="space-y-3">
-                  {["Gerador de Dados com 1k-10M registros", "Simulador de Campanhas com ROI realista", "Previsor de Resultados com 85% de precisão"].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                      <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
-                      <span className="text-gray-700">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-xl shadow-lg border-l-4 border-green-500">
+              <div className="text-4xl mb-4">💰</div>
+              <h3 className="text-xl font-bold mb-2">Reduza Custos</h3>
+              <p className="text-gray-600">Reduza custos de mídia em até 30% com previsões precisas.</p>
             </div>
-            <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-lg">
-              <div className="space-y-6">
-                <div className="p-6 bg-purple-50 rounded-xl border-2 border-purple-200">
-                  <div className="text-sm font-semibold text-purple-600 mb-2">GERADOR DE DADOS</div>
-                  <p className="text-gray-700">Crie datasets sintéticos com sazonalidade, regiões e comportamentos realistas</p>
+            <div className="bg-white p-8 rounded-xl shadow-lg border-l-4 border-blue-500">
+              <div className="text-4xl mb-4">📈</div>
+              <h3 className="text-xl font-bold mb-2">Aumente Precisão</h3>
+              <p className="text-gray-600">Aumente a precisão das decisões com IA baseada em dados reais.</p>
+            </div>
+            <div className="bg-white p-8 rounded-xl shadow-lg border-l-4 border-purple-500">
+              <div className="text-4xl mb-4">🔒</div>
+              <h3 className="text-xl font-bold mb-2">Elimine Riscos</h3>
+              <p className="text-gray-600">Elimine riscos de privacidade com IA Sintética segura.</p>
+            </div>
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="text-lg text-gray-600 mb-6">Tecnologia que protege, prevê e potencializa.</p>
+            <Button
+              className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white px-8 py-6 text-lg"
+              onClick={() => setShowDemoModal(true)}
+            >
+              Veja como funciona
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Integração */}
+      <section id="integracao" className="bg-white py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold mb-6 text-gray-900">Conectado ao seu Ecossistema</h2>
+          <p className="text-xl text-gray-600 mb-12 max-w-3xl">
+            O DataPay se conecta facilmente aos sistemas que você já usa, garantindo segurança, rastreabilidade e escalabilidade. Um ambiente único para governar e transformar dados com ética e performance.
+          </p>
+
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-12 rounded-2xl mb-12">
+            <div className="flex items-center justify-center gap-8 flex-wrap">
+              <div className="text-center">
+                <div className="bg-white p-4 rounded-lg mb-2 inline-block">
+                  <p className="font-bold text-gray-900">SAP</p>
                 </div>
-                <div className="p-6 bg-green-50 rounded-xl border-2 border-green-200">
-                  <div className="text-sm font-semibold text-green-600 mb-2">SIMULADOR</div>
-                  <p className="text-gray-700">Teste campanhas e veja ROI, conversões e métricas antes de executar</p>
+              </div>
+              <Zap className="w-8 h-8 text-yellow-500" />
+              <div className="text-center">
+                <div className="bg-white p-4 rounded-lg mb-2 inline-block">
+                  <p className="font-bold text-blue-600">Salesforce</p>
                 </div>
-                <div className="p-6 bg-blue-50 rounded-xl border-2 border-blue-200">
-                  <div className="text-sm font-semibold text-blue-600 mb-2">PREVISOR</div>
-                  <p className="text-gray-700">Preveja comportamento de consumo e resultados futuros com IA</p>
+              </div>
+              <Zap className="w-8 h-8 text-yellow-500" />
+              <div className="text-center">
+                <div className="bg-white p-4 rounded-lg mb-2 inline-block">
+                  <p className="font-bold text-purple-600">Power BI</p>
+                </div>
+              </div>
+              <Zap className="w-8 h-8 text-yellow-500" />
+              <div className="text-center">
+                <div className="bg-gradient-to-br from-purple-600 to-green-500 p-4 rounded-lg mb-2 inline-block">
+                  <p className="font-bold text-white">DataPay</p>
                 </div>
               </div>
             </div>
           </div>
+
+          <Button
+            variant="outline"
+            className="w-full py-6 text-lg border-2"
+            onClick={() => setShowExpertModal(true)}
+          >
+            Saiba Mais
+          </Button>
         </div>
       </section>
 
-      {/* Benefícios */}
-      <section id="beneficios" className="py-20 md:py-32">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Por Que Escolher DataPay
-            </h2>
+      {/* Propósito */}
+      <section id="proposito" className="bg-gradient-to-br from-purple-50 to-purple-100 py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold mb-6 text-gray-900 text-center">
+            Ética, Inovação e Propósito
+          </h2>
+          <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
+            Acreditamos que dados são mais do que números — são histórias sobre pessoas. Por isso, criamos um ecossistema que respeita a privacidade e transforma informação em impacto real para empresas e consumidores.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <div className="bg-white p-8 rounded-xl text-center">
+              <Globe className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+              <h3 className="text-lg font-bold mb-2">Inovação Aberta</h3>
+              <p className="text-gray-600">Participação em programas de deep tech e inovação.</p>
+            </div>
+            <div className="bg-white p-8 rounded-xl text-center">
+              <Heart className="w-12 h-12 text-green-600 mx-auto mb-4" />
+              <h3 className="text-lg font-bold mb-2">Economia Ética</h3>
+              <p className="text-gray-600">Compromisso com a economia ética de dados.</p>
+            </div>
+            <div className="bg-white p-8 rounded-xl text-center">
+              <CheckCircle className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-lg font-bold mb-2">100% Nacional</h3>
+              <p className="text-gray-600">Desenvolvimento e inovação 100% brasileira.</p>
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: Zap, title: "Implementação Rápida", desc: "Conecte seus dados e comece a gerar insights em dias, não meses." },
-              { icon: Brain, title: "IA Avançada", desc: "Análises automáticas que identificam oportunidades que você nunca veria." },
-              { icon: TrendingUp, title: "Resultados Mensuráveis", desc: "Acompanhe ROI em tempo real e tome decisões baseadas em dados." },
-              { icon: Lock, title: "Segurança Garantida", desc: "Conformidade LGPD, criptografia end-to-end e backups automáticos." },
-              { icon: Users, title: "Suporte Dedicado", desc: "Time de especialistas disponível 24/7 para ajudar seu sucesso." },
-              { icon: Gauge, title: "Escalável", desc: "Cresce com seu negócio, de startups a empresas de 500M+." }
-            ].map((benefit, i) => (
-              <div key={i} className="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-lg transition">
-                <benefit.icon className="w-12 h-12 text-purple-600 mb-4" />
-                <h3 className="font-bold text-lg text-gray-900 mb-2">{benefit.title}</h3>
-                <p className="text-gray-600">{benefit.desc}</p>
-              </div>
-            ))}
+          <div className="text-center bg-white p-12 rounded-2xl">
+            <p className="text-3xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-green-500 bg-clip-text mb-6">
+              "O futuro dos dados é humano. E começa aqui."
+            </p>
+            <Button
+              className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white px-8 py-6 text-lg"
+              onClick={() => setShowDemoModal(true)}
+            >
+              Conheça a DataPay
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Diagnóstico */}
+      <section className="bg-white py-20">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-4xl font-bold mb-6 text-gray-900">
+              Descubra o Potencial dos Seus Dados
+            </h2>
+            <p className="text-lg text-gray-600 mb-8">
+              O Diagnóstico Executivo DataPay é uma análise personalizada do seu ecossistema de dados. Em poucos dias, você descobre:
+            </p>
+            <ul className="space-y-4 mb-8">
+              <li className="flex gap-3">
+                <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
+                <span className="text-gray-700">Sua maturidade em governança</span>
+              </li>
+              <li className="flex gap-3">
+                <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
+                <span className="text-gray-700">Pontos de risco e de oportunidade</span>
+              </li>
+              <li className="flex gap-3">
+                <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
+                <span className="text-gray-700">Como a IA Sintética pode reduzir custos</span>
+              </li>
+            </ul>
+            <Button
+              className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white px-8 py-6 text-lg"
+              onClick={() => setShowDemoModal(true)}
+            >
+              Agendar Diagnóstico Gratuito
+            </Button>
+            <p className="text-gray-600 mt-4 italic">Um olhar humano sobre o poder dos seus dados.</p>
+          </div>
+          <div className="bg-gradient-to-br from-green-100 to-blue-100 rounded-2xl p-8 flex items-center justify-center min-h-96">
+            <div className="text-center">
+              <BarChart3 className="w-24 h-24 text-green-600 mx-auto mb-4" />
+              <p className="text-gray-600 font-medium">Análise Personalizada</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA Final */}
-      <section className="py-20 md:py-32 bg-gradient-to-r from-purple-600 to-green-500">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Pronto para Transformar Seus Dados?
-          </h2>
-          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+      <section className="bg-gradient-to-r from-purple-600 to-green-500 text-white py-20">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold mb-6">Pronto para Transformar Seus Dados?</h2>
+          <p className="text-xl mb-8 opacity-90">
             Conecte-se agora e comece a gerar insights que impulsionam crescimento real. Sua primeira análise é gratuita.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg"
-              className="bg-white text-purple-600 hover:bg-gray-100 text-lg h-14 font-bold"
-              onClick={() => setShowLoginModal(true)}
+          <div className="flex gap-4 justify-center flex-wrap">
+            <Button
+              className="bg-white text-purple-600 hover:bg-gray-100 px-8 py-6 text-lg"
+              onClick={() => setShowDemoModal(true)}
             >
-              Comece Agora <ArrowRight className="ml-2" size={20} />
+              Comece Agora
             </Button>
-            <Button 
-              size="lg"
+            <Button
               variant="outline"
-              className="border-2 border-white text-white hover:bg-white/10 text-lg h-14 font-bold"
+              className="border-2 border-white text-white hover:bg-white/10 px-8 py-6 text-lg"
+              onClick={() => setShowExpertModal(true)}
             >
-              Agendar Demonstração
+              Falar com Especialista
             </Button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-green-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">D</div>
-                <span className="font-bold text-white">DataPay</span>
-              </div>
-              <p className="text-sm">Transformando dados em decisões estratégicas.</p>
+              <h3 className="font-bold mb-4">DataPay</h3>
+              <p className="text-gray-400 text-sm">O Cofre Digital de Dados. Inteligência, segurança e propósito em cada decisão.</p>
             </div>
             <div>
-              <h4 className="font-bold text-white mb-4">Produto</h4>
-              <ul className="space-y-2 text-sm">
+              <h4 className="font-bold mb-4">Produto</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
                 <li><a href="#" className="hover:text-white">Solução</a></li>
                 <li><a href="#" className="hover:text-white">Laboratório</a></li>
-                <li><a href="#" className="hover:text-white">Preços</a></li>
+                <li><a href="#" className="hover:text-white">Integração</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold text-white mb-4">Empresa</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white">Sobre</a></li>
-                <li><a href="#" className="hover:text-white">Blog</a></li>
+              <h4 className="font-bold mb-4">Empresa</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><a href="#" className="hover:text-white">Diagnóstico</a></li>
+                <li><a href="#" className="hover:text-white">Inovação</a></li>
                 <li><a href="#" className="hover:text-white">Contato</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold text-white mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm">
+              <h4 className="font-bold mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
                 <li><a href="#" className="hover:text-white">Privacidade</a></li>
                 <li><a href="#" className="hover:text-white">Termos</a></li>
                 <li><a href="#" className="hover:text-white">LGPD</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-8 text-center text-sm">
+          <div className="border-t border-gray-800 pt-8 text-center text-gray-400 text-sm">
             <p>&copy; 2025 DataPay. Todos os direitos reservados.</p>
           </div>
         </div>
@@ -381,80 +449,38 @@ export default function Landing() {
       <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Bem-vindo de volta!</DialogTitle>
+            <DialogTitle>Entrar na Plataforma</DialogTitle>
           </DialogHeader>
-          <p className="text-gray-600 text-center mb-6">Escolha sua forma preferida de entrar</p>
-          
-          <div className="space-y-3">
-            <button
-              onClick={() => handleLogin("google")}
-              className="w-full flex items-center justify-center gap-3 p-3 border-2 border-gray-300 rounded-xl hover:border-purple-600 hover:bg-purple-50 transition font-semibold text-gray-700"
+          <div className="space-y-4">
+            <Button
+              className="w-full bg-blue-600 hover:bg-blue-700"
+              onClick={() => handleLogin("Google")}
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <text x="12" y="18" fontSize="20" textAnchor="middle" fill="currentColor">G</text>
-              </svg>
-              Google
-            </button>
-            <button
-              onClick={() => handleLogin("apple")}
-              className="w-full flex items-center justify-center gap-3 p-3 border-2 border-gray-300 rounded-xl hover:border-purple-600 hover:bg-purple-50 transition font-semibold text-gray-700"
+              Entrar com Google
+            </Button>
+            <Button
+              className="w-full bg-gray-900 hover:bg-gray-800"
+              onClick={() => handleLogin("Apple")}
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.05 13.5c-.91 0-1.74.46-2.24 1.14.5.5 1.05 1.06 1.05 2.36 0 1.3-.55 1.86-1.05 2.36.5.68 1.33 1.14 2.24 1.14 1.66 0 3-1.34 3-3s-1.34-3-3-3z"/>
-              </svg>
-              Apple
-            </button>
-            <button
-              onClick={() => handleLogin("microsoft")}
-              className="w-full flex items-center justify-center gap-3 p-3 border-2 border-gray-300 rounded-xl hover:border-purple-600 hover:bg-purple-50 transition font-semibold text-gray-700"
+              Entrar com Apple
+            </Button>
+            <Button
+              className="w-full bg-blue-500 hover:bg-blue-600"
+              onClick={() => handleLogin("Microsoft")}
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <rect x="3" y="3" width="8" height="8" fill="#F25022"/>
-                <rect x="13" y="3" width="8" height="8" fill="#7FBA00"/>
-                <rect x="3" y="13" width="8" height="8" fill="#00A4EF"/>
-                <rect x="13" y="13" width="8" height="8" fill="#FFB900"/>
-              </svg>
-              Microsoft
-            </button>
+              Entrar com Microsoft
+            </Button>
           </div>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">ou</span>
-            </div>
-          </div>
-
-          <button
-            onClick={() => {
-              setShowLoginModal(false);
-              setLocation("/dashboard");
-            }}
-            className="w-full p-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold text-gray-700 transition"
-          >
-            Continuar sem login
-          </button>
-
-          <p className="text-xs text-gray-500 text-center mt-6">
-            Ao continuar, você concorda com nossos <a href="#" className="underline hover:text-gray-700">Termos de Serviço</a> e <a href="#" className="underline hover:text-gray-700">Política de Privacidade</a>
-          </p>
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Demo */}
+      {/* Demo Modal */}
       <Dialog open={showDemoModal} onOpenChange={setShowDemoModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Peça uma Demo</DialogTitle>
+            <DialogTitle>Solicitar Demonstração</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {demoMessage && (
-              <div className={`p-3 rounded-lg text-sm ${demoMessage.includes("sucesso") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                {demoMessage}
-              </div>
-            )}
             <input
               type="text"
               placeholder="Seu nome"
@@ -464,7 +490,7 @@ export default function Landing() {
             />
             <input
               type="email"
-              placeholder="Seu email"
+              placeholder="Seu email profissional"
               value={demoFormData.email}
               onChange={(e) => setDemoFormData({...demoFormData, email: e.target.value})}
               className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
@@ -497,6 +523,11 @@ export default function Landing() {
               rows={3}
               className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
             />
+            {demoMessage && (
+              <p className={`text-sm ${demoMessage.includes("sucesso") ? "text-green-600" : "text-red-600"}`}>
+                {demoMessage}
+              </p>
+            )}
             <Button
               className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
               onClick={async () => {
@@ -535,11 +566,57 @@ export default function Landing() {
               }}
               disabled={demoLoading}
             >
-              {demoLoading ? "Enviando..." : "Enviar Solicitação"}
+              {demoLoading ? "Enviando..." : "Solicitar Demonstração"}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Expert Modal */}
+      <Dialog open={showExpertModal} onOpenChange={setShowExpertModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Falar com um Especialista</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              Um especialista DataPay entrará em contato com você em breve para entender melhor suas necessidades.
+            </p>
+            <input
+              type="text"
+              placeholder="Seu nome"
+              className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+            />
+            <input
+              type="email"
+              placeholder="Seu email profissional"
+              className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+            />
+            <input
+              type="tel"
+              placeholder="Seu telefone"
+              className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none"
+            />
+            <Button
+              className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
+              onClick={() => {
+                setShowExpertModal(false);
+              }}
+            >
+              Solicitar Contato
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Floating Expert Button */}
+      <button
+        onClick={() => setShowExpertModal(true)}
+        className="fixed bottom-6 right-6 bg-gradient-to-r from-purple-600 to-green-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all z-40"
+        title="Falar com Especialista"
+      >
+        <MessageSquare className="w-6 h-6" />
+      </button>
     </div>
   );
 }
