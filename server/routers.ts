@@ -1815,6 +1815,159 @@ Forneca a resposta em formato JSON:
         return db.getDemoRequests(100);
       }),
   }),
+
+  // Router de Autenticação JWT
+  auth: router({
+    registro: publicProcedure
+      .input(
+        z.object({
+          nome: z.string().min(3),
+          email: z.string().email(),
+          senha: z.string().min(6),
+          empresa: z.string().optional(),
+          cargo: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const resultado = await db.registrarUsuario({
+            nome: input.nome,
+            email: input.email,
+            senha: input.senha,
+            empresa: input.empresa,
+            cargo: input.cargo,
+          });
+          return {
+            sucesso: true,
+            mensagem: "Usuário registrado com sucesso",
+            usuario: resultado,
+          };
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: error.message || "Erro ao registrar usuário",
+          });
+        }
+      }),
+
+    login: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email(),
+          senha: z.string().min(6),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const resultado = await db.fazerLogin({
+            email: input.email,
+            senha: input.senha,
+          });
+          return {
+            sucesso: true,
+            mensagem: "Login realizado com sucesso",
+            usuario: resultado,
+          };
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: error.message || "Email ou senha inválidos",
+          });
+        }
+      }),
+
+    verificarToken: publicProcedure
+      .input(z.object({ token: z.string() }))
+      .query(({ input }) => {
+        try {
+          const payload = db.verificarToken(input.token);
+          return {
+            valido: true,
+            usuario: payload,
+          };
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Token inválido ou expirado",
+          });
+        }
+      }),
+  }),
+
+  // Router de Chat com GPT
+  chat: router({
+    enviarMensagem: publicProcedure
+      .input(
+        z.object({
+          token: z.string(),
+          mensagem: z.string().min(1),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          // Verificar token
+          const payload = db.verificarToken(input.token);
+          const usuarioId = payload.id;
+
+          // Chamar API do GPT
+          const respostaGpt = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+            },
+            body: JSON.stringify({
+              model: "gpt-4",
+              messages: [
+                {
+                  role: "system",
+                  content: "Você é um assistente especializado em DataPay, uma plataforma de inteligência de dados. Responda de forma clara, concisa e profissional.",
+                },
+                {
+                  role: "user",
+                  content: input.mensagem,
+                },
+              ],
+              temperature: 0.7,
+              max_tokens: 500,
+            }),
+          }).then((res) => res.json());
+
+          const resposta = respostaGpt.choices?.[0]?.message?.content || "Desculpe, não consegui processar sua mensagem.";
+
+          // Salvar no banco
+          await db.salvarMensagemChat(usuarioId, input.mensagem, resposta);
+
+          return {
+            sucesso: true,
+            resposta,
+          };
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message || "Erro ao processar mensagem",
+          });
+        }
+      }),
+
+    obterHistorico: publicProcedure
+      .input(z.object({ token: z.string() }))
+      .query(async ({ input }) => {
+        try {
+          const payload = db.verificarToken(input.token);
+          const historico = await db.obterHistoricoChat(payload.id);
+          return {
+            sucesso: true,
+            historico,
+          };
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Token inválido",
+          });
+        }
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

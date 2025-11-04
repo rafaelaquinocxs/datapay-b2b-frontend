@@ -1299,3 +1299,174 @@ export async function updateDemoRequestStatus(demoId: number, status: string) {
   return db.execute(sql.raw(`UPDATE demo_requests SET status = '${status}', atualizadoEm = NOW() WHERE id = ${demoId}`));
 }
 
+
+
+
+// ============================================
+// AUTENTICAÇÃO JWT
+// ============================================
+
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "seu-secret-key-super-seguro-aqui";
+const JWT_EXPIRES_IN = "7d";
+
+interface UsuarioRegistro {
+  nome: string;
+  email: string;
+  senha: string;
+  empresa?: string;
+  cargo?: string;
+}
+
+interface UsuarioLogin {
+  email: string;
+  senha: string;
+}
+
+interface TokenPayload {
+  id: number;
+  email: string;
+  nome: string;
+}
+
+// Registrar novo usuário
+export async function registrarUsuario(dados: UsuarioRegistro): Promise<{ id: number; email: string; nome: string; token: string }> {
+  try {
+    // Validar email
+    if (!dados.email || !dados.email.includes("@")) {
+      throw new Error("Email inválido");
+    }
+
+    // Validar senha
+    if (!dados.senha || dados.senha.length < 6) {
+      throw new Error("Senha deve ter no mínimo 6 caracteres");
+    }
+
+    // Hash da senha
+    const senhaHash = await bcrypt.hash(dados.senha, 10);
+
+    // Inserir usuário no banco
+    const resultado = await (await getDb())?.run(
+      `INSERT INTO usuarios (nome, email, senha, empresa, cargo) VALUES (?, ?, ?, ?, ?)`,
+      [dados.nome, dados.email, senhaHash, dados.empresa || null, dados.cargo || null]
+    );
+
+    if (!resultado) {
+      throw new Error("Erro ao criar usuário");
+    }
+
+    const usuarioId = (resultado as any).lastID;
+
+    // Gerar token JWT
+    const token = jwt.sign(
+      { id: usuarioId, email: dados.email, nome: dados.nome } as TokenPayload,
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    // Salvar sessão no banco
+    const expiraEm = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
+    await (await getDb())?.run(
+      `INSERT INTO sessoes (usuario_id, token, expira_em) VALUES (?, ?, ?)`,
+      [usuarioId, token, expiraEm.toISOString()]
+    );
+
+    return {
+      id: usuarioId,
+      email: dados.email,
+      nome: dados.nome,
+      token
+    };
+  } catch (error) {
+    console.error("[Auth] Erro ao registrar usuário:", error);
+    throw error;
+  }
+}
+
+// Login de usuário
+export async function fazerLogin(dados: UsuarioLogin): Promise<{ id: number; email: string; nome: string; token: string }> {
+  try {
+    // Buscar usuário por email
+    const resultado = await (await getDb())?.all(
+      `SELECT id, nome, email, senha FROM usuarios WHERE email = ?`,
+      [dados.email]
+    );
+
+    if (!resultado || resultado.length === 0) {
+      throw new Error("Email ou senha inválidos");
+    }
+
+    const usuario = resultado[0] as any;
+
+    // Verificar senha
+    const senhaValida = await bcrypt.compare(dados.senha, usuario.senha);
+    if (!senhaValida) {
+      throw new Error("Email ou senha inválidos");
+    }
+
+    // Gerar token JWT
+    const token = jwt.sign(
+      { id: usuario.id, email: usuario.email, nome: usuario.nome } as TokenPayload,
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    // Salvar sessão no banco
+    const expiraEm = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
+    await (await getDb())?.run(
+      `INSERT INTO sessoes (usuario_id, token, expira_em) VALUES (?, ?, ?)`,
+      [usuario.id, token, expiraEm.toISOString()]
+    );
+
+    return {
+      id: usuario.id,
+      email: usuario.email,
+      nome: usuario.nome,
+      token
+    };
+  } catch (error) {
+    console.error("[Auth] Erro ao fazer login:", error);
+    throw error;
+  }
+}
+
+// Verificar token JWT
+export function verificarToken(token: string): TokenPayload {
+  try {
+    const payload = jwt.verify(token, JWT_SECRET) as TokenPayload;
+    return payload;
+  } catch (error) {
+    console.error("[Auth] Token inválido:", error);
+    throw new Error("Token inválido ou expirado");
+  }
+}
+
+// Salvar mensagem de chat
+export async function salvarMensagemChat(usuarioId: number, mensagemUsuario: string, respostaGpt: string): Promise<void> {
+  try {
+    await (await getDb())?.run(
+      `INSERT INTO chat_historico (usuario_id, mensagem_usuario, resposta_gpt) VALUES (?, ?, ?)`,
+      [usuarioId, mensagemUsuario, respostaGpt]
+    );
+  } catch (error) {
+    console.error("[Chat] Erro ao salvar mensagem:", error);
+    throw error;
+  }
+}
+
+// Obter histórico de chat
+export async function obterHistoricoChat(usuarioId: number): Promise<any[]> {
+  try {
+    const resultado = await (await getDb())?.all(
+      `SELECT id, mensagem_usuario, resposta_gpt, criado_em FROM chat_historico WHERE usuario_id = ? ORDER BY criado_em DESC LIMIT 50`,
+      [usuarioId]
+    );
+    return resultado || [];
+  } catch (error) {
+    console.error("[Chat] Erro ao obter histórico:", error);
+    return [];
+  }
+}
+

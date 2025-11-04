@@ -26,6 +26,7 @@ import MapeamentoFontes from "./pages/MapeamentoFontes";
 import ConfiguracaoSincronizacao from "./pages/ConfiguracaoSincronizacao";
 import Laboratorio from "./pages/Laboratorio";
 import Configuracoes from "./pages/Configuracoes";
+import Chatbot from "./pages/Chatbot";
 
 function Router() {
   return (
@@ -193,6 +194,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <Chatbot />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
