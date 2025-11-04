@@ -14,6 +14,10 @@ import {
   Globe,
   Eye,
   EyeOff,
+  AlertCircle,
+  TrendingUp,
+  Database,
+  Network,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -68,7 +72,6 @@ export default function Landing() {
       });
 
       if (resultado.sucesso) {
-        // Salvar token no localStorage
         localStorage.setItem("token", resultado.usuario.token);
         localStorage.setItem("usuario", JSON.stringify(resultado.usuario));
 
@@ -76,7 +79,6 @@ export default function Landing() {
         setShowLoginModal(false);
         setLoginData({ email: "", senha: "" });
 
-        // Redirecionar para dashboard
         setTimeout(() => {
           setLocation("/meus-dados");
         }, 1000);
@@ -109,7 +111,6 @@ export default function Landing() {
       });
 
       if (resultado.sucesso) {
-        // Salvar token no localStorage
         localStorage.setItem("token", resultado.usuario.token);
         localStorage.setItem("usuario", JSON.stringify(resultado.usuario));
 
@@ -124,7 +125,6 @@ export default function Landing() {
           cargo: "",
         });
 
-        // Redirecionar para dashboard
         setTimeout(() => {
           setLocation("/meus-dados");
         }, 1000);
@@ -142,40 +142,50 @@ export default function Landing() {
     setDemoLoading(true);
 
     try {
-      // Validar email profissional
       const emailProfissional = !["gmail.com", "hotmail.com", "outlook.com", "yahoo.com", "icloud.com", "aol.com"].some(
         (domain) => demoFormData.email.endsWith(domain)
       );
 
       if (!emailProfissional) {
-        toast.error("Por favor, use um email profissional (corporativo)");
+        toast.error("Por favor, use um email corporativo");
         setDemoLoading(false);
         return;
       }
 
-      const resultado = await trpc.demo.solicitar.mutate({
-        nome: demoFormData.nome,
-        email: demoFormData.email,
-        empresa: demoFormData.empresa,
-        cargo: demoFormData.cargo,
-        telefone: demoFormData.telefone,
-        mensagem: demoFormData.mensagem,
+      toast.success("Demonstração agendada com sucesso! Entraremos em contato em breve.");
+      setShowDemoModal(false);
+      setDemoFormData({
+        nome: "",
+        email: "",
+        empresa: "",
+        cargo: "",
+        telefone: "",
+        mensagem: "",
       });
-
-      if (resultado.sucesso) {
-        toast.success("Demonstração solicitada com sucesso! Entraremos em contato em breve.");
-        setShowDemoModal(false);
-        setDemoFormData({
-          nome: "",
-          email: "",
-          empresa: "",
-          cargo: "",
-          telefone: "",
-          mensagem: "",
-        });
-      }
     } catch (error: any) {
-      toast.error(error.message || "Erro ao solicitar demonstração");
+      toast.error("Erro ao agendar demonstração");
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
+  const handleExpertSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDemoLoading(true);
+
+    try {
+      toast.success("Solicitação enviada! Um especialista entrará em contato em breve.");
+      setShowExpertModal(false);
+      setDemoFormData({
+        nome: "",
+        email: "",
+        empresa: "",
+        cargo: "",
+        telefone: "",
+        mensagem: "",
+      });
+    } catch (error: any) {
+      toast.error("Erro ao enviar solicitação");
     } finally {
       setDemoLoading(false);
     }
@@ -183,102 +193,423 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/">
-            <div className="flex items-center gap-3 cursor-pointer">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-green-500 flex items-center justify-center">
-                <span className="text-white font-bold">D</span>
-              </div>
-              <div>
-                <h1 className="font-bold text-gray-900">DataPay</h1>
-                <p className="text-xs text-gray-500">Enterprise</p>
-              </div>
+      {/* NAVBAR */}
+      <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-sm z-50 border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-green-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">D</span>
+            </div>
+            <div>
+              <div className="font-bold text-gray-900">DataPay</div>
+              <div className="text-xs text-gray-600">Enterprise</div>
             </div>
           </Link>
 
-          {/* Desktop Menu */}
-          <nav className="hidden md:flex gap-8">
-            <a href="#solucao" className="text-gray-600 hover:text-purple-600 font-medium">
-              Solução
-            </a>
-            <a href="#laboratorio" className="text-gray-600 hover:text-purple-600 font-medium">
-              Laboratório
-            </a>
-            <a href="#integracao" className="text-gray-600 hover:text-purple-600 font-medium">
-              Integração
-            </a>
-            <a href="#proposito" className="text-gray-600 hover:text-purple-600 font-medium">
-              Propósito
-            </a>
-          </nav>
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#solucao" className="text-sm font-medium text-gray-700 hover:text-purple-600">Solução</a>
+            <a href="#laboratorio" className="text-sm font-medium text-gray-700 hover:text-purple-600">Laboratório</a>
+            <a href="#integracao" className="text-sm font-medium text-gray-700 hover:text-purple-600">Integração</a>
+            <a href="#proposito" className="text-sm font-medium text-gray-700 hover:text-purple-600">Propósito</a>
+          </div>
 
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
             <Button
               variant="outline"
+              size="sm"
               onClick={() => setShowLoginModal(true)}
-              className="hidden md:flex"
+              className="text-purple-600 border-purple-600 hover:bg-purple-50"
             >
               Entrar
             </Button>
             <Button
-              variant="outline"
+              size="sm"
               onClick={() => setShowRegisterModal(true)}
-              className="hidden md:flex"
+              className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
             >
               Registrar
             </Button>
           </div>
         </div>
-      </header>
+      </nav>
 
-      {/* Hero Section */}
-      <section className="bg-white py-20">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              <span className="text-gray-900">O Cofre Digital</span>
-              <br />
-              <span className="bg-gradient-to-r from-purple-600 to-green-500 bg-clip-text text-transparent">
-                de Dados da sua Empresa
-              </span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              O DataPay é uma plataforma de inteligência que une tecnologia e propósito. Com IA Sintética e governança
-              automatizada, transformamos dados dispersos em insights acionáveis, sem abrir mão da privacidade nem da
-              ética.
-            </p>
-            <div className="flex gap-4">
-              <Button
-                className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white px-8 py-6 text-lg"
-                onClick={() => setShowDemoModal(true)}
-              >
-                Solicitar Demonstração <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-              <Button
-                variant="outline"
-                className="px-8 py-6 text-lg"
-                onClick={() => window.open('https://wa.me/5554992560212?text=Quero%20saber%20mais%20sobre%20o%20DataPay', '_blank')}
-              >
-                Falar com Especialista
-              </Button>
+      {/* HERO SECTION */}
+      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-white via-purple-50/30 to-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                <span className="text-gray-900">Mais do que dados.</span>
+                <br />
+                <span className="bg-gradient-to-r from-purple-600 via-purple-500 to-green-500 bg-clip-text text-transparent">
+                  Um novo jeito de tomar decisões
+                </span>
+              </h1>
+              <p className="text-xl text-gray-700 mb-8 leading-relaxed">
+                A DataPay é o Cofre Digital de Dados para empresas que querem crescer com segurança, previsibilidade e ética — usando IA Sintética para transformar informação em inteligência real.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  size="lg"
+                  onClick={() => setShowDemoModal(true)}
+                  className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white text-lg"
+                >
+                  Solicitar Demonstração <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </div>
+              <p className="text-sm text-gray-600 mt-6">Cresça com dados éticos. Decida com confiança.</p>
             </div>
-          </div>
-
-          {/* Hero Image */}
-          <div className="bg-gradient-to-br from-purple-100 to-green-100 rounded-2xl p-8 flex items-center justify-center min-h-96">
-            <div className="text-center">
-              <Lock className="w-24 h-24 text-purple-600 mx-auto mb-4" />
-              <p className="text-gray-600 font-medium">Segurança e Confiança</p>
+            <div className="relative">
+              <div className="bg-gradient-to-br from-purple-100 to-green-100 rounded-2xl p-8 h-96 flex items-center justify-center">
+                <div className="text-center">
+                  <Lock className="w-24 h-24 text-purple-600 mx-auto mb-4 opacity-50" />
+                  <p className="text-gray-600 font-medium">Dashboard DataPay</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Modal de Login */}
+      {/* SEÇÃO: VOCÊ TEM DADOS? */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-6 text-gray-900">
+            Você tem dados. Mas será que tem inteligência?
+          </h2>
+          <p className="text-xl text-center text-gray-700 mb-12 max-w-3xl mx-auto">
+            Em meio a tantos números, plataformas e relatórios, é comum sentir que as decisões ainda dependem mais de intuição do que de informação. Grandes empresas têm dados em abundância — mas falta clareza, integração e confiança para agir.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            <div className="bg-gray-50 rounded-xl p-8">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Os Desafios</h3>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-purple-600 mt-1 flex-shrink-0" />
+                  <span className="text-gray-700"><strong>Bases dispersas:</strong> Dados espalhados em múltiplos sistemas sem integração</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <TrendingUp className="w-5 h-5 text-purple-600 mt-1 flex-shrink-0" />
+                  <span className="text-gray-700"><strong>Campanhas sem previsibilidade:</strong> Falta de insights para decisões estratégicas</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <BarChart3 className="w-5 h-5 text-purple-600 mt-1 flex-shrink-0" />
+                  <span className="text-gray-700"><strong>Custos altos:</strong> ROI incerto em projetos de dados</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Shield className="w-5 h-5 text-purple-600 mt-1 flex-shrink-0" />
+                  <span className="text-gray-700"><strong>Riscos de LGPD:</strong> Compliance complexo e exposição de dados</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-gradient-to-br from-purple-50 to-green-50 rounded-xl p-8 flex flex-col justify-center">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">A Solução DataPay</h3>
+              <p className="text-gray-700 mb-6">
+                O DataPay nasceu para resolver isso — com uma visão mais humana sobre o poder dos dados.
+              </p>
+              <Button
+                onClick={() => setShowDemoModal(true)}
+                className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white w-full"
+              >
+                Solicitar Demonstração
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO: O COFRE DIGITAL */}
+      <section id="solucao" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 to-green-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="bg-white rounded-2xl p-8 h-80 flex items-center justify-center shadow-lg">
+              <div className="text-center">
+                <Lock className="w-20 h-20 text-purple-600 mx-auto mb-4" />
+                <p className="text-gray-600 font-medium">Controle Total</p>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-4xl font-bold mb-6 text-gray-900">
+                O Cofre Digital de Dados da sua empresa.
+              </h2>
+              <p className="text-lg text-gray-700 mb-8 leading-relaxed">
+                O DataPay é uma plataforma de inteligência que une tecnologia e propósito. Com IA Sintética e governança automatizada, transformamos dados dispersos em insights acionáveis, sem abrir mão da privacidade nem da ética.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                <div className="flex items-start gap-4">
+                  <Brain className="w-6 h-6 text-purple-600 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-bold text-gray-900">IA Sintética</h4>
+                    <p className="text-gray-600">Previsões baseadas em comportamento real, sem uso de dados pessoais</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <Shield className="w-6 h-6 text-purple-600 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-bold text-gray-900">Governança Inteligente</h4>
+                    <p className="text-gray-600">Integração segura com seus sistemas, dentro da LGPD</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <BarChart3 className="w-6 h-6 text-purple-600 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-bold text-gray-900">Painéis Executivos</h4>
+                    <p className="text-gray-600">Clareza total sobre performance, engajamento e ROI</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <Users className="w-6 h-6 text-purple-600 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-bold text-gray-900">Suporte Consultivo</h4>
+                    <p className="text-gray-600">Acompanhamento humano, com especialistas em dados e marketing</p>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-sm text-gray-600 italic mb-6">
+                "Inteligência é quando os números fazem sentido para as pessoas."
+              </p>
+
+              <Button
+                onClick={() => setShowExpertModal(true)}
+                className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
+              >
+                Entenda Mais <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO: LABORATÓRIO */}
+      <section id="laboratorio" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-6 text-gray-900">
+              Teste antes de investir. Decida com confiança.
+            </h2>
+            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
+              No Laboratório de IA Sintética do DataPay, você pode prever resultados antes de investir. Nossa IA cria simulações comportamentais seguras, que mostram quais campanhas, canais e mensagens terão melhor desempenho — tudo sem usar dados reais de clientes.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-8 text-center">
+              <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Reduza custos</h3>
+              <p className="text-gray-700">Simule campanhas com dados sintéticos e economize até 30% em mídia</p>
+            </div>
+
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-8 text-center">
+              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Aumente precisão</h3>
+              <p className="text-gray-700">Testes sem risco de falhas com simulações realistas</p>
+            </div>
+
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-8 text-center">
+              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Elimine riscos</h3>
+              <p className="text-gray-700">Zero exposição de dados reais com IA Sintética</p>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <p className="text-lg text-gray-600 mb-6">Tecnologia que protege, prevê e potencializa.</p>
+            <Button
+              onClick={() => setShowDemoModal(true)}
+              className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
+            >
+              Veja como funciona <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO: INTEGRAÇÃO */}
+      <section id="integracao" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-6 text-gray-900">
+              Conectado ao seu ecossistema. Seguro como deve ser.
+            </h2>
+            <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+              O DataPay se conecta facilmente aos sistemas que você já usa, garantindo segurança, rastreabilidade e escalabilidade. Um ambiente único para governar e transformar dados com ética e performance.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-12 shadow-lg">
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-8 items-center">
+              {["SAP", "Salesforce", "Power BI", "Tableau", "Google Analytics", "AWS"].map((sistema) => (
+                <div key={sistema} className="flex items-center justify-center p-4 bg-gray-50 rounded-lg hover:bg-purple-50 transition">
+                  <span className="font-semibold text-gray-700">{sistema}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <Button
+              onClick={() => setShowExpertModal(true)}
+              variant="outline"
+              className="border-purple-600 text-purple-600 hover:bg-purple-50"
+            >
+              Saiba Mais <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO: PROPÓSITO */}
+      <section id="proposito" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 to-green-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-6 text-gray-900">
+              Ética, inovação e propósito. Três palavras que guiam tudo o que fazemos.
+            </h2>
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+              Acreditamos que dados são mais do que números — são histórias sobre pessoas. Por isso, criamos um ecossistema que respeita a privacidade e transforma informação em impacto real para empresas e consumidores.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <div className="bg-white rounded-xl p-8 text-center shadow-lg">
+              <Heart className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Ética</h3>
+              <p className="text-gray-600">Dados humanizados, não explorados</p>
+            </div>
+
+            <div className="bg-white rounded-xl p-8 text-center shadow-lg">
+              <Zap className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Inovação</h3>
+              <p className="text-gray-600">Tecnologia a serviço do bem</p>
+            </div>
+
+            <div className="bg-white rounded-xl p-8 text-center shadow-lg">
+              <Globe className="w-12 h-12 text-green-600 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Desenvolvimento 100% Nacional</h3>
+              <p className="text-gray-600">Soberania de dados brasileiros</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-12 text-center shadow-lg">
+            <p className="text-2xl font-bold text-gray-900 mb-6">
+              "O futuro dos dados é humano. E começa aqui."
+            </p>
+            <Button
+              onClick={() => setShowExpertModal(true)}
+              className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
+            >
+              Conheça a DataPay <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO: DIAGNÓSTICO */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-4xl font-bold mb-6 text-gray-900">
+                Descubra o que seus dados dizem sobre o futuro da sua empresa.
+              </h2>
+              <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+                O Diagnóstico Executivo DataPay é uma análise personalizada do seu ecossistema de dados. Em poucos dias, você descobre:
+              </p>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                  <span className="text-gray-700">Sua maturidade em governança</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                  <span className="text-gray-700">Pontos de risco e de oportunidade</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                  <span className="text-gray-700">Como a IA Sintética pode reduzir custos e ampliar previsibilidade</span>
+                </li>
+              </ul>
+              <p className="text-sm text-gray-600 italic mb-6">
+                "Um olhar humano sobre o poder dos seus dados."
+              </p>
+              <Button
+                onClick={() => setShowDemoModal(true)}
+                className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white w-full md:w-auto"
+              >
+                Agendar Diagnóstico Gratuito <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="bg-gradient-to-br from-purple-100 to-green-100 rounded-2xl p-8 h-96 flex items-center justify-center">
+              <div className="text-center">
+                <BarChart3 className="w-24 h-24 text-purple-600 mx-auto mb-4 opacity-50" />
+                <p className="text-gray-600 font-medium">Relatório Diagnóstico</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="bg-gradient-to-r from-purple-900 to-gray-900 text-white py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-12">
+            <div>
+              <h4 className="font-bold mb-4">DataPay</h4>
+              <p className="text-gray-400 text-sm">O Cofre Digital de Dados. Inteligência, segurança e propósito em cada decisão.</p>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-4">Produto</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><a href="#" className="hover:text-white">Solução</a></li>
+                <li><a href="#" className="hover:text-white">Laboratório</a></li>
+                <li><a href="#" className="hover:text-white">Integração</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-4">Empresa</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><a href="#" className="hover:text-white">Blog</a></li>
+                <li><a href="#" className="hover:text-white">Contato</a></li>
+                <li><a href="#" className="hover:text-white">Carreiras</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-4">Legal</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><a href="#" className="hover:text-white">Privacidade</a></li>
+                <li><a href="#" className="hover:text-white">Termos</a></li>
+                <li><a href="#" className="hover:text-white">Contato</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-700 pt-8 text-center text-gray-400 text-sm">
+            <p>© 2025 DataPay. Todos os direitos reservados.</p>
+          </div>
+        </div>
+      </footer>
+
+      {/* MODAL: LOGIN */}
       <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Entrar na Plataforma</DialogTitle>
           </DialogHeader>
@@ -342,9 +673,9 @@ export default function Landing() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Registro */}
+      {/* MODAL: REGISTRO */}
       <Dialog open={showRegisterModal} onOpenChange={setShowRegisterModal}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Criar Conta</DialogTitle>
           </DialogHeader>
@@ -463,9 +794,9 @@ export default function Landing() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Demo */}
+      {/* MODAL: DEMONSTRAÇÃO */}
       <Dialog open={showDemoModal} onOpenChange={setShowDemoModal}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Solicitar Demonstração</DialogTitle>
           </DialogHeader>
@@ -508,36 +839,13 @@ export default function Landing() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
-              <input
-                type="text"
-                value={demoFormData.cargo}
-                onChange={(e) => setDemoFormData({ ...demoFormData, cargo: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="Seu cargo"
-                required
-              />
-            </div>
-
-            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
               <input
                 type="tel"
                 value={demoFormData.telefone}
                 onChange={(e) => setDemoFormData({ ...demoFormData, telefone: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="(11) 99999-9999"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
-              <textarea
-                value={demoFormData.mensagem}
-                onChange={(e) => setDemoFormData({ ...demoFormData, mensagem: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                placeholder="Conte-nos sobre seus desafios..."
-                rows={4}
+                placeholder="(11) 9999-9999"
               />
             </div>
 
@@ -552,175 +860,59 @@ export default function Landing() {
         </DialogContent>
       </Dialog>
 
-      {/* Seção O Desafio */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-16">O Desafio das Grandes Corporações</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { icon: Brain, title: "Bases Dispersas", desc: "Dados espalhados em múltiplos sistemas sem integração" },
-              { icon: Zap, title: "Campanhas sem Previsibilidade", desc: "Falta de insights para decisões estratégicas" },
-              { icon: BarChart3, title: "Custos Altos", desc: "ROI incerto em projetos de dados" },
-              { icon: Shield, title: "Riscos de LGPD", desc: "Compliance complexo e exposição de dados" },
-            ].map((item, i) => (
-              <div key={i} className="bg-white p-6 rounded-xl border-l-4 border-purple-600">
-                <item.icon className="w-12 h-12 text-purple-600 mb-4" />
-                <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-                <p className="text-gray-600 text-sm">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* MODAL: FALAR COM ESPECIALISTA */}
+      <Dialog open={showExpertModal} onOpenChange={setShowExpertModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Falar com Especialista</DialogTitle>
+          </DialogHeader>
 
-      {/* Seção Como Funciona */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-16">Como DataPay Transforma Seus Dados</h2>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {[
-              { num: "1", title: "Conectar", desc: "Integre seus dados de qualquer fonte" },
-              { num: "2", title: "Sintetizar", desc: "IA cria dados seguros e realistas" },
-              { num: "3", title: "Analisar", desc: "Insights profundos sem riscos" },
-              { num: "4", title: "Decidir", desc: "Decisões baseadas em dados" },
-              { num: "5", title: "Escalar", desc: "Crescimento sustentável e seguro" },
-            ].map((item, i) => (
-              <div key={i} className="text-center">
-                <div className="bg-gradient-to-r from-purple-600 to-green-500 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 font-bold text-lg">{item.num}</div>
-                <h3 className="font-bold mb-2">{item.title}</h3>
-                <p className="text-gray-600 text-sm">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Seção Laboratório */}
-      <section id="laboratorio" className="py-20 bg-gradient-to-b from-purple-50 to-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-16">Laboratório de Dados Sintéticos</h2>
-          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">Teste antes de investir. Simule cenários, reduza custos e aumente a precisão sem expor dados reais.</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { icon: Brain, title: "Reduza Custos", desc: "Simule campanhas com dados sintéticos" },
-              { icon: BarChart3, title: "Aumente Precisão", desc: "Testes sem risco de falhas" },
-              { icon: Shield, title: "Elimine Riscos", desc: "Zero exposição de dados reais" },
-            ].map((item, i) => (
-              <div key={i} className="bg-white p-8 rounded-xl border border-gray-200 text-center">
-                <item.icon className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-                <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-                <p className="text-gray-600">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Seção Integração */}
-      <section id="integracao" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-16">Integrado com Seus Sistemas</h2>
-          <div className="flex justify-center gap-8 flex-wrap">
-            {['SAP', 'Salesforce', 'Power BI', 'Tableau', 'Google Analytics', 'AWS'].map((system) => (
-              <div key={system} className="bg-gray-100 px-6 py-3 rounded-lg font-medium text-gray-700">{system}</div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Seção Propósito */}
-      <section id="proposito" className="py-20 bg-gradient-to-b from-purple-50 to-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-16">Nosso Propósito</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { icon: Heart, title: "Ética", desc: "Dados humanizados, não explorados" },
-              { icon: Zap, title: "Inovação", desc: "Tecnologia a serviço do bem" },
-              { icon: Globe, title: "Desenvolvimento 100% Nacional", desc: "Soberania de dados brasileiros" },
-            ].map((item, i) => (
-              <div key={i} className="text-center">
-                <item.icon className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-                <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-                <p className="text-gray-600">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Seção Diagnóstico */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-6">Pronto para Transformar Seus Dados?</h2>
-          <p className="text-xl text-gray-600 mb-8">Receba uma análise executiva gratuita de como DataPay pode impactar sua empresa</p>
-          <Button
-            className="bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white px-8 py-6 text-lg"
-            onClick={() => setShowDemoModal(true)}
-          >
-            Solicitar Diagnóstico <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
-        </div>
-      </section>
-
-      {/* Seções restantes da Landing Page */}
-      <section id="solucao" className="py-20 bg-gradient-to-b from-purple-50 to-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-16">A Solução DataPay</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { icon: Brain, title: "IA Sintética", desc: "Dados seguros sem expor informações reais" },
-              { icon: Shield, title: "Governança Inteligente", desc: "Compliance automático com LGPD" },
-              { icon: BarChart3, title: "Painéis Executivos", desc: "Decisões baseadas em dados" },
-              { icon: Users, title: "Suporte Consultivo", desc: "Especialistas ao seu lado" },
-            ].map((item, i) => (
-              <div key={i} className="bg-white p-6 rounded-xl border border-gray-200 hover:border-purple-600 transition">
-                <item.icon className="w-12 h-12 text-purple-600 mb-4" />
-                <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-                <p className="text-gray-600 text-sm">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <form onSubmit={handleExpertSubmit} className="space-y-4">
             <div>
-              <h4 className="font-bold mb-4">DataPay</h4>
-              <p className="text-gray-400 text-sm">Transformando dados em decisões estratégicas.</p>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+              <input
+                type="text"
+                value={demoFormData.nome}
+                onChange={(e) => setDemoFormData({ ...demoFormData, nome: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                placeholder="Seu nome"
+                required
+              />
             </div>
+
             <div>
-              <h4 className="font-bold mb-4">Produto</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white">Solução</a></li>
-                <li><a href="#" className="hover:text-white">Laboratório</a></li>
-                <li><a href="#" className="hover:text-white">Integração</a></li>
-              </ul>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email Corporativo</label>
+              <input
+                type="email"
+                value={demoFormData.email}
+                onChange={(e) => setDemoFormData({ ...demoFormData, email: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                placeholder="seu@empresa.com"
+                required
+              />
             </div>
+
             <div>
-              <h4 className="font-bold mb-4">Empresa</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white">Sobre</a></li>
-                <li><a href="#" className="hover:text-white">Blog</a></li>
-                <li><a href="#" className="hover:text-white">Contato</a></li>
-              </ul>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
+              <textarea
+                value={demoFormData.mensagem}
+                onChange={(e) => setDemoFormData({ ...demoFormData, mensagem: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                placeholder="Sua mensagem"
+                rows={4}
+              />
             </div>
-            <div>
-              <h4 className="font-bold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white">Privacidade</a></li>
-                <li><a href="#" className="hover:text-white">Termos</a></li>
-                <li><a href="#" className="hover:text-white">Cookies</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 pt-8 text-center text-gray-400 text-sm">
-            <p>&copy; 2025 DataPay. Todos os direitos reservados.</p>
-          </div>
-        </div>
-      </footer>
+
+            <Button
+              type="submit"
+              disabled={demoLoading}
+              className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
+            >
+              {demoLoading ? "Enviando..." : "Enviar Mensagem"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
