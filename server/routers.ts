@@ -109,15 +109,32 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input, ctx }) => {
+        console.log('[LOGIN] Email:', input.email);
+        console.log('[LOGIN] Senha:', input.senha);
+        
         // Buscar empresa por email
         const empresa = await db.getEmpresaByEmail(input.email);
-        if (!empresa || !empresa.passwordHash) {
+        console.log('[LOGIN] Empresa encontrada:', empresa ? 'SIM' : 'NÃO');
+        
+        if (!empresa) {
+          console.log('[LOGIN] Erro: Empresa não encontrada');
           throw new Error("Email ou senha inválidos");
         }
+        
+        if (!empresa.passwordHash) {
+          console.log('[LOGIN] Erro: passwordHash vazio');
+          throw new Error("Email ou senha inválidos");
+        }
+        
+        console.log('[LOGIN] passwordHash existe:', empresa.passwordHash ? 'SIM' : 'NÃO');
+        console.log('[LOGIN] Comparando senha...');
 
         // Verificar senha
         const senhaValida = await bcrypt.compare(input.senha, empresa.passwordHash);
+        console.log('[LOGIN] Senha válida:', senhaValida);
+        
         if (!senhaValida) {
+          console.log('[LOGIN] Erro: Senha inválida');
           throw new Error("Email ou senha inválidos");
         }
 

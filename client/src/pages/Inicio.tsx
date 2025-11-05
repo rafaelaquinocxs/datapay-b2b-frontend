@@ -27,7 +27,8 @@ export default function Inicio() {
     }
   }, []);
 
-  // Dados de exemplo para KPIs
+  // KPIs dinâmicos baseados no usuário
+  const empresaId = usuario?.id || 1;
   const kpis = [
     {
       titulo: "Fontes de Dados",

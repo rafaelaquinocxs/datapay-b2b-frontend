@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, nome, email, passwordHash FROM empresas WHERE email = 'fernanda.martins@empresa.com' LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute SELECT id, nome, email, passwordHash FROM empresas WHERE email = 'fernanda.martins@empresa.com' LIMIT 1;",
+  "rows": [
+    {
+      "id": "330001",
+      "nome": "Fernanda Martins",
+      "email": "fernanda.martins@empresa.com",
+      "passwordHash": "$2b$10$bA2YsqVotjHRENtT070nW.3ZruBhK2iDFob147yhcQRg/8GqQ8iGi"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnome\temail\tpasswordHash\n330001\tFernanda Martins\tfernanda.martins@empresa.com\t$2b$10$bA2YsqVotjHRENtT070nW.3ZruBhK2iDFob147yhcQRg/8GqQ8iGi\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

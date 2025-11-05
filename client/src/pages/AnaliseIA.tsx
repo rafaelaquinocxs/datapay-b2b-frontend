@@ -47,7 +47,8 @@ interface Insight {
 }
 
 export default function AnaliseIA() {
-  const empresa = { id: 1, nome: "Empresa Demo" };
+  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+  const empresa = { id: usuario?.id || 1, nome: usuario?.nome || "Empresa Demo" };
   const [gerando, setGerando] = useState(false);
   const [filtroFamilia, setFiltroFamilia] = useState<string>("");
   const [filtroEstado, setFiltroEstado] = useState<string>("");
