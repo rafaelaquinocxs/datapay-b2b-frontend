@@ -7,6 +7,7 @@ import * as db from "./db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { CUSTOM_AUTH_COOKIE } from "./_core/context";
+import { TRPCError } from "@trpc/server";
 
 // Secret para JWT (em produção, usar variável de ambiente)
 const JWT_SECRET = process.env.JWT_SECRET || "datapay-secret-key-change-in-production";

@@ -1,5 +1,5 @@
-import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,28 +32,28 @@ export default function Inicio() {
   const kpis = [
     {
       titulo: "Fontes de Dados",
-      valor: "7",
+      valor: "0",
       descricao: "Conectadas e sincronizadas",
       icon: Database,
       cor: "from-blue-500 to-blue-600",
     },
     {
       titulo: "Registros Processados",
-      valor: "2.4M",
-      descricao: "+15% vs mês anterior",
+      valor: "0",
+      descricao: "Aguardando sincronização",
       icon: TrendingUp,
       cor: "from-green-500 to-green-600",
     },
     {
       titulo: "Insights Gerados",
-      valor: "23",
+      valor: "0",
       descricao: "Últimos 30 dias",
       icon: Brain,
       cor: "from-purple-500 to-purple-600",
     },
     {
       titulo: "Ações Executadas",
-      valor: "8",
+      valor: "0",
       descricao: "Com ROI comprovado",
       icon: Zap,
       cor: "from-orange-500 to-orange-600",
@@ -148,67 +148,34 @@ export default function Inicio() {
             <Clock className="w-5 h-5 text-purple-600" />
             Últimas Atividades
           </h3>
-          <div className="space-y-4">
-            {[
-              { titulo: "Base de Dados sincronizada", tempo: "Há 2 horas", icon: Database },
-              { titulo: "Novo insight gerado", tempo: "Há 5 horas", icon: Brain },
-              { titulo: "Ação executada com sucesso", tempo: "Há 1 dia", icon: Zap },
-            ].map((atividade, idx) => {
-              const Icon = atividade.icon;
-              return (
-                <div key={idx} className="flex items-center gap-4 pb-4 border-b border-gray-200 last:border-0">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-gray-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">{atividade.titulo}</p>
-                    <p className="text-xs text-gray-500">{atividade.tempo}</p>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 pb-3 border-b">
+              <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-gray-900">Base de Dados sincronizada</p>
+                <p className="text-xs text-gray-500">Há 2 horas</p>
+              </div>
+            </div>
           </div>
         </Card>
 
-        {/* DICAS E RECURSOS */}
-        <Card className="p-6 bg-gradient-to-br from-purple-50 to-green-50">
+        {/* DICAS */}
+        <Card className="p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-purple-600" />
+            <Sparkles className="w-5 h-5 text-yellow-500" />
             Dicas para Maximizar Valor
           </h3>
-          <ul className="space-y-3">
-            {[
-              "Conecte todas as suas fontes de dados para análises mais precisas",
-              "Use o Laboratório para testar estratégias antes de implementar",
-              "Acompanhe o ROI de cada ação executada",
-              "Consulte o Copiloto de Dados para dúvidas",
-            ].map((dica, idx) => (
-              <li key={idx} className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-purple-600 rounded-full mt-2 flex-shrink-0" />
-                <span className="text-sm text-gray-700">{dica}</span>
-              </li>
-            ))}
+          <ul className="space-y-2 text-sm text-gray-700">
+            <li className="flex items-start gap-2">
+              <span className="text-purple-600 font-bold">•</span>
+              <span>Conecte todas as suas fontes de dados para análises mais precisas</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-purple-600 font-bold">•</span>
+              <span>Use o Laboratório para testar estratégias antes de implementar</span>
+            </li>
           </ul>
         </Card>
-      </div>
-
-      {/* CTA FINAL */}
-      <div className="bg-gradient-to-r from-purple-600 to-green-500 rounded-lg p-8 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-2xl font-bold mb-2">Pronto para começar?</h3>
-            <p className="text-purple-100">
-              Conecte suas primeiras fontes de dados e deixe a IA trabalhar para você.
-            </p>
-          </div>
-          <Button
-            onClick={() => setLocation("/meus-dados")}
-            className="bg-white text-purple-600 hover:bg-gray-100 font-semibold"
-          >
-            Conectar Dados
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
       </div>
     </div>
   );
