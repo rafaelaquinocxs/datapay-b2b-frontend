@@ -998,51 +998,50 @@ Forneca a resposta em formato JSON:
         pergunta: z.string(),
       }))
       .mutation(async ({ input }) => {
-        try {
-          const [profile, fontes, insights, acoes, resultados, baseConhecimento, historico] = await Promise.all([
-            db.getCompanyProfile(input.empresaId),
-            db.getFontesDadosByEmpresa(input.empresaId),
-            db.getInsightsByEmpresa(input.empresaId),
-            db.getAcoesInteligentes(input.empresaId),
-            db.getResultadosAcoes(input.empresaId),
-            db.getBaseConhecimentoByEmpresa(input.empresaId),
-            db.getDataCopiloHistory(input.empresaId, 5),
-          ]);
+        const profile = await db.getCompanyProfile(input.empresaId);
+        
+        let resposta = "";
+        let contexto: any = {};
 
-          const fontesStr = fontes?.map((f: any) => `- ${f.nome} (${f.tipo})`).join('\n') || 'Nenhuma';
-          const insightsStr = insights?.slice(0, 3).map((i: any) => `- ${i.titulo}`).join('\n') || 'Nenhum';
-          const acoesStr = acoes?.slice(0, 3).map((a: any) => `- ${a.titulo}`).join('\n') || 'Nenhuma';
-
-          const contextoEmpresa = `CONTEXTO DA EMPRESA:\nNome: ${profile?.nomeEmpresa || 'N/A'}\nSetor: ${profile?.setor || 'N/A'}\nMissao: ${profile?.missao || 'N/A'}\nFontes: ${fontesStr}\nInsights: ${insightsStr}\nAcoes: ${acoesStr}`;
-
-          const systemPrompt = `Voce e um Copiloto de Dados especializado. Analise o contexto da empresa e forneca insights assertivos baseados nos dados reais. Cite dados especificos quando relevante.`;
-
-          const { invokeLLM } = await import("./_core/llm");
-          const llmResponse = await invokeLLM({
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: `${contextoEmpresa}\n\nPergunta: ${input.pergunta}` }
-            ]
-          });
-
-          const resposta = typeof llmResponse.choices[0].message.content === 'string' 
-            ? llmResponse.choices[0].message.content 
-            : "Desculpe, nao consegui processar sua pergunta.";
-
+        if (profile) {
+          resposta = `Baseado no seu perfil: ${profile.missao || "sem missão definida"}. Recomendações: Complete todos os blocos do seu perfil para obter insights mais precisos.` as string;
+          contexto = { profileId: profile.id };
+        } else {
           try {
-            const id = await db.saveDataCopiloConversation({
-              empresaId: input.empresaId,
-              pergunta: input.pergunta,
-              resposta,
-              contexto: { fontesCount: fontes?.length, insightsCount: insights?.length, acoesCount: acoes?.length },
+            const { invokeLLM } = await import("./_core/llm");
+            const llmResponse = await invokeLLM({
+              messages: [
+                {
+                  role: "system",
+                  content: "Você é um assistente de dados inteligente para empresas. Responda perguntas sobre dados, análises e estratégias de dados de forma prática e acionável."
+                },
+                {
+                  role: "user",
+                  content: input.pergunta
+                }
+              ]
             });
-            return { success: true, resposta, id };
-          } catch (dbError) {
-            return { success: true, resposta, id: 0 };
+            const content = llmResponse.choices[0].message.content;
+            resposta = typeof content === 'string' ? content : "Desculpe, não consegui processar sua pergunta.";
+            contexto = { usedLLM: true, empresaId: input.empresaId };
+          } catch (error) {
+            console.error("[dataCopilot] Erro ao chamar LLM:", error);
+            resposta = "Desculpe, não consegui processar sua pergunta. Complete seu perfil para obter respostas mais precisas.";
+            contexto = { error: true, empresaId: input.empresaId };
           }
-        } catch (error) {
-          console.error("[dataCopilot] Erro:", error);
-          return { success: false, resposta: "Erro ao processar pergunta.", id: 0 };
+        }
+
+        try {
+          const id = await db.saveDataCopiloConversation({
+            empresaId: input.empresaId,
+            pergunta: input.pergunta,
+            resposta,
+            contexto,
+          });
+          return { success: true, resposta, id };
+        } catch (dbError) {
+          console.error("[dataCopilot] Erro ao salvar conversa:", dbError);
+          return { success: true, resposta, id: 0 };
         }
       }),
 
