@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 
 export default function CopilatoDados() {
-  const empresaId = 240003;
+  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+  const empresaId = usuario?.id || 1;
   const [messages, setMessages] = useState<any[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
