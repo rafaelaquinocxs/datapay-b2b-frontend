@@ -30,6 +30,12 @@ import Chatbot from "./pages/Chatbot";
 import StudioLoading from "./pages/StudioLoading";
 import Studio from "./pages/Studio";
 import Visao360 from "./pages/Visao360";
+import StudioLayout from "./components/StudioLayout";
+import StudioInicio from "./pages/StudioInicio";
+import StudioGerador from "./pages/StudioGerador";
+import StudioSimuladorCampanhas from "./pages/StudioSimuladorCampanhas";
+import StudioSimuladorPesquisas from "./pages/StudioSimuladorPesquisas";
+import StudioProjetorComportamento from "./pages/StudioProjetorComportamento";
 
 function Router() {
   return (
@@ -153,7 +159,35 @@ function Router() {
       {/* DataPay Studio */}
       <Route path="/studio-loading" component={StudioLoading} />
       
-      <Route path="/studio" component={Studio} />
+      <Route path="/studio">
+        <StudioLayout>
+          <StudioInicio />
+        </StudioLayout>
+      </Route>
+
+      <Route path="/studio/gerador">
+        <StudioLayout>
+          <StudioGerador />
+        </StudioLayout>
+      </Route>
+
+      <Route path="/studio/simulador-campanhas">
+        <StudioLayout>
+          <StudioSimuladorCampanhas />
+        </StudioLayout>
+      </Route>
+
+      <Route path="/studio/simulador-pesquisas">
+        <StudioLayout>
+          <StudioSimuladorPesquisas />
+        </StudioLayout>
+      </Route>
+
+      <Route path="/studio/projetor-comportamento">
+        <StudioLayout>
+          <StudioProjetorComportamento />
+        </StudioLayout>
+      </Route>
 
       <Route path="/resumo-perfil">
         <DashboardLayout>

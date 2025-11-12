@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { 
   Menu, 
   X, 
-  Beaker, 
+  Home,
+  Database,
   TrendingUp, 
-  BarChart3, 
-  CheckCircle2,
+  Brain,
+  Sparkles,
   ArrowLeft,
   ChevronDown
 } from "lucide-react";
@@ -22,31 +23,38 @@ export default function StudioLayout({ children }: StudioLayoutProps) {
 
   const studioTools = [
     {
-      id: "gerador",
-      label: "🧪 Gerador de Dados",
-      icon: Beaker,
-      path: "/laboratorio/gerador",
+      id: "inicio",
+      label: "Início",
+      icon: Home,
+      path: "/studio",
       color: "text-purple-400",
     },
     {
-      id: "simulador",
-      label: "🎯 Simulador",
+      id: "gerador",
+      label: "Gerador de Dados Sintéticos",
+      icon: Database,
+      path: "/studio/gerador",
+      color: "text-purple-400",
+    },
+    {
+      id: "simulador-campanhas",
+      label: "Simulador de Campanhas",
       icon: TrendingUp,
-      path: "/laboratorio/simulador",
+      path: "/studio/simulador-campanhas",
       color: "text-pink-400",
     },
     {
-      id: "testador",
-      label: "🔬 Testador",
-      icon: BarChart3,
-      path: "/laboratorio/testador",
+      id: "simulador-pesquisas",
+      label: "Simulador de Pesquisas",
+      icon: Brain,
+      path: "/studio/simulador-pesquisas",
       color: "text-cyan-400",
     },
     {
-      id: "validador",
-      label: "✅ Validador",
-      icon: CheckCircle2,
-      path: "/laboratorio/validador",
+      id: "projetor-comportamento",
+      label: "Projetor de Comportamento",
+      icon: Sparkles,
+      path: "/studio/projetor-comportamento",
       color: "text-green-400",
     },
   ];
@@ -64,7 +72,7 @@ export default function StudioLayout({ children }: StudioLayoutProps) {
           {isOpen && (
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
-                <Beaker className="w-5 h-5 text-white" />
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
               <span className="text-white font-bold text-sm">Studio</span>
             </div>
