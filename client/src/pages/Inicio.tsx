@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   TrendingUp,
   Database,
@@ -11,9 +9,15 @@ import {
   ArrowRight,
   BarChart3,
   Users,
-  Clock,
-  CheckCircle2,
   Sparkles,
+  CheckCircle,
+  Lightbulb,
+  Target,
+  Rocket,
+  Shield,
+  Clock,
+  BookOpen,
+  Eye,
 } from "lucide-react";
 
 export default function Inicio() {
@@ -27,155 +31,212 @@ export default function Inicio() {
     }
   }, []);
 
-  // KPIs dinâmicos baseados no usuário
-  const empresaId = usuario?.id || 1;
-  const kpis = [
+  // Seções de valor - educação sobre como usar o sistema
+  const secoeValor = [
     {
-      titulo: "Fontes de Dados",
-      valor: "0",
-      descricao: "Conectadas e sincronizadas",
-      icon: Database,
-      cor: "from-blue-500 to-blue-600",
+      titulo: "Guia Rápido: Como Começar",
+      descricao: "Entenda os 3 pilares do DataPay em 5 minutos",
+      icon: Lightbulb,
+      color: "from-purple-600 to-purple-400",
+      items: [
+        {
+          numero: "1",
+          titulo: "Conectar",
+          descricao: "Integre suas fontes de dados (SAP, Salesforce, CSV, APIs)",
+          icon: Database,
+        },
+        {
+          numero: "2",
+          titulo: "Analisar",
+          descricao: "Deixe a IA gerar insights automáticos e recomendações",
+          icon: Brain,
+        },
+        {
+          numero: "3",
+          titulo: "Executar",
+          descricao: "Implemente ações inteligentes e acompanhe o ROI em tempo real",
+          icon: Rocket,
+        },
+      ],
     },
     {
-      titulo: "Registros Processados",
-      valor: "0",
-      descricao: "Aguardando sincronização",
-      icon: TrendingUp,
-      cor: "from-green-500 to-green-600",
+      titulo: "Recursos Principais",
+      descricao: "Ferramentas poderosas para transformar dados em ação",
+      icon: Sparkles,
+      color: "from-pink-600 to-pink-400",
+      items: [
+        {
+          titulo: "Visão 360",
+          descricao: "Visualize todos os seus dados conectados em um único lugar",
+          icon: Eye,
+          path: "/visao-360",
+        },
+        {
+          titulo: "DataPay Studio",
+          descricao: "Crie dados sintéticos, simule campanhas e projete comportamentos",
+          icon: Zap,
+          path: "/studio-loading",
+        },
+        {
+          titulo: "Inteligência de Dados",
+          descricao: "Análises profundas com IA, benchmarks e copiloto inteligente",
+          icon: Brain,
+          path: "/analise-ia",
+        },
+      ],
     },
     {
-      titulo: "Insights Gerados",
-      valor: "0",
-      descricao: "Últimos 30 dias",
-      icon: Brain,
-      cor: "from-purple-500 to-purple-600",
+      titulo: "Casos de Uso",
+      descricao: "Veja como empresas estão transformando dados em resultados",
+      icon: Target,
+      color: "from-cyan-600 to-cyan-400",
+      items: [
+        {
+          titulo: "Otimizar Campanhas",
+          descricao: "Teste estratégias com dados sintéticos antes de investir",
+          icon: TrendingUp,
+        },
+        {
+          titulo: "Validar Pesquisas",
+          descricao: "Simule resultados de pesquisas e surveys com precisão",
+          icon: Users,
+        },
+        {
+          titulo: "Prever Comportamento",
+          descricao: "Projete tendências de consumo e antecipe decisões do mercado",
+          icon: Brain,
+        },
+      ],
     },
     {
-      titulo: "Ações Executadas",
-      valor: "0",
-      descricao: "Com ROI comprovado",
-      icon: Zap,
-      cor: "from-orange-500 to-orange-600",
-    },
-  ];
-
-  const proximosPassos = [
-    {
-      numero: 1,
-      titulo: "Conectar Primeira Fonte",
-      descricao: "Integre seus dados com SAP, Salesforce ou CSV",
-      acao: "Conectar",
-      path: "/meus-dados",
-    },
-    {
-      numero: 2,
-      titulo: "Explorar Insights",
-      descricao: "Deixe a IA analisar seus dados e gerar recomendações",
-      acao: "Explorar",
-      path: "/analise-ia",
-    },
-    {
-      numero: 3,
-      titulo: "Executar Ações",
-      descricao: "Implemente as recomendações e acompanhe o ROI",
-      acao: "Executar",
-      path: "/acoes",
+      titulo: "Segurança e Conformidade",
+      descricao: "Seus dados estão protegidos com os mais altos padrões",
+      icon: Shield,
+      color: "from-green-600 to-green-400",
+      items: [
+        {
+          titulo: "LGPD Compliant",
+          descricao: "Conformidade total com a Lei Geral de Proteção de Dados",
+          icon: CheckCircle,
+        },
+        {
+          titulo: "Criptografia End-to-End",
+          descricao: "Seus dados são criptografados em trânsito e em repouso",
+          icon: Shield,
+        },
+        {
+          titulo: "Auditoria Completa",
+          descricao: "Rastreie todas as ações e acessos aos seus dados",
+          icon: Clock,
+        },
+      ],
     },
   ];
 
   return (
-    <div className="space-y-8">
-      {/* HEADER */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
-          Bem-vindo, {usuario?.nome?.split(" ")[0]}!
-        </h1>
-        <p className="text-lg text-gray-600">
-          Seu Cofre Digital de Dados está pronto para transformar informação em inteligência.
-        </p>
-      </div>
-
-      {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {kpis.map((kpi, idx) => {
-          const Icon = kpi.icon;
-          return (
-            <Card key={idx} className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between mb-4">
-                <div className={`bg-gradient-to-br ${kpi.cor} p-3 rounded-lg`}>
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              <h3 className="text-gray-600 text-sm font-medium mb-1">{kpi.titulo}</h3>
-              <p className="text-3xl font-bold text-gray-900 mb-2">{kpi.valor}</p>
-              <p className="text-xs text-gray-500">{kpi.descricao}</p>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* PRÓXIMOS PASSOS */}
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Próximos Passos</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {proximosPassos.map((passo) => (
-            <Card key={passo.numero} className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold">{passo.numero}</span>
-                </div>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{passo.titulo}</h3>
-              <p className="text-gray-600 text-sm mb-6">{passo.descricao}</p>
-              <Button
-                onClick={() => setLocation(passo.path)}
-                className="w-full bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white"
-              >
-                {passo.acao}
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Card>
-          ))}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-gray-100">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        {/* Header */}
+        <div className="mb-16">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 bg-clip-text text-transparent mb-4">
+            Bem-vindo ao DataPay, {usuario?.nome?.split(" ")[0]}!
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl">
+            Transforme seus dados em inteligência acionável. Conecte, analise e execute estratégias baseadas em dados com confiança.
+          </p>
         </div>
-      </div>
 
-      {/* RESUMO EXECUTIVO */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* ÚLTIMAS ATIVIDADES */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-purple-600" />
-            Últimas Atividades
-          </h3>
-          <div className="space-y-3">
-            <div className="flex items-start gap-3 pb-3 border-b">
-              <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-gray-900">Base de Dados sincronizada</p>
-                <p className="text-xs text-gray-500">Há 2 horas</p>
+        {/* Seções de Valor */}
+        <div className="space-y-16">
+          {secoeValor.map((secao, idx) => {
+            const SectionIcon = secao.icon;
+            return (
+              <div key={idx} className="space-y-8">
+                {/* Seção Header */}
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${secao.color} flex items-center justify-center`}>
+                    <SectionIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-900">{secao.titulo}</h2>
+                    <p className="text-gray-600 mt-1">{secao.descricao}</p>
+                  </div>
+                </div>
+
+                {/* Seção Items Grid */}
+                <div className="grid md:grid-cols-3 gap-6">
+                  {secao.items.map((item, itemIdx) => {
+                    const ItemIcon = item.icon;
+                    return (
+                      <div
+                        key={itemIdx}
+                        className="p-6 rounded-xl bg-white border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+                        onClick={() => item.path && setLocation(item.path)}
+                      >
+                        {/* Número ou Ícone */}
+                        <div className="flex items-start justify-between mb-4">
+                          <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${secao.color} flex items-center justify-center text-white font-bold`}>
+                            {item.numero ? item.numero : <ItemIcon className="w-5 h-5" />}
+                          </div>
+                          {item.path && (
+                            <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" />
+                          )}
+                        </div>
+
+                        {/* Conteúdo */}
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
+                          {item.titulo}
+                        </h3>
+                        <p className="text-gray-600 text-sm leading-relaxed">
+                          {item.descricao}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
+            );
+          })}
+        </div>
+
+        {/* CTA Section */}
+        <div className="mt-20 p-8 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 text-white">
+          <div className="max-w-3xl">
+            <h2 className="text-3xl font-bold mb-4">Pronto para começar?</h2>
+            <p className="text-purple-100 mb-8 text-lg">
+              Conecte sua primeira fonte de dados e veja como o DataPay pode transformar sua estratégia em minutos.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Button
+                onClick={() => setLocation("/conectar-dados")}
+                className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-6 py-3"
+              >
+                <Database className="w-5 h-5 mr-2" />
+                Conectar Dados
+              </Button>
+              <Button
+                onClick={() => setLocation("/studio-loading")}
+                className="bg-purple-700 text-white hover:bg-purple-800 font-semibold px-6 py-3"
+              >
+                <Zap className="w-5 h-5 mr-2" />
+                Explorar Studio
+              </Button>
             </div>
           </div>
-        </Card>
+        </div>
 
-        {/* DICAS */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-yellow-500" />
-            Dicas para Maximizar Valor
-          </h3>
-          <ul className="space-y-2 text-sm text-gray-700">
-            <li className="flex items-start gap-2">
-              <span className="text-purple-600 font-bold">•</span>
-              <span>Conecte todas as suas fontes de dados para análises mais precisas</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-purple-600 font-bold">•</span>
-              <span>Use o Laboratório para testar estratégias antes de implementar</span>
-            </li>
-          </ul>
-        </Card>
+        {/* Footer Info */}
+        <div className="mt-16 p-6 rounded-lg bg-blue-50 border border-blue-200">
+          <div className="flex gap-4">
+            <Lightbulb className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+            <div>
+              <h3 className="font-semibold text-blue-900 mb-2">Dica: Comece com o Guia Rápido</h3>
+              <p className="text-blue-800 text-sm">
+                Se é sua primeira vez usando o DataPay, recomendamos começar com a seção "Guia Rápido: Como Começar" acima. Ela vai te guiar através dos 3 pilares principais do sistema em apenas 5 minutos.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
