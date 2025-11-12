@@ -12,9 +12,26 @@ import {
   Briefcase,
   Zap,
   CheckCircle,
+  Plus,
+  Edit2,
+  Save,
+  X,
 } from "lucide-react";
+import { useState } from "react";
 
 export default function SobreEmpresa() {
+  const [isEditing, setIsEditing] = useState(false);
+  const [integracoes, setIntegracoes] = useState([
+    "Salesforce",
+    "SAP",
+    "Google Analytics",
+    "Power BI",
+    "HubSpot",
+    "Stripe",
+    "Slack",
+    "Jira",
+  ]);
+  const [novaIntegracao, setNovaIntegracao] = useState("");
   return (
     <PageTransition>
       <div className="min-h-screen bg-white dark:bg-gray-950 p-8">
@@ -205,29 +222,36 @@ export default function SobreEmpresa() {
 
           {/* Integrações Ativas */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Zap className="w-6 h-6 text-yellow-600" />
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Integrações Ativas</h2>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Zap className="w-6 h-6 text-yellow-600" />
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Sistemas Utilizados</h2>
+              </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                "Salesforce",
-                "SAP",
-                "Google Analytics",
-                "Power BI",
-                "HubSpot",
-                "Stripe",
-                "Slack",
-                "Jira",
-              ].map((integration, idx) => (
+              {integracoes.map((integration, idx) => (
                 <div
                   key={idx}
-                  className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-gray-900 dark:to-gray-800 rounded-lg p-4 border border-yellow-200 dark:border-yellow-900 text-center"
+                  className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-gray-900 dark:to-gray-800 rounded-lg p-4 border border-yellow-200 dark:border-yellow-900 text-center hover:shadow-lg transition-all"
                 >
                   <p className="font-semibold text-gray-900 dark:text-white">{integration}</p>
                   <p className="text-xs text-green-600 dark:text-green-400 mt-2">✓ Conectado</p>
                 </div>
               ))}
+              {/* Card Adicionar Mais */}
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800 rounded-lg p-4 border-2 border-dashed border-purple-300 dark:border-purple-700 text-center hover:shadow-lg transition-all cursor-pointer">
+                <button
+                  onClick={() => {
+                    const novo = prompt("Nome do sistema:");
+                    if (novo) setIntegracoes([...integracoes, novo]);
+                  }}
+                  className="w-full flex flex-col items-center justify-center gap-2"
+                >
+                  <Plus className="w-6 h-6 text-purple-600" />
+                  <p className="font-semibold text-gray-900 dark:text-white text-sm">Adicionar</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Novo Sistema</p>
+                </button>
+              </div>
             </div>
           </div>
 
