@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Lightbulb, TrendingUp, BarChart3, CheckCircle2, ArrowRight, ArrowLeft } from "lucide-react";
+import { Lightbulb, TrendingUp, BarChart3, CheckCircle2, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import StudioLayout from "@/components/StudioLayout";
@@ -11,12 +11,20 @@ export default function Studio() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simular carregamento do Studio
-    const timer = setTimeout(() => {
+    // Verificar se é a primeira vez que acessa Studio
+    const hasSeenLoading = sessionStorage.getItem("studio-loading-shown");
+    
+    if (!hasSeenLoading) {
+      // Primeira vez - mostrar animação
+      sessionStorage.setItem("studio-loading-shown", "true");
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 3500);
+      return () => clearTimeout(timer);
+    } else {
+      // Já viu a animação - não mostrar novamente nesta sessão
       setIsLoading(false);
-    }, 2500);
-
-    return () => clearTimeout(timer);
+    }
   }, []);
 
   const tools = [
@@ -27,41 +35,44 @@ export default function Studio() {
       features: ["Até 10M registros", "Múltiplas regiões", "Sazonalidade", "Calibração real"],
       icon: Lightbulb,
       color: "from-purple-600 to-purple-400",
-      path: "/laboratorio/gerador",
+      path: "/studio/gerador",
     },
     {
       id: "simulador",
-      title: "🎯 Simulador",
+      title: "🎯 Simulador de Campanhas",
       description: "Simule campanhas e veja o ROI estimado antes de executar",
       features: ["Cenários múltiplos", "ROI em tempo real", "Análise de risco", "Comparação"],
       icon: TrendingUp,
       color: "from-pink-600 to-pink-400",
-      path: "/laboratorio/simulador",
+      path: "/studio/simulador-campanhas",
     },
     {
       id: "testador",
-      title: "🔬 Testador",
+      title: "🔬 Simulador de Pesquisas",
       description: "Valide seus dados e campanhas com testes automatizados",
       features: ["Testes A/B", "Validação de dados", "Qualidade", "Relatórios"],
       icon: BarChart3,
       color: "from-cyan-600 to-cyan-400",
-      path: "/laboratorio/testador",
+      path: "/studio/simulador-pesquisas",
     },
     {
       id: "validador",
-      title: "✅ Validador",
+      title: "✅ Projetor de Comportamento",
       description: "Garanta a qualidade e conformidade dos seus dados",
       features: ["LGPD compliance", "Integridade", "Duplicatas", "Anomalias"],
       icon: CheckCircle2,
       color: "from-green-600 to-green-400",
-      path: "/laboratorio/validador",
+      path: "/studio/projetor-comportamento",
     },
   ];
 
+  if (isLoading) {
+    return <StudioLoadingAnimation isLoading={true} />;
+  }
+
   return (
     <StudioLayout>
-      <StudioLoadingAnimation isLoading={isLoading} />
-      <div className={`min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-20 pb-12 transition-opacity duration-500 ${isLoading ? "opacity-0" : "opacity-100"}`}>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-20 pb-12">
 
         {/* Header */}
         <div className="max-w-7xl mx-auto px-4 mb-16">

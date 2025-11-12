@@ -79,7 +79,7 @@ const menuStructure = [
     label: "DataPay Studio",
     icon: Lightbulb,
     badge: "NEW",
-    path: "/studio",
+    path: "/studio-loading",
     isButton: true,
   },
 ];

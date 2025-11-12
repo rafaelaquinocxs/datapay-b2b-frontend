@@ -164,11 +164,7 @@ function Router() {
       {/* DataPay Studio */}
       <Route path="/studio-loading" component={StudioLoading} />
       
-      <Route path="/studio">
-        <StudioLayout>
-          <StudioInicio />
-        </StudioLayout>
-      </Route>
+      <Route path="/studio" component={Studio} />
 
       <Route path="/studio/gerador">
         <StudioLayout>
