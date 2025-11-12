@@ -50,7 +50,6 @@ const menuStructure = [
       { icon: Building2, label: "Sobre a Empresa", path: "/sobre-empresa" },
       { icon: Zap, label: "Conectar Dados", path: "/conectar-dados" },
       { icon: Eye, label: "Visão 360", path: "/visao-360" },
-      { icon: BookOpen, label: "Base de Conhecimento", path: "/base-conhecimento" },
     ],
   },
   {

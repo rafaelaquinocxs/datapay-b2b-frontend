@@ -36,6 +36,7 @@ import StudioGerador from "./pages/StudioGerador";
 import StudioSimuladorCampanhas from "./pages/StudioSimuladorCampanhas";
 import StudioSimuladorPesquisas from "./pages/StudioSimuladorPesquisas";
 import StudioProjetorComportamento from "./pages/StudioProjetorComportamento";
+import SobreEmpresa from "./pages/SobreEmpresa";
 
 function Router() {
   return (
@@ -73,7 +74,7 @@ function Router() {
       </Route>
       <Route path="/sobre-empresa">
         <DashboardLayout>
-          <MeusDados />
+          <SobreEmpresa />
         </DashboardLayout>
       </Route>
 
@@ -246,7 +247,7 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme="light" switchable>
         <TooltipProvider>
           <Toaster />
           <Router />
