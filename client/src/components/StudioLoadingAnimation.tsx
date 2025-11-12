@@ -36,14 +36,55 @@ export default function StudioLoadingAnimation({
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-center z-50">
+      <style>{`
+        @keyframes spin-custom {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        
+        @keyframes pulse-custom {
+          0%, 100% {
+            opacity: 0.2;
+          }
+          50% {
+            opacity: 0.4;
+          }
+        }
+        
+        @keyframes bounce-custom {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
+        }
+        
+        .spin-animation {
+          animation: spin-custom 3s linear infinite;
+        }
+        
+        .pulse-animation {
+          animation: pulse-custom 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .bounce-animation {
+          animation: bounce-custom 1s infinite;
+        }
+      `}</style>
+
       {/* Logo Animado */}
       <div className="mb-12 relative">
-        <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center animate-spin" style={{ animationDuration: "3s" }}>
+        <div className="spin-animation w-24 h-24 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
           <Sparkles className="w-12 h-12 text-white" />
         </div>
         
         {/* Glow Effect */}
-        <div className="absolute inset-0 w-24 h-24 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 opacity-20 blur-xl animate-pulse" />
+        <div className="pulse-animation absolute inset-0 w-24 h-24 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 opacity-20 blur-xl" />
       </div>
 
       {/* Texto */}
@@ -66,7 +107,7 @@ export default function StudioLoadingAnimation({
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="w-2 h-2 rounded-full bg-purple-600 animate-bounce"
+            className="bounce-animation w-2 h-2 rounded-full bg-purple-600"
             style={{ animationDelay: `${i * 0.1}s` }}
           />
         ))}
