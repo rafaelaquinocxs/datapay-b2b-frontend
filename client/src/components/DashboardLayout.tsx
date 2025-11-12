@@ -43,15 +43,12 @@ const menuStructure = [
     ],
   },
   {
-    id: "laboratorio",
+    id: "studio",
     label: "DataPay Studio",
     icon: Lightbulb,
     badge: "NEW",
-    items: [
-      { icon: Lightbulb, label: "🧪 Gerador de Dados", path: "/laboratorio/gerador" },
-      { icon: TrendingUp, label: "🎯 Simulador", path: "/laboratorio/simulador" },
-      { icon: BarChart3, label: "🔬 Testador", path: "/laboratorio/testador" },
-    ],
+    path: "/studio-loading",
+    isButton: true,
   },
   {
     id: "coleta",
@@ -159,6 +156,36 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     );
                   })}
                 </div>
+              );
+            }
+
+            // Button sections (like DataPay Studio)
+            if (section.isButton) {
+              return (
+                <Link key={section.id} href={section.path}>
+                  <div
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all cursor-pointer group",
+                      location === section.path
+                        ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-pink-500/30"
+                        : "text-gray-300 hover:bg-gradient-to-r hover:from-purple-600/30 hover:to-pink-600/30"
+                    )}
+                  >
+                    <section.icon className="w-5 h-5 flex-shrink-0" />
+                    {sidebarOpen && (
+                      <div className="flex-1 text-left">
+                        <span className="text-sm font-semibold truncate">
+                          {section.label}
+                        </span>
+                        {section.badge && (
+                          <span className="ml-2 inline-block px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full">
+                            {section.badge}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </Link>
               );
             }
 

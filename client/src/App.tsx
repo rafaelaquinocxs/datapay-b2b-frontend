@@ -27,6 +27,8 @@ import ConfiguracaoSincronizacao from "./pages/ConfiguracaoSincronizacao";
 import Laboratorio from "./pages/Laboratorio";
 import Configuracoes from "./pages/Configuracoes";
 import Chatbot from "./pages/Chatbot";
+import StudioLoading from "./pages/StudioLoading";
+import Studio from "./pages/Studio";
 
 function Router() {
   return (
@@ -137,6 +139,11 @@ function Router() {
           <Laboratorio />
         </DashboardLayout>
       </Route>
+
+      {/* DataPay Studio */}
+      <Route path="/studio-loading" component={StudioLoading} />
+      
+      <Route path="/studio" component={Studio} />
 
       <Route path="/resumo-perfil">
         <DashboardLayout>
