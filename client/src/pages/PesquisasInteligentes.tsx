@@ -25,7 +25,18 @@ import {
   ChevronRight,
   X,
   Filter,
-  ArrowRight,
+  Settings,
+  Send,
+  Mail,
+  MessageSquare,
+  Share2,
+  Copy,
+  FileText,
+  Smartphone,
+  Globe,
+  Database,
+  Webhook,
+  MoreVertical,
 } from "lucide-react";
 
 interface Pesquisa {
@@ -39,6 +50,7 @@ interface Pesquisa {
   dataFim?: string;
   respostas?: number;
   taxaResposta?: number;
+  metodoColeta: string[];
 }
 
 interface Resultado {
@@ -62,10 +74,30 @@ const MENU_SUGESTOES = [
   { icon: "🌟", label: "Experiência", descricao: "Jornada do cliente, pain points" },
 ];
 
+const METODOS_COLETA = [
+  { id: "email", icon: Mail, label: "Email", descricao: "Enviar via email" },
+  { id: "sms", icon: MessageSquare, label: "SMS", descricao: "Enviar via SMS" },
+  { id: "whatsapp", icon: MessageSquare, label: "WhatsApp", descricao: "Enviar via WhatsApp" },
+  { id: "web", icon: Globe, label: "Web Link", descricao: "Link público" },
+  { id: "app", icon: Smartphone, label: "In-App", descricao: "Dentro do app" },
+  { id: "webhook", icon: Webhook, label: "Webhook", descricao: "Integração API" },
+];
+
+const ACOES_DISPARO = [
+  { id: "agora", label: "Disparar Agora", icon: Play },
+  { id: "agendar", label: "Agendar", icon: Clock },
+  { id: "segmentado", label: "Segmentado", icon: Target },
+  { id: "ab-test", label: "A/B Test", icon: Zap },
+];
+
 export default function PesquisasInteligentes() {
   const [abaAtiva, setAbaAtiva] = useState<"descoberta" | "pesquisas" | "analytics">("descoberta");
   const [busca, setBusca] = useState("");
   const [sugestoesVisivel, setSugestoesVisivel] = useState(false);
+  const [modalColeta, setModalColeta] = useState(false);
+  const [pesquisaSelecionada, setPesquisaSelecionada] = useState<number | null>(null);
+  const [metodosColeta, setMetodosColeta] = useState<string[]>([]);
+
   const [pesquisasCriadas, setPesquisasCriadas] = useState<Pesquisa[]>([
     {
       id: 1,
@@ -77,6 +109,7 @@ export default function PesquisasInteligentes() {
       dataInicio: "2024-11-10",
       respostas: 1250,
       taxaResposta: 35,
+      metodoColeta: ["email", "sms"],
     },
     {
       id: 2,
@@ -89,8 +122,10 @@ export default function PesquisasInteligentes() {
       dataFim: "2024-11-09",
       respostas: 2840,
       taxaResposta: 48,
+      metodoColeta: ["email", "web"],
     },
   ]);
+
   const [resultados, setResultados] = useState<Resultado[]>([
     {
       id: 1,
@@ -129,15 +164,44 @@ export default function PesquisasInteligentes() {
       status: "rascunho",
       progresso: 0,
       dataCriacao: new Date().toISOString().split("T")[0],
+      metodoColeta: [],
     };
 
     setPesquisasCriadas([...pesquisasCriadas, novaPesquisa]);
-    toast.success("Pesquisa criada! Você pode disparar agora.");
+    toast.success("Pesquisa criada! Configure a coleta agora.");
     setBusca("");
     setSugestoesVisivel(false);
   };
 
-  const handleDisparar = (id: number) => {
+  const handleAbrirColeta = (pesquisaId: number) => {
+    setPesquisaSelecionada(pesquisaId);
+    const pesquisa = pesquisasCriadas.find((p) => p.id === pesquisaId);
+    setMetodosColeta(pesquisa?.metodoColeta || []);
+    setModalColeta(true);
+  };
+
+  const handleToggleMetodo = (metodoId: string) => {
+    setMetodosColeta((prev) =>
+      prev.includes(metodoId) ? prev.filter((m) => m !== metodoId) : [...prev, metodoId]
+    );
+  };
+
+  const handleSalvarColeta = () => {
+    if (metodosColeta.length === 0) {
+      toast.error("Selecione pelo menos um método de coleta");
+      return;
+    }
+
+    setPesquisasCriadas(
+      pesquisasCriadas.map((p) =>
+        p.id === pesquisaSelecionada ? { ...p, metodoColeta: metodosColeta } : p
+      )
+    );
+    toast.success("Métodos de coleta configurados!");
+    setModalColeta(false);
+  };
+
+  const handleDisparar = (id: number, acao: string) => {
     setPesquisasCriadas(
       pesquisasCriadas.map((p) =>
         p.id === id
@@ -150,7 +214,7 @@ export default function PesquisasInteligentes() {
           : p
       )
     );
-    toast.success("Pesquisa disparada!");
+    toast.success(`Pesquisa disparada com ação: ${acao}`);
   };
 
   const getStatusColor = (status: string) => {
@@ -185,13 +249,13 @@ export default function PesquisasInteligentes() {
               </div>
               <div>
                 <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Pesquisas Inteligentes</h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-1">Coordene pesquisas sobre seus clientes com IA</p>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">Crie, configure e dispare pesquisas com coleta integrada</p>
               </div>
             </div>
           </div>
 
           {/* Abas */}
-          <div className="flex gap-2 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex gap-2 border-b border-gray-200 dark:border-gray-800 overflow-x-auto">
             {[
               { id: "descoberta", label: "Descoberta", icon: Sparkles },
               { id: "pesquisas", label: "Pesquisas", icon: Search },
@@ -203,7 +267,7 @@ export default function PesquisasInteligentes() {
                 <button
                   key={aba.id}
                   onClick={() => setAbaAtiva(aba.id as any)}
-                  className={`px-6 py-4 font-medium flex items-center gap-2 transition-all border-b-2 ${
+                  className={`px-6 py-4 font-medium flex items-center gap-2 transition-all border-b-2 whitespace-nowrap ${
                     isActive
                       ? "border-purple-500 text-purple-600 dark:text-purple-400"
                       : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300"
@@ -362,14 +426,30 @@ export default function PesquisasInteligentes() {
                             </div>
                           )}
 
+                          {pesquisa.metodoColeta.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {pesquisa.metodoColeta.map((metodo) => {
+                                const m = METODOS_COLETA.find((x) => x.id === metodo);
+                                return (
+                                  <Badge key={metodo} className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs">
+                                    {m?.label}
+                                  </Badge>
+                                );
+                              })}
+                            </div>
+                          )}
+
                           {pesquisa.status === "rascunho" && (
-                            <Button
-                              onClick={() => handleDisparar(pesquisa.id)}
-                              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-                            >
-                              <Play className="w-4 h-4 mr-2" />
-                              Disparar Pesquisa
-                            </Button>
+                            <div className="flex gap-2 pt-2">
+                              <Button
+                                onClick={() => handleAbrirColeta(pesquisa.id)}
+                                variant="outline"
+                                className="flex-1 border-purple-300 text-purple-600 dark:border-purple-700 dark:text-purple-400"
+                              >
+                                <Settings className="w-4 h-4 mr-2" />
+                                Configurar Coleta
+                              </Button>
+                            </div>
                           )}
                         </div>
                       </Card>
@@ -386,12 +466,6 @@ export default function PesquisasInteligentes() {
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                   {pesquisasFiltradas.length} Pesquisas
                 </h3>
-                <div className="flex gap-2">
-                  <Button variant="outline" className="border-gray-300 dark:border-gray-700">
-                    <Filter className="w-4 h-4 mr-2" />
-                    Filtrar
-                  </Button>
-                </div>
               </div>
 
               <div className="space-y-3">
@@ -400,104 +474,174 @@ export default function PesquisasInteligentes() {
                     key={pesquisa.id}
                     className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 p-6 hover:shadow-lg transition-all"
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h4 className="font-bold text-gray-900 dark:text-white">
-                            {pesquisa.titulo}
-                          </h4>
-                          <Badge className={getStatusColor(pesquisa.status)}>
-                            {getStatusLabel(pesquisa.status)}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                          {pesquisa.descricao}
-                        </p>
+                    <div className="space-y-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h4 className="font-bold text-gray-900 dark:text-white">
+                              {pesquisa.titulo}
+                            </h4>
+                            <Badge className={getStatusColor(pesquisa.status)}>
+                              {getStatusLabel(pesquisa.status)}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                            {pesquisa.descricao}
+                          </p>
 
-                        {pesquisa.status !== "rascunho" && (
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                            <div>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">
-                                Progresso
+                          {/* Métodos de Coleta */}
+                          {pesquisa.metodoColeta.length > 0 && (
+                            <div className="mb-4">
+                              <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-2">
+                                Métodos de Coleta
                               </p>
-                              <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
-                                {pesquisa.progresso}%
-                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {pesquisa.metodoColeta.map((metodo) => {
+                                  const m = METODOS_COLETA.find((x) => x.id === metodo);
+                                  const Icon = m?.icon || Mail;
+                                  return (
+                                    <div
+                                      key={metodo}
+                                      className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+                                    >
+                                      <Icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                      <span className="text-sm text-blue-700 dark:text-blue-300">{m?.label}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">
-                                Respostas
-                              </p>
-                              <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
-                                {pesquisa.respostas || 0}
-                              </p>
+                          )}
+
+                          {pesquisa.status !== "rascunho" && (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                              <div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">
+                                  Progresso
+                                </p>
+                                <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
+                                  {pesquisa.progresso}%
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">
+                                  Respostas
+                                </p>
+                                <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
+                                  {pesquisa.respostas || 0}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">
+                                  Taxa
+                                </p>
+                                <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
+                                  {pesquisa.taxaResposta || 0}%
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">
+                                  Início
+                                </p>
+                                <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
+                                  {pesquisa.dataInicio}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">
-                                Taxa
-                              </p>
-                              <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
-                                {pesquisa.taxaResposta || 0}%
-                              </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Ações */}
+                      <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+                        {pesquisa.status === "rascunho" ? (
+                          <div className="space-y-3">
+                            <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
+                              Configurar Coleta e Disparar
+                            </p>
+                            <div className="flex gap-2 flex-wrap">
+                              <Button
+                                onClick={() => handleAbrirColeta(pesquisa.id)}
+                                variant="outline"
+                                className="border-purple-300 text-purple-600 dark:border-purple-700 dark:text-purple-400"
+                              >
+                                <Settings className="w-4 h-4 mr-2" />
+                                Configurar Coleta
+                              </Button>
+                              <Button
+                                variant="outline"
+                                className="border-gray-300 dark:border-gray-700"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Deletar
+                              </Button>
                             </div>
-                            <div>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">
-                                Início
-                              </p>
-                              <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
-                                {pesquisa.dataInicio}
-                              </p>
+                          </div>
+                        ) : pesquisa.status === "rodando" ? (
+                          <div className="space-y-3">
+                            <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
+                              Ações em Andamento
+                            </p>
+                            <div className="flex gap-2 flex-wrap">
+                              <Button
+                                variant="outline"
+                                className="border-gray-300 dark:border-gray-700"
+                              >
+                                <Pause className="w-4 h-4 mr-2" />
+                                Pausar
+                              </Button>
+                              <Button
+                                variant="outline"
+                                className="border-gray-300 dark:border-gray-700"
+                              >
+                                <Eye className="w-4 h-4 mr-2" />
+                                Ver Progresso
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
+                              Ações Disponíveis
+                            </p>
+                            <div className="flex gap-2 flex-wrap">
+                              <Button
+                                variant="outline"
+                                className="border-gray-300 dark:border-gray-700"
+                              >
+                                <Eye className="w-4 h-4 mr-2" />
+                                Ver Resultados
+                              </Button>
+                              <Button
+                                variant="outline"
+                                className="border-gray-300 dark:border-gray-700"
+                              >
+                                <Download className="w-4 h-4 mr-2" />
+                                Exportar
+                              </Button>
+                              <Button
+                                variant="outline"
+                                className="border-gray-300 dark:border-gray-700"
+                              >
+                                <Copy className="w-4 h-4 mr-2" />
+                                Duplicar
+                              </Button>
                             </div>
                           </div>
                         )}
                       </div>
 
-                      <div className="flex gap-2 flex-shrink-0">
-                        {pesquisa.status === "rascunho" ? (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() => handleDisparar(pesquisa.id)}
-                              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-                            >
-                              <Play className="w-4 h-4" />
-                            </Button>
-                            <Button size="sm" variant="outline" className="border-gray-300 dark:border-gray-700">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </>
-                        ) : pesquisa.status === "rodando" ? (
-                          <>
-                            <Button size="sm" variant="outline" className="border-gray-300 dark:border-gray-700">
-                              <Pause className="w-4 h-4" />
-                            </Button>
-                            <Button size="sm" variant="outline" className="border-gray-300 dark:border-gray-700">
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <Button size="sm" variant="outline" className="border-gray-300 dark:border-gray-700">
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                            <Button size="sm" variant="outline" className="border-gray-300 dark:border-gray-700">
-                              <Download className="w-4 h-4" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {pesquisa.status !== "rascunho" && (
-                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-                        <div className="h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all"
-                            style={{ width: `${pesquisa.progresso}%` }}
-                          />
+                      {pesquisa.status !== "rascunho" && (
+                        <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+                          <div className="h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all"
+                              style={{ width: `${pesquisa.progresso}%` }}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </Card>
                 ))}
               </div>
@@ -533,7 +677,7 @@ export default function PesquisasInteligentes() {
                             <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
                               {resultado.titulo}
                             </h4>
-                            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 flex-wrap">
                               <div className="flex items-center gap-1">
                                 <Users className="w-4 h-4" />
                                 {resultado.respondentes} respondentes
@@ -585,6 +729,101 @@ export default function PesquisasInteligentes() {
             </div>
           )}
         </div>
+
+        {/* Modal de Coleta e Ações */}
+        {modalColeta && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 w-full max-w-2xl max-h-96 overflow-y-auto">
+              <div className="p-6 space-y-6">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Configurar Coleta e Disparar
+                  </h3>
+                  <button
+                    onClick={() => setModalColeta(false)}
+                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                  >
+                    <X className="w-5 h-5 text-gray-400" />
+                  </button>
+                </div>
+
+                {/* Métodos de Coleta */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-gray-900 dark:text-white">Selecione os Métodos de Coleta</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {METODOS_COLETA.map((metodo) => {
+                      const Icon = metodo.icon;
+                      const isSelected = metodosColeta.includes(metodo.id);
+                      return (
+                        <button
+                          key={metodo.id}
+                          onClick={() => handleToggleMetodo(metodo.id)}
+                          className={`p-4 rounded-lg border-2 transition-all text-center ${
+                            isSelected
+                              ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                              : "border-gray-200 dark:border-gray-800 hover:border-purple-300 dark:hover:border-purple-700"
+                          }`}
+                        >
+                          <Icon className={`w-6 h-6 mx-auto mb-2 ${isSelected ? "text-purple-600 dark:text-purple-400" : "text-gray-600 dark:text-gray-400"}`} />
+                          <p className={`text-sm font-medium ${isSelected ? "text-purple-700 dark:text-purple-300" : "text-gray-900 dark:text-white"}`}>
+                            {metodo.label}
+                          </p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            {metodo.descricao}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Ações de Disparo */}
+                <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+                  <h4 className="font-semibold text-gray-900 dark:text-white">Escolha a Ação de Disparo</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    {ACOES_DISPARO.map((acao) => {
+                      const Icon = acao.icon;
+                      return (
+                        <button
+                          key={acao.id}
+                          onClick={() => {
+                            handleSalvarColeta();
+                            handleDisparar(pesquisaSelecionada || 0, acao.label);
+                          }}
+                          className="p-4 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all text-center group"
+                        >
+                          <Icon className="w-6 h-6 mx-auto mb-2 text-gray-600 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400" />
+                          <p className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                            {acao.label}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Botões de Ação */}
+                <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+                  <Button
+                    variant="outline"
+                    onClick={() => setModalColeta(false)}
+                    className="flex-1 border-gray-300 dark:border-gray-700"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={handleSalvarColeta}
+                    className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                  >
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                    Salvar Configuração
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
       </div>
     </PageTransition>
   );
