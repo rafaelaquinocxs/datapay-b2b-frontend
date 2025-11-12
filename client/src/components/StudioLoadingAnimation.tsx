@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+// Removido import Sparkles - usando texto DS
 
 interface StudioLoadingAnimationProps {
   isLoading: boolean;
@@ -61,8 +61,8 @@ export default function StudioLoadingAnimation({ isLoading }: StudioLoadingAnima
           <div className="absolute inset-8 rounded-full bg-gradient-to-br from-purple-500/30 to-pink-500/30 blur-xl" />
 
           {/* Logo Icon */}
-          <div className="relative z-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl p-7 shadow-2xl shadow-purple-500/60">
-            <Sparkles className="w-14 h-14 text-white" strokeWidth={1.5} />
+          <div className="relative z-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl p-7 shadow-2xl shadow-purple-500/60 flex items-center justify-center">
+            <span className="text-white font-bold text-4xl tracking-tight">DS</span>
           </div>
         </div>
 
