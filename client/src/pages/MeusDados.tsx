@@ -27,20 +27,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Conectores de grandes empresas com logos e cores
+// Conectores de grandes empresas com logos de marca
 const CONNECTORS = [
-  { id: "salesforce", nome: "Salesforce", categoria: "CRM", cor: "from-blue-500 to-blue-600", icon: "☁️", descricao: "Gerenciamento de relacionamento com clientes" },
-  { id: "sap", nome: "SAP", categoria: "ERP", cor: "from-red-500 to-red-600", icon: "🏢", descricao: "Planejamento de recursos empresariais" },
-  { id: "google-analytics", nome: "Google Analytics", categoria: "Analytics", cor: "from-orange-500 to-orange-600", icon: "📊", descricao: "Análise de tráfego e comportamento web" },
-  { id: "power-bi", nome: "Power BI", categoria: "BI", cor: "from-yellow-500 to-yellow-600", icon: "📈", descricao: "Inteligência de negócios e visualização" },
-  { id: "hubspot", nome: "HubSpot", categoria: "Marketing", cor: "from-orange-400 to-orange-500", icon: "🎯", descricao: "Automação de marketing e vendas" },
-  { id: "stripe", nome: "Stripe", categoria: "Pagamentos", cor: "from-purple-500 to-purple-600", icon: "💳", descricao: "Processamento de pagamentos online" },
-  { id: "slack", nome: "Slack", categoria: "Comunicação", cor: "from-pink-500 to-pink-600", icon: "💬", descricao: "Comunicação em tempo real" },
-  { id: "jira", nome: "Jira", categoria: "Projeto", cor: "from-blue-400 to-blue-500", icon: "✓", descricao: "Gerenciamento de projetos ágeis" },
-  { id: "tableau", nome: "Tableau", categoria: "BI", cor: "from-green-500 to-green-600", icon: "📊", descricao: "Visualização de dados avançada" },
-  { id: "aws", nome: "AWS", categoria: "Cloud", cor: "from-orange-600 to-orange-700", icon: "☁️", descricao: "Serviços em nuvem Amazon" },
-  { id: "azure", nome: "Azure", categoria: "Cloud", cor: "from-blue-600 to-blue-700", icon: "☁️", descricao: "Serviços em nuvem Microsoft" },
-  { id: "csv", nome: "CSV/Excel", categoria: "Arquivo", cor: "from-green-400 to-green-500", icon: "📄", descricao: "Upload de arquivos CSV ou Excel" },
+  { id: "salesforce", nome: "Salesforce", categoria: "CRM", logo: "SF", descricao: "Gerenciamento de relacionamento com clientes" },
+  { id: "sap", nome: "SAP", categoria: "ERP", logo: "SAP", descricao: "Planejamento de recursos empresariais" },
+  { id: "google-analytics", nome: "Google Analytics", categoria: "Analytics", logo: "GA", descricao: "Análise de tráfego e comportamento web" },
+  { id: "power-bi", nome: "Power BI", categoria: "BI", logo: "PBI", descricao: "Inteligência de negócios e visualização" },
+  { id: "hubspot", nome: "HubSpot", categoria: "Marketing", logo: "HS", descricao: "Automação de marketing e vendas" },
+  { id: "stripe", nome: "Stripe", categoria: "Pagamentos", logo: "STR", descricao: "Processamento de pagamentos online" },
+  { id: "slack", nome: "Slack", categoria: "Comunicação", logo: "SLK", descricao: "Comunicação em tempo real" },
+  { id: "jira", nome: "Jira", categoria: "Projeto", logo: "JRA", descricao: "Gerenciamento de projetos ágeis" },
+  { id: "tableau", nome: "Tableau", categoria: "BI", logo: "TBL", descricao: "Visualização de dados avançada" },
+  { id: "aws", nome: "AWS", categoria: "Cloud", logo: "AWS", descricao: "Serviços em nuvem Amazon" },
+  { id: "azure", nome: "Azure", categoria: "Cloud", logo: "AZR", descricao: "Serviços em nuvem Microsoft" },
+  { id: "csv", nome: "CSV/Excel", categoria: "Arquivo", logo: "CSV", descricao: "Upload de arquivos CSV ou Excel" },
 ];
 
 const CATEGORIAS = ["Todos", "CRM", "ERP", "Analytics", "BI", "Marketing", "Pagamentos", "Comunicação", "Projeto", "Cloud", "Arquivo"];
@@ -188,16 +188,16 @@ export default function MeusDados() {
                 return (
                   <Card
                     key={connector.id}
-                    className={`overflow-hidden transition-all hover:shadow-xl ${
+                    className={`overflow-hidden transition-all hover:shadow-lg ${
                       isConnected
-                        ? "border-green-500 bg-white dark:bg-gray-900"
-                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-purple-500"
+                        ? "border-green-400 bg-white dark:bg-gray-900"
+                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300"
                     }`}
                   >
-                    {/* Gradient Header */}
-                    <div className={`h-24 bg-gradient-to-r ${connector.cor} relative overflow-hidden`}>
-                      <div className="absolute inset-0 opacity-20">
-                        <div className="absolute top-2 right-2 text-4xl">{connector.icon}</div>
+                    {/* Clean Header com Logo */}
+                    <div className="h-20 bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 relative overflow-hidden flex items-center justify-center border-b border-gray-200 dark:border-gray-700">
+                      <div className="w-12 h-12 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg flex items-center justify-center font-bold text-xs">
+                        {connector.logo}
                       </div>
                       {isConnected && (
                         <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1">
@@ -249,13 +249,13 @@ export default function MeusDados() {
                     key={connector.id}
                     className={`p-6 flex items-center justify-between transition-all ${
                       isConnected
-                        ? "border-green-500 bg-white dark:bg-gray-900"
-                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-purple-500"
+                        ? "border-green-400 bg-white dark:bg-gray-900"
+                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300"
                     }`}
                   >
                     <div className="flex items-center gap-4 flex-1">
-                      <div className={`w-16 h-16 rounded-lg bg-gradient-to-r ${connector.cor} flex items-center justify-center text-2xl`}>
-                        {connector.icon}
+                      <div className="w-16 h-16 rounded-lg bg-gray-900 dark:bg-white flex items-center justify-center font-bold text-white dark:text-gray-900 text-sm">
+                        {connector.logo}
                       </div>
                       <div className="flex-1">
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">{connector.nome}</h3>
