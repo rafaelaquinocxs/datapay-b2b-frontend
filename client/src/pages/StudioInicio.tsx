@@ -13,6 +13,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { Link } from "wouter";
+import PageTransition from "@/components/PageTransition";
 
 export default function StudioInicio() {
   const features = [
@@ -106,7 +107,8 @@ export default function StudioInicio() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-gray-100 p-8">
+    <PageTransition duration={300}>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-gray-100 p-8">
       {/* Header */}
       <div className="mb-12">
         <div className="flex items-center gap-4 mb-6">
@@ -266,7 +268,8 @@ export default function StudioInicio() {
           </div>
         </div>
       </Card>
-    </div>
+      </div>
+    </PageTransition>
   );
 }
 

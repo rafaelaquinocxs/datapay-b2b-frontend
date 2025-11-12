@@ -10,6 +10,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useState } from "react";
+import PageTransition from "@/components/PageTransition";
 
 export default function StudioSimuladorPesquisas() {
   const [questions, setQuestions] = useState([
@@ -17,7 +18,8 @@ export default function StudioSimuladorPesquisas() {
   ]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
+    <PageTransition duration={300}>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
       {/* Header */}
       <div className="mb-12">
         <div className="flex items-center gap-4 mb-6">
@@ -191,7 +193,8 @@ export default function StudioSimuladorPesquisas() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </PageTransition>
   );
 }
 
