@@ -5,7 +5,7 @@ interface PageTransitionProps {
   duration?: number; // em milissegundos
 }
 
-export default function PageTransition({ children, duration = 300 }: PageTransitionProps) {
+function PageTransition({ children, duration = 300 }: PageTransitionProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -49,4 +49,7 @@ export default function PageTransition({ children, duration = 300 }: PageTransit
     </div>
   );
 }
+
+export { PageTransition };
+export default PageTransition;
 

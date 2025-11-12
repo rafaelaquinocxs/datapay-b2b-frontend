@@ -20,9 +20,18 @@ import {
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState, ReactNode } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { Moon, Sun, User } from "lucide-react";
 
 interface DashboardLayoutProps {
   children: ReactNode;
+}
+
+interface ProfileMenuProps {
+  isOpen: boolean;
+  onToggle: () => void;
+  onLogout: () => void;
 }
 
 // Menu structure with collapsible sections
@@ -84,9 +93,68 @@ const menuStructure = [
   },
 ];
 
+function ProfileMenu({ isOpen, onToggle, onLogout }: ProfileMenuProps) {
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <div className="relative">
+      <button
+        onClick={onToggle}
+        className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 flex items-center justify-center text-white font-bold hover:shadow-lg hover:shadow-purple-500/50 transition-all"
+      >
+        <User className="w-5 h-5" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
+          <div className="p-3 space-y-2">
+            {/* Theme Toggle */}
+            <button
+              onClick={() => {
+                toggleTheme();
+              }}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300"
+            >
+              {theme === 'dark' ? (
+                <>
+                  <Sun className="w-4 h-4" />
+                  <span className="text-sm font-medium">Modo Claro</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-4 h-4" />
+                  <span className="text-sm font-medium">Modo Escuro</span>
+                </>
+              )}
+            </button>
+
+            {/* Settings */}
+            <Link href="/configuracoes">
+              <div className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300 cursor-pointer">
+                <Settings className="w-4 h-4" />
+                <span className="text-sm font-medium">Configurações</span>
+              </div>
+            </Link>
+
+            {/* Logout */}
+            <button
+              onClick={onLogout}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-red-600 dark:text-red-400"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="text-sm font-medium">Sair</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>([
     "meus-dados",
     "inteligencia",
@@ -103,7 +171,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-950">
       {/* Sidebar */}
       <aside
         className={cn(
@@ -273,47 +341,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           })}
         </nav>
 
-        {/* Footer - Settings and Logout */}
-        <div className="p-3 border-t border-gray-700 space-y-2">
-          <Link href="/configuracoes">
-            <div
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all cursor-pointer group",
-                location === "/configuracoes"
-                  ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
-                  : "text-gray-300 hover:bg-gray-700/50"
-              )}
-            >
-              <Settings className="w-5 h-5 flex-shrink-0" />
-              {sidebarOpen && (
-                <span className="text-sm font-medium truncate">
-                  Configurações
-                </span>
-              )}
-            </div>
-          </Link>
-
-          <button
-            onClick={() => {
-              localStorage.removeItem("auth_token");
-              document.cookie =
-                "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-              window.location.href = "/landing";
-            }}
-            className={cn(
-              "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all cursor-pointer text-gray-300 hover:bg-red-600/20 hover:text-red-400"
-            )}
-          >
-            <LogOut className="w-5 h-5 flex-shrink-0" />
-            {sidebarOpen && (
-              <span className="text-sm font-medium truncate">Sair</span>
-            )}
-          </button>
-        </div>
+        {/* Footer - Empty */}
+        <div className="p-3 border-t border-gray-700"></div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto bg-gray-50">
+      <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-950">
+        {/* Top Bar with Profile Menu */}
+        <div className="sticky top-0 right-0 p-4 flex justify-end bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-40">
+          <ProfileMenu
+            isOpen={profileMenuOpen}
+            onToggle={() => setProfileMenuOpen(!profileMenuOpen)}
+            onLogout={() => {
+              localStorage.removeItem("auth_token");
+              document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+              window.location.href = "/landing";
+            }}
+          />
+        </div>
         {children}
       </main>
     </div>
