@@ -68,7 +68,7 @@ export default function Landing() {
         setShowLoginModal(false);
         setLoginData({ email: "", senha: "" });
         setTimeout(() => {
-          setLocation("/meus-dados");
+          setLocation("/inicio");
         }, 1000);
       }
     },
@@ -102,7 +102,7 @@ export default function Landing() {
           cargo: "",
         });
         setTimeout(() => {
-          setLocation("/meus-dados");
+          setLocation("/inicio");
         }, 1000);
       }
     },

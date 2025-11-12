@@ -120,7 +120,7 @@ export default function StudioLayout({ children }: StudioLayoutProps) {
             {isOpen && <span className="text-sm">Visão Geral</span>}
           </Button>
           <Button
-            onClick={() => navigate("/meus-dados")}
+            onClick={() => navigate("/inicio")}
             variant="ghost"
             className={`w-full justify-start gap-3 text-gray-400 hover:text-red-400 hover:bg-red-900/20 transition-colors ${
               !isOpen && "justify-center"
