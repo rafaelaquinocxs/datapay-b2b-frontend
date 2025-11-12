@@ -66,6 +66,11 @@ function Router() {
           <Inicio />
         </DashboardLayout>
       </Route>
+      
+      {/* Rota /meus-dados redireciona para /inicio */}
+      <Route path="/meus-dados">
+        {() => <Redirect to="/inicio" />}
+      </Route>
       <Route path="/sobre-empresa">
         <DashboardLayout>
           <MeusDados />
