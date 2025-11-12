@@ -29,6 +29,7 @@ import Configuracoes from "./pages/Configuracoes";
 import Chatbot from "./pages/Chatbot";
 import StudioLoading from "./pages/StudioLoading";
 import Studio from "./pages/Studio";
+import Visao360 from "./pages/Visao360";
 
 function Router() {
   return (
@@ -59,10 +60,19 @@ function Router() {
           <Inicio />
         </DashboardLayout>
       </Route>
-
-      <Route path="/meus-dados">
+      <Route path="/sobre-empresa">
         <DashboardLayout>
           <MeusDados />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/conectar-dados">
+        <DashboardLayout>
+          <MeusDados />
+        </DashboardLayout>
+      </Route>      <Route path="/visao-360">
+        <DashboardLayout>
+          <Visao360 />
         </DashboardLayout>
       </Route>
 

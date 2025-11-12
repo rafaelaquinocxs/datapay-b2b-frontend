@@ -15,6 +15,9 @@ import {
   ChevronDown,
   Menu,
   X,
+  Building2,
+  Eye,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,8 +31,17 @@ const menuStructure = [
     id: "main",
     items: [
       { icon: LayoutDashboard, label: "Início", path: "/inicio" },
+    ],
+  },
+  {
+    id: "meus-dados",
+    label: "Meus Dados",
+    icon: Database,
+    items: [
+      { icon: Building2, label: "Sobre a Empresa", path: "/sobre-empresa" },
+      { icon: Zap, label: "Conectar Dados", path: "/conectar-dados" },
+      { icon: Eye, label: "Visão 360", path: "/visao-360" },
       { icon: BookOpen, label: "Base de Conhecimento", path: "/base-conhecimento" },
-      { icon: Database, label: "Meus Dados", path: "/meus-dados" },
     ],
   },
   {
@@ -43,14 +55,6 @@ const menuStructure = [
     ],
   },
   {
-    id: "studio",
-    label: "DataPay Studio",
-    icon: Lightbulb,
-    badge: "NEW",
-    path: "/studio-loading",
-    isButton: true,
-  },
-  {
     id: "coleta",
     label: "Coleta & Ações",
     icon: Users,
@@ -62,7 +66,7 @@ const menuStructure = [
   },
   {
     id: "resultados",
-    label: "Resultados & Relatórios",
+    label: "Relatórios e Pesquisas",
     icon: FileBarChart,
     items: [
       { icon: BarChart3, label: "Resultados", path: "/resultados" },
@@ -70,14 +74,22 @@ const menuStructure = [
       { icon: BookOpen, label: "Resumo Perfil", path: "/resumo-perfil" },
     ],
   },
+  {
+    id: "studio",
+    label: "DataPay Studio",
+    icon: Lightbulb,
+    badge: "NEW",
+    path: "/studio",
+    isButton: true,
+  },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedSections, setExpandedSections] = useState<string[]>([
+    "meus-dados",
     "inteligencia",
-    "laboratorio",
     "coleta",
     "resultados",
   ]);
@@ -131,7 +143,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {menuStructure.map((section) => {
             if (section.id === "main") {
               return (
-                <div key="main" className="space-y-1">
+                <div key="main" className="space-y-1 pb-2 border-b border-gray-700">
                   {section.items.map((item) => {
                     const isActive = location === item.path;
                     const Icon = item.icon;
@@ -165,7 +177,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Link key={section.id} href={section.path}>
                   <div
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all cursor-pointer group",
+                      "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all cursor-pointer group mt-2 pt-2 border-t border-gray-700",
                       location === section.path
                         ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-pink-500/30"
                         : "text-gray-300 hover:bg-gradient-to-r hover:from-purple-600/30 hover:to-pink-600/30"
