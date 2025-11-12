@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Lightbulb, TrendingUp, BarChart3, CheckCircle2, ArrowRight } from "lucide-react";
+import { Lightbulb, TrendingUp, BarChart3, CheckCircle2, ArrowRight, ArrowLeft } from "lucide-react";
+import { useLocation } from "wouter";
+import StudioLayout from "@/components/StudioLayout";
 
 export default function Studio() {
+  const [, navigate] = useLocation();
   const tools = [
     {
       id: "gerador",
@@ -43,7 +46,9 @@ export default function Studio() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-20 pb-12">
+    <StudioLayout>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-20 pb-12">
+
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4 mb-16">
         <div className="text-center mb-12">
@@ -114,6 +119,7 @@ export default function Studio() {
 
                   {/* CTA Button */}
                   <Button
+                    onClick={() => navigate(tool.path)}
                     className={`w-full bg-gradient-to-r ${tool.color} text-white border-0 hover:opacity-90 transition-all group-hover:gap-2`}
                   >
                     Acessar
@@ -145,5 +151,6 @@ export default function Studio() {
         </Card>
       </div>
     </div>
+    </StudioLayout>
   );
 }
