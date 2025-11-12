@@ -6,10 +6,10 @@ export default function StudioLoading() {
   const [, navigate] = useLocation();
 
   useEffect(() => {
-    // Redirecionar para /studio após 3.5 segundos
+    // Redirecionar para /studio após 5 segundos
     const timer = setTimeout(() => {
       navigate("/studio");
-    }, 3500);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, [navigate]);

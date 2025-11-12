@@ -81,7 +81,7 @@ export default function StudioLoadingAnimation({ isLoading }: StudioLoadingAnima
           <div
             className="h-full bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 rounded-full shadow-lg shadow-pink-400/50"
             style={{
-              animation: "progress 3.5s ease-in-out forwards",
+              animation: "progress 5s ease-in-out forwards",
             }}
           />
         </div>
@@ -133,7 +133,7 @@ export default function StudioLoadingAnimation({ isLoading }: StudioLoadingAnima
             width: 0%;
             opacity: 0.3;
           }
-          50% {
+          40% {
             width: 100%;
             opacity: 1;
           }
