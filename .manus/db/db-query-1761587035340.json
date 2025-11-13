@@ -1,9 +1,0 @@
-{
-  "query": "INSERT INTO resultados_acoes (acaoId, empresaId, periodo, investimento, receita, lucro, roi, conversao, alcance, status, createdAt) VALUES\n(4, 1, 'Últimos 30 dias', 'R$ 8k', 'R$ 38k', 'R$ 30k', '375%', '24.3%', '12.4k pessoas', 'concluida', NOW()),\n(1, 1, 'Últimos 14 dias', 'R$ 12k', 'R$ 50k', 'R$ 38k', '320%', '28.5%', '8.2k pessoas', 'em_progresso', NOW()),\n(2, 1, 'Últimos 7 dias', 'R$ 15k', 'R$ 65k', 'R$ 50k', '280%', '31.2%', '15.6k pessoas', 'em_progresso', NOW());",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute INSERT INTO resultados_acoes (acaoId, empresaId, periodo, investimento, receita, lucro, roi, conversao, alcance, status, createdAt) VALUES\n(4, 1, 'Últimos 30 dias', 'R$ 8k', 'R$ 38k', 'R$ 30k', '375%', '24.3%', '12.4k pessoas', 'concluida', NOW()),\n(1, 1, 'Últimos 14 dias', 'R$ 12k', 'R$ 50k', 'R$ 38k', '320%', '28.5%', '8.2k pessoas', 'em_progresso', NOW()),\n(2, 1, 'Últimos 7 dias', 'R$ 15k', 'R$ 65k', 'R$ 50k', '280%', '31.2%', '15.6k pessoas', 'em_progresso', NOW());",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 59
-}

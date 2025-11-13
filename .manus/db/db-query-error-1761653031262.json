@@ -1,8 +1,0 @@
-{
-  "query": "DELETE FROM fontesDados;",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute DELETE FROM fontesDados;",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1146 (42S02) at line 1: Table 'kzljingkdmafj6rcupmgia.fontesDados' doesn't exist"
-  ]
-}

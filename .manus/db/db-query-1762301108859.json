@@ -1,9 +1,0 @@
-{
-  "query": "INSERT INTO empresas (email, nome, passwordHash) VALUES ('holding@datapay.app.br', 'Holding DataPay', '$2b$10$Az3CZZAheD2zR42GJzCb3O7SxyqY9whCIn1n2DFyqP/H/Dgm1cUjG');",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute INSERT INTO empresas (email, nome, passwordHash) VALUES ('holding@datapay.app.br', 'Holding DataPay', '$2b$10$Az3CZZAheD2zR42GJzCb3O7SxyqY9whCIn1n2DFyqP/H/Dgm1cUjG');",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 56
-}

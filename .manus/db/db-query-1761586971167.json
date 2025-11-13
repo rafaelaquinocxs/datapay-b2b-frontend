@@ -1,9 +1,0 @@
-{
-  "query": "INSERT INTO empresas (nome, email, telefone, clientesAtivos, clientesInativos, investimentoMarketing, ticketMedio, taxaRecompra, plano, assinaturaStatus, createdAt) VALUES\n('Inter Esportes', 'contato@inter.com', '(11) 99999-9999', 2500, 800, 150000, 2000, 45, 'growth', 'active', NOW());",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute INSERT INTO empresas (nome, email, telefone, clientesAtivos, clientesInativos, investimentoMarketing, ticketMedio, taxaRecompra, plano, assinaturaStatus, createdAt) VALUES\n('Inter Esportes', 'contato@inter.com', '(11) 99999-9999', 2500, 800, 150000, 2000, 45, 'growth', 'active', NOW());",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 61
-}
