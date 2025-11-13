@@ -106,6 +106,7 @@ const CONNECTOR_CONFIGS: { [key: string]: ConnectorConfig } = {
       contacts: "/services/data/v57.0/sobjects/Contact",
       opportunities: "/services/data/v57.0/sobjects/Opportunity",
       leads: "/services/data/v57.0/sobjects/Lead",
+      tasks: "/services/data/v57.0/sobjects/Task",
     },
     requiredScopes: ["api", "refresh_token"],
   },
@@ -118,9 +119,10 @@ const CONNECTOR_CONFIGS: { [key: string]: ConnectorConfig } = {
     authType: "oauth",
     baseUrl: "https://www.googleapis.com",
     endpoints: {
-      reports: "/analytics/v3/data/ga",
-      properties: "/analytics/v3/management/accounts",
-      views: "/analytics/v3/management/accounts/~/webproperties/~/profiles",
+      traffic: "/analytics/data/v1beta/properties",
+      conversions: "/analytics/data/v1beta/properties",
+      users: "/analytics/data/v1beta/properties",
+      pages: "/analytics/data/v1beta/properties",
     },
     requiredScopes: ["https://www.googleapis.com/auth/analytics.readonly"],
   },
@@ -133,13 +135,15 @@ const CONNECTOR_CONFIGS: { [key: string]: ConnectorConfig } = {
     authType: "oauth",
     baseUrl: "https://api.powerbi.com",
     endpoints: {
+      groups: "/v1.0/myorg/groups",
       datasets: "/v1.0/myorg/datasets",
       reports: "/v1.0/myorg/reports",
       dashboards: "/v1.0/myorg/dashboards",
-      groups: "/v1.0/myorg/groups",
     },
     requiredScopes: ["Dataset.Read.All", "Report.Read.All"],
   },
+
+
 
   hubspot: {
     id: "hubspot",
