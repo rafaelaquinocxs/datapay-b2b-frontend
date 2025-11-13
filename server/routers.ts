@@ -7,12 +7,14 @@ import * as db from "./db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { CUSTOM_AUTH_COOKIE } from "./_core/context";
+import { studioRouter } from "./routers/studio";
 
 // Secret para JWT (em produção, usar variável de ambiente)
 const JWT_SECRET = process.env.JWT_SECRET || "datapay-secret-key-change-in-production";
 
 export const appRouter = router({
   system: systemRouter,
+  studio: studioRouter,
 
   auth: router({
     me: publicProcedure.query(async opts => {
