@@ -1,0 +1,58 @@
+{
+  "query": "SELECT * FROM fontes_dados LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute SELECT * FROM fontes_dados LIMIT 10;",
+  "rows": [
+    {
+      "id": "30001",
+      "empresaId": "1",
+      "nome": "servicos.csv",
+      "tipo": "csv",
+      "status": "conectado",
+      "ultimaSincronizacao": "NULL",
+      "totalRegistros": "0",
+      "configuracao": "{\"nomeArquivo\": \"servicos.csv\", \"tamanho\": 729}",
+      "createdAt": "2025-10-28 12:27:46",
+      "updatedAt": "2025-10-28 12:27:46"
+    },
+    {
+      "id": "30002",
+      "empresaId": "1",
+      "nome": "clientes.csv",
+      "tipo": "excel",
+      "status": "conectado",
+      "ultimaSincronizacao": "NULL",
+      "totalRegistros": "0",
+      "configuracao": "{\"nomeArquivo\": \"clientes.csv\", \"tamanho\": 327101}",
+      "createdAt": "2025-10-28 12:28:10",
+      "updatedAt": "2025-10-28 12:28:10"
+    },
+    {
+      "id": "30003",
+      "empresaId": "1",
+      "nome": "produtos.csv",
+      "tipo": "csv",
+      "status": "conectado",
+      "ultimaSincronizacao": "NULL",
+      "totalRegistros": "0",
+      "configuracao": "{\"nomeArquivo\": \"produtos.csv\", \"tamanho\": 3343}",
+      "createdAt": "2025-10-28 12:28:27",
+      "updatedAt": "2025-10-28 12:28:27"
+    },
+    {
+      "id": "30004",
+      "empresaId": "1",
+      "nome": "pets.csv",
+      "tipo": "csv",
+      "status": "conectado",
+      "ultimaSincronizacao": "NULL",
+      "totalRegistros": "0",
+      "configuracao": "{\"nomeArquivo\": \"pets.csv\", \"tamanho\": 206578}",
+      "createdAt": "2025-10-28 12:28:42",
+      "updatedAt": "2025-10-28 12:28:42"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tempresaId\tnome\ttipo\tstatus\tultimaSincronizacao\ttotalRegistros\tconfiguracao\tcreatedAt\tupdatedAt\n30001\t1\tservicos.csv\tcsv\tconectado\tNULL\t0\t{\"nomeArquivo\": \"servicos.csv\", \"tamanho\": 729}\t2025-10-28 12:27:46\t2025-10-28 12:27:46\n30002\t1\tclientes.csv\texcel\tconectado\tNULL\t0\t{\"nomeArquivo\": \"clientes.csv\", \"tamanho\": 327101}\t2025-10-28 12:28:10\t2025-10-28 12:28:10\n30003\t1\tprodutos.csv\tcsv\tconectado\tNULL\t0\t{\"nomeArquivo\": \"produtos.csv\", \"tamanho\": 3343}\t2025-10-28 12:28:27\t2025-10-28 12:28:27\n30004\t1\tpets.csv\tcsv\tconectado\tNULL\t0\t{\"nomeArquivo\": \"pets.csv\", \"tamanho\": 206578}\t2025-10-28 12:28:42\t2025-10-28 12:28:42\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

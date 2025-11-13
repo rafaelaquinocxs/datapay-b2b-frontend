@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO diagnosticos (empresaId, respostas, scoreGeral, scoreGovernanca, scoreIntegracao, scoreAnalitica, scoreDecisao, scoreRoi, desperdicioMensal, potencialMensal, impactoAnual, createdAt) VALUES\n(1, JSON_OBJECT('q1', 'sim', 'q2', 'nao'), 65, 70, 55, 60, 65, 70, 150000, 450000, 5400000, NOW()),\n(1, JSON_OBJECT('q1', 'sim', 'q2', 'sim'), 68, 72, 58, 62, 68, 72, 140000, 480000, 5760000, DATE_SUB(NOW(), INTERVAL 7 DAY));",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute INSERT INTO diagnosticos (empresaId, respostas, scoreGeral, scoreGovernanca, scoreIntegracao, scoreAnalitica, scoreDecisao, scoreRoi, desperdicioMensal, potencialMensal, impactoAnual, createdAt) VALUES\n(1, JSON_OBJECT('q1', 'sim', 'q2', 'nao'), 65, 70, 55, 60, 65, 70, 150000, 450000, 5400000, NOW()),\n(1, JSON_OBJECT('q1', 'sim', 'q2', 'sim'), 68, 72, 58, 62, 68, 72, 140000, 480000, 5760000, DATE_SUB(NOW(), INTERVAL 7 DAY));",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 60
+}

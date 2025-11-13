@@ -1,22 +1,26 @@
-import { Button } from "@/components/ui/button";
-import { APP_LOGO, APP_TITLE } from "@/const";
+import { useEffect } from "react";
+import { useLocation } from "wouter";
 
 /**
- * All content in this page are only for example, delete if unneeded
- * When building pages, remember your instructions in Frontend Best Practices, Design Guide and Common Pitfalls
+ * Página inicial que redireciona automaticamente para /dashboard
+ * Sistema sem autenticação para apresentação
  */
 export default function Home() {
-  // If theme is switchable in App.tsx, we can implement theme toggling like this:
-  // const { theme, toggleTheme } = useTheme();
+  const [, setLocation] = useLocation();
 
-  // Use APP_LOGO (as image src) and APP_TITLE if needed
+  useEffect(() => {
+    // Redireciona automaticamente para dashboard
+    setLocation("/dashboard");
+  }, [setLocation]);
 
+  // Loading enquanto redireciona
   return (
-    <div className="min-h-screen flex flex-col">
-      <main>
-        Example Page
-        <Button variant="default">Example Button</Button>
-      </main>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-50 to-white">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-gray-600">Redirecionando...</p>
+      </div>
     </div>
   );
 }
+

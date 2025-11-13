@@ -1,0 +1,8 @@
+{
+  "query": "SHOW TABLES LIKE '%role%' OR SHOW TABLES LIKE '%colaborador%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute SHOW TABLES LIKE '%role%' OR SHOW TABLES LIKE '%colaborador%';",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 1 column 28 near \"OR SHOW TABLES LIKE '%colaborador%'\""
+  ]
+}

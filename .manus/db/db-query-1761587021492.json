@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO respostas_pesquisas (pesquisa_id, nome_respondente, email_respondente, telefone_respondente, respostas, criado_em) VALUES\n(1, 'João Silva', 'joao@email.com', '(11) 99999-0001', JSON_ARRAY('Setor Sul'), NOW()),\n(1, 'Maria Santos', 'maria@email.com', '(11) 99999-0002', JSON_ARRAY('Setor Norte'), NOW()),\n(1, 'Pedro Costa', 'pedro@email.com', '(11) 99999-0003', JSON_ARRAY('Setor Sul'), NOW()),\n(2, 'Ana Oliveira', 'ana@email.com', '(11) 99999-0004', JSON_ARRAY('Preço'), NOW()),\n(2, 'Carlos Mendes', 'carlos@email.com', '(11) 99999-0005', JSON_ARRAY('Falta de tempo'), NOW()),\n(3, 'Lucia Ferreira', 'lucia@email.com', '(11) 99999-0006', JSON_ARRAY('Cerveja Premium'), NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute INSERT INTO respostas_pesquisas (pesquisa_id, nome_respondente, email_respondente, telefone_respondente, respostas, criado_em) VALUES\n(1, 'João Silva', 'joao@email.com', '(11) 99999-0001', JSON_ARRAY('Setor Sul'), NOW()),\n(1, 'Maria Santos', 'maria@email.com', '(11) 99999-0002', JSON_ARRAY('Setor Norte'), NOW()),\n(1, 'Pedro Costa', 'pedro@email.com', '(11) 99999-0003', JSON_ARRAY('Setor Sul'), NOW()),\n(2, 'Ana Oliveira', 'ana@email.com', '(11) 99999-0004', JSON_ARRAY('Preço'), NOW()),\n(2, 'Carlos Mendes', 'carlos@email.com', '(11) 99999-0005', JSON_ARRAY('Falta de tempo'), NOW()),\n(3, 'Lucia Ferreira', 'lucia@email.com', '(11) 99999-0006', JSON_ARRAY('Cerveja Premium'), NOW());",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 57
+}

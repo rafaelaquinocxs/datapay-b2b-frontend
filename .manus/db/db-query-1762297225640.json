@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO empresas (nome, email, passwordHash, telefone, plano, assinaturaStatus, createdAt, updatedAt) \nVALUES ('João Silva Teste', 'joao.silva@empresa-teste.com', '$2b$10$yhqxWBTXMdO1esH4FXZmfOmw/vtTaf2PmUGJf2UzO2/g.Tfc7pjHi', '', 'trial', 'trial', NOW(), NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute INSERT INTO empresas (nome, email, passwordHash, telefone, plano, assinaturaStatus, createdAt, updatedAt) \nVALUES ('João Silva Teste', 'joao.silva@empresa-teste.com', '$2b$10$yhqxWBTXMdO1esH4FXZmfOmw/vtTaf2PmUGJf2UzO2/g.Tfc7pjHi', '', 'trial', 'trial', NOW(), NOW());",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 71
+}

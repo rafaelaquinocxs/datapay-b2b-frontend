@@ -1,0 +1,26 @@
+{
+  "query": "\n-- Atualizar roles para empresaId correto (assumindo que é a primeira empresa)\nUPDATE roles SET empresaId = (SELECT id FROM empresas WHERE email = 'teste@empresa.com' LIMIT 1) WHERE empresaId = 1;\n\n-- Atualizar colaboradores para empresaId correto\nUPDATE colaboradores SET empresaId = (SELECT id FROM empresas WHERE email = 'teste@empresa.com' LIMIT 1) WHERE empresaId = 1;\n\n-- Verificar dados\nSELECT 'Roles' as tipo, COUNT(*) as total FROM roles\nUNION ALL\nSELECT 'Colaboradores' as tipo, COUNT(*) as total FROM colaboradores\nUNION ALL\nSELECT 'Permissões' as tipo, COUNT(*) as total FROM permissoes\nUNION ALL\nSELECT 'Audit Logs' as tipo, COUNT(*) as total FROM audit_logs;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2J8CDKTx9VdfXU7.8ffe2f5d6b06 --database KzLjingKdmafj6rcuPmgia --execute \n-- Atualizar roles para empresaId correto (assumindo que é a primeira empresa)\nUPDATE roles SET empresaId = (SELECT id FROM empresas WHERE email = 'teste@empresa.com' LIMIT 1) WHERE empresaId = 1;\n\n-- Atualizar colaboradores para empresaId correto\nUPDATE colaboradores SET empresaId = (SELECT id FROM empresas WHERE email = 'teste@empresa.com' LIMIT 1) WHERE empresaId = 1;\n\n-- Verificar dados\nSELECT 'Roles' as tipo, COUNT(*) as total FROM roles\nUNION ALL\nSELECT 'Colaboradores' as tipo, COUNT(*) as total FROM colaboradores\nUNION ALL\nSELECT 'Permissões' as tipo, COUNT(*) as total FROM permissoes\nUNION ALL\nSELECT 'Audit Logs' as tipo, COUNT(*) as total FROM audit_logs;\n",
+  "rows": [
+    {
+      "tipo": "Roles",
+      "total": "4"
+    },
+    {
+      "tipo": "Colaboradores",
+      "total": "3"
+    },
+    {
+      "tipo": "Permissões",
+      "total": "28"
+    },
+    {
+      "tipo": "Audit Logs",
+      "total": "3"
+    }
+  ],
+  "messages": [],
+  "stdout": "tipo\ttotal\nRoles\t4\nColaboradores\t3\nPermissões\t28\nAudit Logs\t3\n",
+  "stderr": "",
+  "execution_time_ms": 76
+}
