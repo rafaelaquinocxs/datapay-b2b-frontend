@@ -14,8 +14,7 @@ import {
 } from "lucide-react";
 
 export default function Resultados() {
-  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-  const empresaId = usuario?.id || 1;
+  const empresaId = 1; // Mock para apresenta\u00e7\u00e3o
 
   // Buscar resultados das ações
   const { data: resultados = [], isLoading } = trpc.resultados.listar.useQuery(

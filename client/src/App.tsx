@@ -25,25 +25,13 @@ import AdicionarFonte from "./pages/AdicionarFonte";
 import MapeamentoFontes from "./pages/MapeamentoFontes";
 import ConfiguracaoSincronizacao from "./pages/ConfiguracaoSincronizacao";
 import Laboratorio from "./pages/Laboratorio";
-import Configuracoes from "./pages/Configuracoes";
-import Chatbot from "./pages/Chatbot";
-import StudioLoading from "./pages/StudioLoading";
-import Studio from "./pages/Studio";
-import Visao360 from "./pages/Visao360";
-import StudioLayout from "./components/StudioLayout";
-import StudioInicio from "./pages/StudioInicio";
-import StudioGerador from "./pages/StudioGerador";
-import StudioSimuladorCampanhas from "./pages/StudioSimuladorCampanhas";
-import StudioSimuladorPesquisas from "./pages/StudioSimuladorPesquisas";
-import StudioProjetorComportamento from "./pages/StudioProjetorComportamento";
-import SobreEmpresa from "./pages/SobreEmpresa";
 
 function Router() {
   return (
     <Switch>
-      {/* Rota raiz redireciona para landing page */}
+      {/* Rota raiz redireciona para dashboard */}
       <Route path="/">
-        {() => <Redirect to="/landing" />}
+        {() => <Redirect to="/dashboard" />}
       </Route>
 
       {/* Landing page */}
@@ -67,24 +55,10 @@ function Router() {
           <Inicio />
         </DashboardLayout>
       </Route>
-      
-      {/* Rota /meus-dados redireciona para /inicio */}
-      <Route path="/meus-dados">
-        {() => <Redirect to="/inicio" />}
-      </Route>
-      <Route path="/sobre-empresa">
-        <DashboardLayout>
-          <SobreEmpresa />
-        </DashboardLayout>
-      </Route>
 
-      <Route path="/conectar-dados">
+      <Route path="/meus-dados">
         <DashboardLayout>
           <MeusDados />
-        </DashboardLayout>
-      </Route>      <Route path="/visao-360">
-        <DashboardLayout>
-          <Visao360 />
         </DashboardLayout>
       </Route>
 
@@ -162,39 +136,6 @@ function Router() {
         </DashboardLayout>
       </Route>
 
-      {/* DataPay Studio */}
-      <Route path="/studio-loading" component={StudioLoading} />
-      
-      <Route path="/studio">
-        <StudioLayout>
-          <StudioInicio />
-        </StudioLayout>
-      </Route>
-
-      <Route path="/studio/gerador">
-        <StudioLayout>
-          <StudioGerador />
-        </StudioLayout>
-      </Route>
-
-      <Route path="/studio/simulador-campanhas">
-        <StudioLayout>
-          <StudioSimuladorCampanhas />
-        </StudioLayout>
-      </Route>
-
-      <Route path="/studio/simulador-pesquisas">
-        <StudioLayout>
-          <StudioSimuladorPesquisas />
-        </StudioLayout>
-      </Route>
-
-      <Route path="/studio/projetor-comportamento">
-        <StudioLayout>
-          <StudioProjetorComportamento />
-        </StudioLayout>
-      </Route>
-
       <Route path="/resumo-perfil">
         <DashboardLayout>
           <ResumoPerfil />
@@ -231,27 +172,19 @@ function Router() {
         </DashboardLayout>
       </Route>
 
-      <Route path="/configuracoes">
-        <DashboardLayout>
-          <Configuracoes />
-        </DashboardLayout>
-      </Route>
-
       {/* 404 */}
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// DataPay Enterprise UI - Versão Final Pronta para Publicação
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light" switchable>
+      <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
           <Router />
-          <Chatbot />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

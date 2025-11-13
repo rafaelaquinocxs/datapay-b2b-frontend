@@ -10,28 +10,6 @@ function getQueryParam(req: Request, key: string): string | undefined {
 }
 
 export function registerOAuthRoutes(app: Express) {
-  // Rota para iniciar fluxo de signin
-  app.get("/api/oauth/signin/:provider", (req: Request, res: Response) => {
-    const provider = req.params.provider?.toLowerCase();
-    const redirectUri = `${req.protocol}://${req.get('host')}/api/oauth/callback`;
-    const state = btoa(redirectUri);
-    
-    console.log(`[OAuth] Iniciando signin para provider: ${provider}`);
-    console.log(`[OAuth] Redirect URI: ${redirectUri}`);
-    console.log(`[OAuth] State: ${state}`);
-    
-    const oAuthServerUrl = process.env.OAUTH_SERVER_URL || "";
-    if (!oAuthServerUrl) {
-      console.error("[OAuth] OAUTH_SERVER_URL não configurado");
-      res.status(500).json({ error: "OAuth server not configured" });
-      return;
-    }
-    
-    const signinUrl = `${oAuthServerUrl}/signin/${provider}?state=${encodeURIComponent(state)}`;
-    console.log(`[OAuth] Redirecionando para: ${signinUrl}`);
-    res.redirect(302, signinUrl);
-  });
-
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     console.log("[OAuth] Callback iniciado");
     console.log("[OAuth] URL completa:", req.url);

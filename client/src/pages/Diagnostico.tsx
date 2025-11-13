@@ -23,8 +23,6 @@ interface DadosEmpresa {
 }
 
 export default function Diagnostico() {
-  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-  const empresaId = usuario?.id || 1;
   const [etapa, setEtapa] = useState<"intro" | "questionario" | "relatorio">("intro");
   const [respostas, setRespostas] = useState<Record<number, number>>({});
   const [dadosEmpresa, setDadosEmpresa] = useState<DadosEmpresa>({

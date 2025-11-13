@@ -13,7 +13,8 @@ import {
   MessageSquare,
 } from "lucide-react";
 
-export default function Dashboard() {  const empresa = { nome: "JAIME", email: "jaime@empresa.com" }; // Mock para apresentação00e7\u00e3o
+export default function Dashboard() {
+  const empresa = { nome: "Jaime", email: "jaime@empresa.com" }; // Mock para apresenta\u00e7\u00e3o
   const [, setLocation] = useLocation();
 
   const cards = [
@@ -66,7 +67,7 @@ export default function Dashboard() {  const empresa = { nome: "JAIME", email: "
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Bem-vindo de volta! 👋
+          Bem-vindo de volta, {empresa?.email?.split("@")[0] || empresa?.nome || "Usuário"}! 👋
         </h1>
         <p className="text-gray-600">
           Aqui está um resumo da sua plataforma DataPay

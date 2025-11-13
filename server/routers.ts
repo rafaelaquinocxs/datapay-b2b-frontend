@@ -7,7 +7,6 @@ import * as db from "./db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { CUSTOM_AUTH_COOKIE } from "./_core/context";
-import { TRPCError } from "@trpc/server";
 
 // Secret para JWT (em produção, usar variável de ambiente)
 const JWT_SECRET = process.env.JWT_SECRET || "datapay-secret-key-change-in-production";
@@ -52,8 +51,6 @@ export const appRouter = router({
           email: z.string().email(),
           senha: z.string().min(6),
           telefone: z.string().optional(),
-          empresa: z.string().optional(),
-          cargo: z.string().optional(),
         })
       )
       .mutation(async ({ input, ctx }) => {
@@ -91,13 +88,8 @@ export const appRouter = router({
         });
 
         return {
-          sucesso: true,
-          usuario: {
-            id: novaEmpresa.id,
-            nome: novaEmpresa.nome,
-            email: novaEmpresa.email,
-            token,
-          },
+          success: true,
+          empresa: novaEmpresa,
         };
       }),
 
@@ -110,32 +102,15 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input, ctx }) => {
-        console.log('[LOGIN] Email:', input.email);
-        console.log('[LOGIN] Senha:', input.senha);
-        
         // Buscar empresa por email
         const empresa = await db.getEmpresaByEmail(input.email);
-        console.log('[LOGIN] Empresa encontrada:', empresa ? 'SIM' : 'NÃO');
-        
-        if (!empresa) {
-          console.log('[LOGIN] Erro: Empresa não encontrada');
+        if (!empresa || !empresa.passwordHash) {
           throw new Error("Email ou senha inválidos");
         }
-        
-        if (!empresa.passwordHash) {
-          console.log('[LOGIN] Erro: passwordHash vazio');
-          throw new Error("Email ou senha inválidos");
-        }
-        
-        console.log('[LOGIN] passwordHash existe:', empresa.passwordHash ? 'SIM' : 'NÃO');
-        console.log('[LOGIN] Comparando senha...');
 
         // Verificar senha
         const senhaValida = await bcrypt.compare(input.senha, empresa.passwordHash);
-        console.log('[LOGIN] Senha válida:', senhaValida);
-        
         if (!senhaValida) {
-          console.log('[LOGIN] Erro: Senha inválida');
           throw new Error("Email ou senha inválidos");
         }
 
@@ -154,12 +129,13 @@ export const appRouter = router({
         });
 
         return {
-          sucesso: true,
-          usuario: {
+          success: true,
+          empresa: {
             id: empresa.id,
             nome: empresa.nome,
             email: empresa.email,
-            token,
+            plano: empresa.plano,
+            assinaturaStatus: empresa.assinaturaStatus,
           },
         };
       }),
@@ -1541,379 +1517,6 @@ Forneca a resposta em formato JSON:
       .query(async () => {
         const { getSimulationHistory } = await import('./services/laboratory');
         return getSimulationHistory('company_1');
-      }),
-  }),
-
-  // ============================================================================
-  // CONFIGURAÇÕES ENTERPRISE
-  // ============================================================================
-  configuracoes: router({
-    // ========== COLABORADORES ==========
-    colaboradores: router({
-      listar: publicProcedure
-        .query(async ({ ctx }) => {
-          if (!ctx.empresa) throw new Error("Empresa não autenticada");
-          return db.getColaboradoresByEmpresa(ctx.empresa.id);
-        }),
-      
-      obter: publicProcedure
-        .input(z.object({ id: z.number() }))
-        .query(async ({ input }) => {
-          return db.getColaboradorById(input.id);
-        }),
-      
-      criar: publicProcedure
-        .input(z.object({
-          email: z.string().email(),
-          nome: z.string(),
-          roleId: z.number(),
-          departamento: z.string().optional(),
-          cargo: z.string().optional(),
-          telefone: z.string().optional(),
-        }))
-        .mutation(async ({ input, ctx }) => {
-          if (!ctx.empresa) throw new Error("Empresa não autenticada");
-          
-          // Verificar se email já existe
-          const existente = await db.getColaboradorByEmail(ctx.empresa.id, input.email);
-          if (existente) throw new Error("Colaborador com este email já existe");
-          
-          const result = await db.createColaborador({
-            empresaId: ctx.empresa.id,
-            email: input.email,
-            nome: input.nome,
-            roleId: input.roleId,
-            departamento: input.departamento,
-            cargo: input.cargo,
-            telefone: input.telefone,
-            status: "pendente",
-            criadoPor: ctx.empresa.id,
-          });
-          
-          // Log de auditoria
-          await db.createAuditLog({
-            empresaId: ctx.empresa.id,
-            acao: "criar",
-            modulo: "configuracoes",
-            descricao: `Colaborador ${input.email} convidado`,
-            resultado: "sucesso",
-          });
-          
-          return result;
-        }),
-      
-      atualizar: publicProcedure
-        .input(z.object({
-          id: z.number(),
-          roleId: z.number().optional(),
-          departamento: z.string().optional(),
-          cargo: z.string().optional(),
-          status: z.enum(["ativo", "inativo", "pendente"]).optional(),
-        }))
-        .mutation(async ({ input, ctx }) => {
-          if (!ctx.empresa) throw new Error("Empresa não autenticada");
-          
-          const result = await db.updateColaborador(input.id, {
-            roleId: input.roleId,
-            departamento: input.departamento,
-            cargo: input.cargo,
-            status: input.status as any,
-          });
-          
-          await db.createAuditLog({
-            empresaId: ctx.empresa.id,
-            acao: "editar",
-            modulo: "configuracoes",
-            recursoId: input.id,
-            recursoTipo: "colaborador",
-            descricao: `Colaborador atualizado`,
-            resultado: "sucesso",
-          });
-          
-          return result;
-        }),
-      
-      deletar: publicProcedure
-        .input(z.object({ id: z.number() }))
-        .mutation(async ({ input, ctx }) => {
-          if (!ctx.empresa) throw new Error("Empresa não autenticada");
-          
-          const result = await db.deleteColaborador(input.id);
-          
-          await db.createAuditLog({
-            empresaId: ctx.empresa.id,
-            acao: "deletar",
-            modulo: "configuracoes",
-            recursoId: input.id,
-            recursoTipo: "colaborador",
-            descricao: `Colaborador removido`,
-            resultado: "sucesso",
-          });
-          
-          return result;
-        }),
-    }),
-
-    // ========== ROLES ==========
-    roles: router({
-      listar: publicProcedure
-        .query(async ({ ctx }) => {
-          if (!ctx.empresa) throw new Error("Empresa não autenticada");
-          return db.getRolesByEmpresa(ctx.empresa.id);
-        }),
-      
-      criar: publicProcedure
-        .input(z.object({
-          nome: z.string(),
-          descricao: z.string().optional(),
-          cor: z.string().optional(),
-        }))
-        .mutation(async ({ input, ctx }) => {
-          if (!ctx.empresa) throw new Error("Empresa não autenticada");
-          
-          return db.createRole({
-            empresaId: ctx.empresa.id,
-            nome: input.nome,
-            descricao: input.descricao,
-            cor: input.cor,
-          });
-        }),
-    }),
-
-    // ========== PERMISSÕES ==========
-    permissoes: router({
-      porRole: publicProcedure
-        .input(z.object({ roleId: z.number() }))
-        .query(async ({ input }) => {
-          return db.getPermissoesByRole(input.roleId);
-        }),
-      
-      atualizar: publicProcedure
-        .input(z.object({
-          roleId: z.number(),
-          modulo: z.string(),
-          pode_visualizar: z.boolean().optional(),
-          pode_criar: z.boolean().optional(),
-          pode_editar: z.boolean().optional(),
-          pode_deletar: z.boolean().optional(),
-          pode_exportar: z.boolean().optional(),
-          pode_compartilhar: z.boolean().optional(),
-          pode_executar_acoes: z.boolean().optional(),
-          pode_gerar_relatorios: z.boolean().optional(),
-          pode_usar_laboratorio: z.boolean().optional(),
-          pode_gerenciar_usuarios: z.boolean().optional(),
-        }))
-        .mutation(async ({ input, ctx }) => {
-          if (!ctx.empresa) throw new Error("Empresa não autenticada");
-          
-          const permissao = await db.getPermissaoByRoleAndModulo(input.roleId, input.modulo);
-          
-          if (permissao) {
-            return db.updatePermissao(permissao.id, input);
-          } else {
-            return db.createPermissao({
-              roleId: input.roleId,
-              modulo: input.modulo,
-              pode_visualizar: input.pode_visualizar ?? false,
-              pode_criar: input.pode_criar ?? false,
-              pode_editar: input.pode_editar ?? false,
-              pode_deletar: input.pode_deletar ?? false,
-              pode_exportar: input.pode_exportar ?? false,
-              pode_compartilhar: input.pode_compartilhar ?? false,
-              pode_executar_acoes: input.pode_executar_acoes ?? false,
-              pode_gerar_relatorios: input.pode_gerar_relatorios ?? false,
-              pode_usar_laboratorio: input.pode_usar_laboratorio ?? false,
-              pode_gerenciar_usuarios: input.pode_gerenciar_usuarios ?? false,
-            });
-          }
-        }),
-    }),
-
-    // ========== AUDITORIA ==========
-    auditoria: router({
-      listar: publicProcedure
-        .query(async ({ ctx }) => {
-          if (!ctx.empresa) throw new Error("Empresa não autenticada");
-          return db.getAuditLogsByEmpresa(ctx.empresa.id, 100);
-        }),
-      
-      porModulo: publicProcedure
-        .input(z.object({ modulo: z.string() }))
-        .query(async ({ input, ctx }) => {
-          if (!ctx.empresa) throw new Error("Empresa não autenticada");
-          return db.getAuditLogsByModulo(ctx.empresa.id, input.modulo, 50);
-        }),
-    }),
-
-    // ========== ALERTAS DE SEGURANÇA ==========
-    alertas: router({
-      listar: publicProcedure
-        .query(async ({ ctx }) => {
-          if (!ctx.empresa) throw new Error("Empresa não autenticada");
-          return db.getAlertasSegurancaByEmpresa(ctx.empresa.id, 50);
-        }),
-      
-      naoLidos: publicProcedure
-        .query(async ({ ctx }) => {
-          if (!ctx.empresa) throw new Error("Empresa não autenticada");
-          return db.getAlertasNaoLidos(ctx.empresa.id);
-        }),
-      
-      marcarComoLido: publicProcedure
-        .input(z.object({ id: z.number() }))
-        .mutation(async ({ input }) => {
-          return db.marcarAlertaComoLido(input.id);
-        }),
-      
-      resolver: publicProcedure
-        .input(z.object({ id: z.number(), notas: z.string() }))
-        .mutation(async ({ input }) => {
-          return db.resolverAlerta(input.id, input.notas);
-        }),
-    }),
-
-    // ========== CONFIGURAÇÕES DA EMPRESA ==========
-    empresa: router({
-      obter: publicProcedure
-        .query(async ({ ctx }) => {
-          if (!ctx.empresa) throw new Error("Empresa não autenticada");
-          return db.getConfiguracaoEmpresa(ctx.empresa.id);
-        }),
-      
-      atualizar: publicProcedure
-        .input(z.object({
-          autenticacao2FA: z.boolean().optional(),
-          ssoAtivo: z.boolean().optional(),
-          urlSSO: z.string().optional(),
-          notificacoesEmail: z.boolean().optional(),
-          notificacoesSlack: z.boolean().optional(),
-          webhookSlack: z.string().optional(),
-          idioma: z.string().optional(),
-          fuso: z.string().optional(),
-        }))
-        .mutation(async ({ input, ctx }) => {
-          if (!ctx.empresa) throw new Error("Empresa não autenticada");
-          
-          const config = await db.getConfiguracaoEmpresa(ctx.empresa.id);
-          
-          if (config) {
-            return db.updateConfiguracaoEmpresa(ctx.empresa.id, input);
-          } else {
-            return db.createConfiguracaoEmpresa({
-              empresaId: ctx.empresa.id,
-              ...input,
-            });
-          }
-        }),
-    }),
-  }),
-
-  // ============================================================================
-  // REQUISIÇÕES DE DEMO
-  // ============================================================================
-  demo: router({
-    solicitar: publicProcedure
-      .input(z.object({
-        nome: z.string().min(3),
-        email: z.string().email(),
-        empresa: z.string().min(2),
-        cargo: z.string().min(2),
-        telefone: z.string().optional(),
-        mensagem: z.string().optional(),
-      }))
-      .mutation(async ({ input }) => {
-        try {
-          const result = await db.createDemoRequest(input);
-          return {
-            success: true,
-            message: "Solicitação de demo enviada com sucesso! Entraremos em contato em breve.",
-          };
-        } catch (error: any) {
-          console.error("Erro ao criar requisição de demo:", error);
-          throw new Error(error.message || "Erro ao enviar solicitação de demo");
-        }
-      }),
-    
-    listar: publicProcedure
-      .query(async () => {
-        return db.getDemoRequests(100);
-      }),
-  }),
-
-
-
-  // Router de Chat com GPT
-  chat: router({
-    enviarMensagem: publicProcedure
-      .input(
-        z.object({
-          token: z.string(),
-          mensagem: z.string().min(1),
-        })
-      )
-      .mutation(async ({ input }) => {
-        try {
-          // Verificar token
-          const payload = db.verificarToken(input.token);
-          const usuarioId = payload.id;
-
-          // Chamar API do GPT
-          const respostaGpt = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-            },
-            body: JSON.stringify({
-              model: "gpt-4",
-              messages: [
-                {
-                  role: "system",
-                  content: "Você é um assistente especializado em DataPay, uma plataforma de inteligência de dados. Responda de forma clara, concisa e profissional.",
-                },
-                {
-                  role: "user",
-                  content: input.mensagem,
-                },
-              ],
-              temperature: 0.7,
-              max_tokens: 500,
-            }),
-          }).then((res) => res.json());
-
-          const resposta = respostaGpt.choices?.[0]?.message?.content || "Desculpe, não consegui processar sua mensagem.";
-
-          // Salvar no banco
-          await db.salvarMensagemChat(usuarioId, input.mensagem, resposta);
-
-          return {
-            sucesso: true,
-            resposta,
-          };
-        } catch (error: any) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: error.message || "Erro ao processar mensagem",
-          });
-        }
-      }),
-
-    obterHistorico: publicProcedure
-      .input(z.object({ token: z.string() }))
-      .query(async ({ input }) => {
-        try {
-          const payload = db.verificarToken(input.token);
-          const historico = await db.obterHistoricoChat(payload.id);
-          return {
-            sucesso: true,
-            historico,
-          };
-        } catch (error: any) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Token inválido",
-          });
-        }
       }),
   }),
 });

@@ -35,8 +35,6 @@ interface Survey {
 }
 
 export default function Pesquisas() {
-  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-  const empresaId = usuario?.id || 1;
   const [gerando, setGerando] = useState(false);
   const [filtroCategoria, setFiltroCategoria] = useState<string>("");
   const [busca, setBusca] = useState<string>("");

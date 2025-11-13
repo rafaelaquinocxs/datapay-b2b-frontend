@@ -823,239 +823,280 @@ export const surveyAudit = mysqlTable("survey_audit", {
 
 
 
-// 🧪 LABORATÓRIO - Datasets Sintéticos e Simulações
+// Tabelas antigas removidas - usar as novas abaixo
+
+
+
+
+
+// ============================================
+// TABELAS PARA DATAPAY STUDIO (LABORATÓRIO)
+// ============================================
+
+/**
+ * Tabela para armazenar datasets sintéticos gerados
+ */
 export const syntheticDatasets = mysqlTable('synthetic_datasets', {
   id: serial('id').primaryKey(),
-  companyId: varchar('company_id', { length: 255 }).notNull(),
-  name: varchar('name', { length: 255 }).notNull(),
-  description: text('description'),
-  dataType: varchar('data_type', { length: 50 }).notNull(),
-  recordCount: int('record_count').notNull(),
-  characteristics: json('characteristics').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
-  status: varchar('status', { length: 50 }).default('draft'),
-  generatedBy: varchar('generated_by', { length: 255 }),
-  dataPreview: json('data_preview'),
-});
-
-export const simulations = mysqlTable('simulations', {
-  id: serial('id').primaryKey(),
-  companyId: varchar('company_id', { length: 255 }).notNull(),
-  datasetId: int('dataset_id').references(() => syntheticDatasets.id),
-  simulationType: varchar('simulation_type', { length: 50 }).notNull(),
-  name: varchar('name', { length: 255 }).notNull(),
-  description: text('description'),
-  configuration: json('configuration').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-  executedAt: timestamp('executed_at'),
-  status: varchar('status', { length: 50 }).default('draft'),
-  executedBy: varchar('executed_by', { length: 255 }),
-});
-
-export const simulationResults = mysqlTable('simulation_results', {
-  id: serial('id').primaryKey(),
-  simulationId: int('simulation_id').references(() => simulations.id).notNull(),
-  metricName: varchar('metric_name', { length: 255 }).notNull(),
-  predictedValue: decimal('predicted_value', { precision: 10, scale: 2 }),
-  actualValue: decimal('actual_value', { precision: 10, scale: 2 }),
-  confidence: decimal('confidence', { precision: 5, scale: 2 }),
-  confidenceInterval: json('confidence_interval'),
-  recommendation: text('recommendation'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
-});
-
-export const simulationHistory = mysqlTable('simulation_history', {
-  id: serial('id').primaryKey(),
-  companyId: varchar('company_id', { length: 255 }).notNull(),
-  simulationId: int('simulation_id').references(() => simulations.id),
-  predictedValue: decimal('predicted_value', { precision: 10, scale: 2 }),
-  actualValue: decimal('actual_value', { precision: 10, scale: 2 }),
-  accuracyPercentage: decimal('accuracy_percentage', { precision: 5, scale: 2 }),
-  createdAt: timestamp('created_at').defaultNow(),
-  simulationType: varchar('simulation_type', { length: 50 }),
-});
-
-
-
-
-/**
- * CONFIGURAÇÕES ENTERPRISE
- * Tabelas para gerenciamento de colaboradores, controle de acesso e auditoria
- */
-
-/**
- * Tabela de Roles (Papéis/Funções)
- * Define os diferentes níveis de acesso na plataforma
- */
-export const roles = mysqlTable("roles", {
-  id: int("id").autoincrement().primaryKey(),
-  empresaId: int("empresaId").notNull().references(() => empresas.id, { onDelete: "cascade" }),
-  nome: varchar("nome", { length: 100 }).notNull(), // 'Admin', 'Gerente', 'Analista', 'Visualizador'
-  descricao: text("descricao"),
-  cor: varchar("cor", { length: 20 }), // Para UI: 'red', 'blue', 'green', etc
-  ativo: boolean("ativo").default(true).notNull(),
-  criadoEm: timestamp("criadoEm").defaultNow().notNull(),
-  atualizadoEm: timestamp("atualizadoEm").defaultNow().onUpdateNow().notNull(),
-});
-
-export type Role = typeof roles.$inferSelect;
-export type InsertRole = typeof roles.$inferInsert;
-
-/**
- * Tabela de Colaboradores (Usuários da Empresa)
- * Relaciona usuários com empresas e roles
- */
-export const colaboradores = mysqlTable("colaboradores", {
-  id: int("id").autoincrement().primaryKey(),
-  empresaId: int("empresaId").notNull().references(() => empresas.id, { onDelete: "cascade" }),
-  usuarioId: int("usuarioId").references(() => users.id, { onDelete: "set null" }),
-  email: varchar("email", { length: 320 }).notNull(),
-  nome: varchar("nome", { length: 255 }).notNull(),
-  roleId: int("roleId").notNull().references(() => roles.id, { onDelete: "restrict" }),
+  empresaId: int('empresa_id').notNull(),
+  nome: varchar('nome', { length: 255 }).notNull(),
+  descricao: text('descricao'),
+  tipo: mysqlEnum('tipo', ['clientes', 'transacoes', 'comportamento', 'pesquisa']).notNull(),
   
-  // Status do colaborador
-  status: mysqlEnum("status", ["ativo", "inativo", "pendente"]).default("pendente").notNull(),
-  dataConvite: timestamp("dataConvite").defaultNow().notNull(),
-  dataAceite: timestamp("dataAceite"),
+  // Configurações de geração
+  quantidade: int('quantidade').notNull(), // Número de registros gerados
+  regiao: varchar('regiao', { length: 100 }), // Brasil, América Latina, Global
+  sazonalidade: varchar('sazonalidade', { length: 100 }), // Nenhuma, Sazonal, Cíclica, Tendência
+  calibracaoReal: boolean('calibracao_real').default(false), // Se foi calibrado com dados reais
+  datasetRealId: int('dataset_real_id'), // Referência ao dataset real usado para calibração
   
-  // Informações adicionais
-  departamento: varchar("departamento", { length: 100 }),
-  cargo: varchar("cargo", { length: 100 }),
-  telefone: varchar("telefone", { length: 50 }),
-  
-  // Auditoria
-  criadoEm: timestamp("criadoEm").defaultNow().notNull(),
-  atualizadoEm: timestamp("atualizadoEm").defaultNow().onUpdateNow().notNull(),
-  criadoPor: int("criadoPor").references(() => users.id, { onDelete: "set null" }),
-});
-
-export type Colaborador = typeof colaboradores.$inferSelect;
-export type InsertColaborador = typeof colaboradores.$inferInsert;
-
-/**
- * Tabela de Permissões por Módulo
- * Define o que cada role pode fazer em cada módulo
- */
-export const permissoes = mysqlTable("permissoes", {
-  id: int("id").autoincrement().primaryKey(),
-  roleId: int("roleId").notNull().references(() => roles.id, { onDelete: "cascade" }),
-  modulo: varchar("modulo", { length: 100 }).notNull(), // 'meus_dados', 'analise_ia', 'pesquisas', 'acoes', 'relatorios', 'laboratorio', 'configuracoes'
-  
-  // Permissões CRUD
-  pode_visualizar: boolean("pode_visualizar").default(false).notNull(),
-  pode_criar: boolean("pode_criar").default(false).notNull(),
-  pode_editar: boolean("pode_editar").default(false).notNull(),
-  pode_deletar: boolean("pode_deletar").default(false).notNull(),
-  pode_exportar: boolean("pode_exportar").default(false).notNull(),
-  pode_compartilhar: boolean("pode_compartilhar").default(false).notNull(),
-  
-  // Permissões específicas por módulo
-  pode_executar_acoes: boolean("pode_executar_acoes").default(false), // Para ações inteligentes
-  pode_gerar_relatorios: boolean("pode_gerar_relatorios").default(false), // Para relatórios
-  pode_usar_laboratorio: boolean("pode_usar_laboratorio").default(false), // Para laboratório
-  pode_gerenciar_usuarios: boolean("pode_gerenciar_usuarios").default(false), // Para configurações
-  
-  criadoEm: timestamp("criadoEm").defaultNow().notNull(),
-  atualizadoEm: timestamp("atualizadoEm").defaultNow().onUpdateNow().notNull(),
-});
-
-export type Permissao = typeof permissoes.$inferSelect;
-export type InsertPermissao = typeof permissoes.$inferInsert;
-
-/**
- * Tabela de Logs de Auditoria
- * Rastreia todas as ações importantes na plataforma
- */
-export const auditLogs = mysqlTable("audit_logs", {
-  id: int("id").autoincrement().primaryKey(),
-  empresaId: int("empresaId").notNull().references(() => empresas.id, { onDelete: "cascade" }),
-  usuarioId: int("usuarioId").references(() => users.id, { onDelete: "set null" }),
-  
-  // Ação realizada
-  acao: varchar("acao", { length: 100 }).notNull(), // 'criar', 'editar', 'deletar', 'visualizar', 'exportar', 'compartilhar'
-  modulo: varchar("modulo", { length: 100 }).notNull(), // Qual módulo foi afetado
-  recursoId: int("recursoId"), // ID do recurso afetado (fonte de dados, pesquisa, etc)
-  recursoTipo: varchar("recursoTipo", { length: 100 }), // Tipo do recurso
-  
-  // Detalhes da mudança
-  descricao: text("descricao"),
-  mudancasAntes: json("mudancasAntes"), // JSON com valores anteriores
-  mudancasDepois: json("mudancasDepois"), // JSON com valores novos
-  
-  // Contexto
-  enderecoIP: varchar("enderecoIP", { length: 45 }),
-  userAgent: text("userAgent"),
-  resultado: mysqlEnum("resultado", ["sucesso", "erro", "acesso_negado"]).default("sucesso").notNull(),
-  mensagemErro: text("mensagemErro"),
-  
-  criadoEm: timestamp("criadoEm").defaultNow().notNull(),
-});
-
-export type AuditLog = typeof auditLogs.$inferSelect;
-export type InsertAuditLog = typeof auditLogs.$inferInsert;
-
-/**
- * Tabela de Configurações da Empresa
- * Armazena preferências e configurações globais
- */
-export const configuracoesEmpresa = mysqlTable("configuracoes_empresa", {
-  id: int("id").autoincrement().primaryKey(),
-  empresaId: int("empresaId").notNull().unique().references(() => empresas.id, { onDelete: "cascade" }),
-  
-  // Segurança
-  autenticacao2FA: boolean("autenticacao2FA").default(false).notNull(),
-  ssoAtivo: boolean("ssoAtivo").default(false).notNull(),
-  urlSSO: varchar("urlSSO", { length: 255 }),
-  
-  // Notificações
-  notificacoesEmail: boolean("notificacoesEmail").default(true).notNull(),
-  notificacoesSlack: boolean("notificacoesSlack").default(false).notNull(),
-  webhookSlack: varchar("webhookSlack", { length: 500 }),
-  
-  // Conformidade
-  conformidadeLGPD: boolean("conformidadeLGPD").default(true).notNull(),
-  retencaoDados: int("retencaoDados"), // Dias para retenção de dados
-  
-  // Preferências
-  idioma: varchar("idioma", { length: 10 }).default("pt-BR").notNull(),
-  fuso: varchar("fuso", { length: 50 }).default("America/Sao_Paulo").notNull(),
-  
-  criadoEm: timestamp("criadoEm").defaultNow().notNull(),
-  atualizadoEm: timestamp("atualizadoEm").defaultNow().onUpdateNow().notNull(),
-});
-
-export type ConfiguracaoEmpresa = typeof configuracoesEmpresa.$inferSelect;
-export type InsertConfiguracaoEmpresa = typeof configuracoesEmpresa.$inferInsert;
-
-/**
- * Tabela de Alertas de Segurança
- * Rastreia atividades suspeitas ou importantes
- */
-export const alertasSeguranca = mysqlTable("alertas_seguranca", {
-  id: int("id").autoincrement().primaryKey(),
-  empresaId: int("empresaId").notNull().references(() => empresas.id, { onDelete: "cascade" }),
-  
-  tipo: mysqlEnum("tipo", ["acesso_negado", "multiplas_tentativas_falhas", "mudanca_permissoes", "exclusao_dados", "acesso_inusitado", "outro"]).notNull(),
-  severidade: mysqlEnum("severidade", ["baixa", "media", "alta", "critica"]).default("media").notNull(),
-  
-  descricao: text("descricao").notNull(),
-  usuarioId: int("usuarioId").references(() => users.id, { onDelete: "set null" }),
-  
-  // Contexto
-  enderecoIP: varchar("enderecoIP", { length: 45 }),
-  localizacao: varchar("localizacao", { length: 100 }),
+  // Metadados
+  colunas: json('colunas'), // Array com nomes e tipos das colunas
+  amostra: json('amostra'), // Primeiras 10 linhas como amostra
+  estatisticas: json('estatisticas'), // Min, max, média, mediana por coluna
   
   // Status
-  lido: boolean("lido").default(false).notNull(),
-  resolvido: boolean("resolvido").default(false).notNull(),
-  notasResolucao: text("notasResolucao"),
+  status: mysqlEnum('status', ['processando', 'concluido', 'erro']).default('processando'),
+  erroMensagem: text('erro_mensagem'),
   
-  criadoEm: timestamp("criadoEm").defaultNow().notNull(),
-  resolvidoEm: timestamp("resolvidoEm"),
+  // Armazenamento
+  caminhoArquivo: varchar('caminho_arquivo', { length: 500 }), // Caminho do CSV/Parquet no S3
+  tamanhoMB: decimal('tamanho_mb', { precision: 10, scale: 2 }),
+  
+  // Auditoria
+  criadoPor: int('criado_por'),
+  criadoEm: timestamp('criado_em').defaultNow(),
+  atualizadoEm: timestamp('atualizado_em').defaultNow().onUpdateNow(),
 });
 
-export type AlertaSeguranca = typeof alertasSeguranca.$inferSelect;
-export type InsertAlertaSeguranca = typeof alertasSeguranca.$inferInsert;
+export type SyntheticDataset = typeof syntheticDatasets.$inferSelect;
+export type InsertSyntheticDataset = typeof syntheticDatasets.$inferInsert;
+
+/**
+ * Tabela para armazenar simulações de campanhas
+ */
+export const campaignSimulations = mysqlTable('campaign_simulations', {
+  id: serial('id').primaryKey(),
+  empresaId: int('empresa_id').notNull(),
+  datasetId: int('dataset_id').references(() => syntheticDatasets.id),
+  
+  // Informações da campanha
+  nome: varchar('nome', { length: 255 }).notNull(),
+  descricao: text('descricao'),
+  tipo: mysqlEnum('tipo', ['email', 'sms', 'push', 'web', 'social']).notNull(),
+  
+  // Parâmetros de simulação
+  audiencia: int('audiencia').notNull(), // Número de pessoas na audiência
+  taxaAbertura: decimal('taxa_abertura', { precision: 5, scale: 2 }), // %
+  taxaClique: decimal('taxa_clique', { precision: 5, scale: 2 }), // %
+  taxaConversao: decimal('taxa_conversao', { precision: 5, scale: 2 }), // %
+  ticketMedio: decimal('ticket_medio', { precision: 15, scale: 2 }), // R$
+  custoPorContato: decimal('custo_por_contato', { precision: 10, scale: 2 }), // R$
+  
+  // Resultados simulados
+  contatosAbertos: int('contatos_abertos'),
+  contatosClicados: int('contatos_clicados'),
+  conversoes: int('conversoes'),
+  receita: decimal('receita', { precision: 15, scale: 2 }), // R$
+  custoTotal: decimal('custo_total', { precision: 15, scale: 2 }), // R$
+  roi: decimal('roi', { precision: 10, scale: 2 }), // %
+  paybackDias: int('payback_dias'),
+  
+  // Análise de risco
+  cenarioOtimista: json('cenario_otimista'), // {roi, receita, conversoes}
+  cenarioPessimista: json('cenario_pessimista'), // {roi, receita, conversoes}
+  probabilidadeSucesso: decimal('probabilidade_sucesso', { precision: 5, scale: 2 }), // %
+  
+  // Status
+  status: mysqlEnum('status', ['rascunho', 'simulado', 'executado']).default('rascunho'),
+  executadoEm: timestamp('executado_em'),
+  resultadoReal: json('resultado_real'), // Resultados reais se foi executado
+  
+  // Auditoria
+  criadoPor: int('criado_por'),
+  criadoEm: timestamp('criado_em').defaultNow(),
+  atualizadoEm: timestamp('atualizado_em').defaultNow().onUpdateNow(),
+});
+
+export type CampaignSimulation = typeof campaignSimulations.$inferSelect;
+export type InsertCampaignSimulation = typeof campaignSimulations.$inferInsert;
+
+/**
+ * Tabela para armazenar simulações de pesquisas
+ */
+export const surveySimulations = mysqlTable('survey_simulations', {
+  id: serial('id').primaryKey(),
+  empresaId: int('empresa_id').notNull(),
+  pesquisaId: int('pesquisa_id').references(() => pesquisas.id),
+  datasetId: int('dataset_id').references(() => syntheticDatasets.id),
+  
+  // Informações da pesquisa
+  nome: varchar('nome', { length: 255 }).notNull(),
+  descricao: text('descricao'),
+  
+  // Parâmetros de simulação
+  audiencia: int('audiencia').notNull(),
+  taxaResposta: decimal('taxa_resposta', { precision: 5, scale: 2 }), // %
+  tempoMedioResposta: int('tempo_medio_resposta'), // minutos
+  taxaAbandono: decimal('taxa_abandono', { precision: 5, scale: 2 }), // %
+  
+  // Resultados simulados
+  respostasEsperadas: int('respostas_esperadas'),
+  respostasCompletas: int('respostas_completas'),
+  respostasIncompletas: int('respostas_incompletas'),
+  
+  // Qualidade dos dados
+  scoreQualidade: decimal('score_qualidade', { precision: 5, scale: 2 }), // 0-100
+  anomaliasDetectadas: int('anomalias_detectadas'),
+  duplicatasDetectadas: int('duplicatas_detectadas'),
+  
+  // Confiabilidade
+  confiancaResultados: decimal('confianca_resultados', { precision: 5, scale: 2 }), // %
+  margemErro: decimal('margem_erro', { precision: 5, scale: 2 }), // %
+  
+  // Recomendações
+  recomendacoes: json('recomendacoes'), // Array de strings
+  
+  // Status
+  status: mysqlEnum('status', ['rascunho', 'simulado', 'executado']).default('rascunho'),
+  executadoEm: timestamp('executado_em'),
+  resultadoReal: json('resultado_real'),
+  
+  // Auditoria
+  criadoPor: int('criado_por'),
+  criadoEm: timestamp('criado_em').defaultNow(),
+  atualizadoEm: timestamp('atualizado_em').defaultNow().onUpdateNow()
+});
+
+export type SurveySimulation = typeof surveySimulations.$inferSelect;
+export type InsertSurveySimulation = typeof surveySimulations.$inferInsert;
+
+/**
+ * Tabela para armazenar projeções de comportamento
+ */
+export const behaviorProjections = mysqlTable('behavior_projections', {
+  id: serial('id').primaryKey(),
+  empresaId: int('empresa_id').notNull(),
+  datasetId: int('dataset_id').references(() => syntheticDatasets.id),
+  
+  // Informações da projeção
+  nome: varchar('nome', { length: 255 }).notNull(),
+  descricao: text('descricao'),
+  metrica: varchar('metrica', { length: 255 }).notNull(), // churn, ltv, cac, nps, etc
+  
+  // Dados históricos
+  periodoHistorico: int('periodo_historico'), // dias de histórico usado
+  dataInicio: timestamp('data_inicio'),
+  dataFim: timestamp('data_fim'),
+  
+  // Projeções
+  projecao30dias: decimal('projecao_30dias', { precision: 15, scale: 2 }),
+  projecao90dias: decimal('projecao_90dias', { precision: 15, scale: 2 }),
+  projecao180dias: decimal('projecao_180dias', { precision: 15, scale: 2 }),
+  projecao365dias: decimal('projecao_365dias', { precision: 15, scale: 2 }),
+  
+  // Confiança das projeções
+  confianca30dias: decimal('confianca_30dias', { precision: 5, scale: 2 }), // %
+  confianca90dias: decimal('confianca_90dias', { precision: 5, scale: 2 }), // %
+  confianca180dias: decimal('confianca_180dias', { precision: 5, scale: 2 }), // %
+  confianca365dias: decimal('confianca_365dias', { precision: 5, scale: 2 }), // %
+  
+  // Análise de cenários
+  cenarioOtimista: json('cenario_otimista'), // {30dias, 90dias, 180dias, 365dias}
+  cenarioPessimista: json('cenario_pessimista'),
+  cenarioMaisProvavel: json('cenario_mais_provavel'),
+  
+  // Fatores de influência
+  fatoresPositivos: json('fatores_positivos'), // Array de strings
+  fatoresNegativos: json('fatores_negativos'), // Array de strings
+  
+  // Recomendações
+  acoesRecomendadas: json('acoes_recomendadas'), // Array de objetos {acao, impacto, esforço}
+  
+  // Status
+  status: mysqlEnum('status', ['processando', 'concluido', 'erro']).default('processando'),
+  erroMensagem: text('erro_mensagem'),
+  
+  // Auditoria
+  criadoPor: int('criado_por'),
+  criadoEm: timestamp('criado_em').defaultNow(),
+  atualizadoEm: timestamp('atualizado_em').defaultNow().onUpdateNow(),
+});
+
+export type BehaviorProjection = typeof behaviorProjections.$inferSelect;
+export type InsertBehaviorProjection = typeof behaviorProjections.$inferInsert;
+
+/**
+ * Tabela para armazenar histórico de simulações e comparar com resultados reais
+ */
+export const studioHistory = mysqlTable('studio_history', {
+  id: serial('id').primaryKey(),
+  empresaId: int('empresa_id').notNull(),
+  
+  // Tipo de simulação
+  tipoSimulacao: mysqlEnum('tipo_simulacao', ['dataset', 'campanha', 'pesquisa', 'projecao']).notNull(),
+  simulacaoId: int('simulacao_id'), // ID da simulação (pode ser de qualquer tabela)
+  
+  // Dados simulados
+  dadosSimulados: json('dados_simulados'), // Cópia dos parâmetros simulados
+  resultadosSimulados: json('resultados_simulados'), // Cópia dos resultados simulados
+  
+  // Dados reais (quando disponível)
+  resultadosReais: json('resultados_reais'),
+  dataResultadoReal: timestamp('data_resultado_real'),
+  
+  // Análise de acurácia
+  acuraciaPercentual: decimal('acuracia_percentual', { precision: 5, scale: 2 }), // %
+  desvioPercentual: decimal('desvio_percentual', { precision: 5, scale: 2 }), // %
+  
+  // Aprendizado
+  licoesAprendidas: text('licoes_aprendidas'),
+  melhoriaSugeridas: json('melhorias_sugeridas'), // Array de strings
+  
+  // Auditoria
+  criadoEm: timestamp('criado_em').defaultNow(),
+});
+
+export type StudioHistory = typeof studioHistory.$inferSelect;
+export type InsertStudioHistory = typeof studioHistory.$inferInsert;
+
+/**
+ * Tabela para armazenar configurações e preferências do Studio
+ */
+export const studioConfigurations = mysqlTable('studio_configurations', {
+  id: serial('id').primaryKey(),
+  empresaId: int('empresa_id').notNull().unique(),
+  
+  // Configurações de geração de dados
+  regiaoPadrao: varchar('regiao_padrao', { length: 100 }).default('Brasil'),
+  sazonalidadePadrao: varchar('sazonalidade_padrao', { length: 100 }).default('Sazonal'),
+  quantidadePadrao: int('quantidade_padrao').default(100000),
+  
+  // Configurações de simulação
+  taxaAberturaPadrao: decimal('taxa_abertura_padrao', { precision: 5, scale: 2 }).default('25.00'),
+  taxaCliquePadrao: decimal('taxa_clique_padrao', { precision: 5, scale: 2 }).default('5.00'),
+  taxaConversaoPadrao: decimal('taxa_conversao_padrao', { precision: 5, scale: 2 }).default('2.00'),
+  
+  // Integração com IA
+  usarIAParaGerador: boolean('usar_ia_para_gerador').default(true),
+  usarIAParaSimulador: boolean('usar_ia_para_simulador').default(true),
+  usarIAParaProjecao: boolean('usar_ia_para_projecao').default(true),
+  modeloIAPadrao: varchar('modelo_ia_padrao', { length: 100 }).default('gpt-4'),
+  
+  // Limites
+  maxDatasetsMensais: int('max_datasets_mensais').default(100),
+  maxSimulacoesMensais: int('max_simulacoes_mensais').default(500),
+  maxRegistrosPorDataset: int('max_registros_por_dataset').default(10000000),
+  
+  // Notificações
+  notificarAoTerminar: boolean('notificar_ao_terminar').default(true),
+  notificarErros: boolean('notificar_erros').default(true),
+  
+  // Auditoria
+  criadoEm: timestamp('criado_em').defaultNow(),
+  atualizadoEm: timestamp('atualizado_em').defaultNow().onUpdateNow(),
+});
+
+export type StudioConfiguration = typeof studioConfigurations.$inferSelect;
+export type InsertStudioConfiguration = typeof studioConfigurations.$inferInsert;
 

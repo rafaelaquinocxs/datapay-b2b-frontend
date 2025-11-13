@@ -33,8 +33,6 @@ interface Acao {
 }
 
 export default function AcoesInteligentes() {
-  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-  const empresaId = usuario?.id || 1;
   const [showSimulador, setShowSimulador] = useState(false);
   const [showRanking, setShowRanking] = useState(false);
   const [sliders, setSliders] = useState({
