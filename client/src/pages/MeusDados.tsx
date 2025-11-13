@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -28,14 +27,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import PageTransition from "@/components/PageTransition";
+import { ConnectorModal } from "@/components/ConnectorModal";
+import { SyncHistoryPanel } from "@/components/SyncHistoryPanel";
+import { useConnectorManager } from "@/hooks/useConnectorManager";
 
 // Conectores de grandes empresas com logos de marca
 const CONNECTORS = [
   { id: "salesforce", nome: "Salesforce", categoria: "CRM", logo: "SF", descricao: "Gerenciamento de relacionamento com clientes" },
   { id: "sap", nome: "SAP", categoria: "ERP", logo: "SAP", descricao: "Planejamento de recursos empresariais" },
+  { id: "totvs", nome: "TOTVS", categoria: "ERP", logo: "TOT", descricao: "ERP Protheus" },
   { id: "google-analytics", nome: "Google Analytics", categoria: "Analytics", logo: "GA", descricao: "Análise de tráfego e comportamento web" },
   { id: "power-bi", nome: "Power BI", categoria: "BI", logo: "PBI", descricao: "Inteligência de negócios e visualização" },
-  { id: "hubspot", nome: "HubSpot", categoria: "Marketing", logo: "HS", descricao: "Automação de marketing e vendas" },
+  { id: "hubspot", nome: "HubSpot", categoria: "CRM", logo: "HS", descricao: "Automação de marketing e vendas" },
   { id: "stripe", nome: "Stripe", categoria: "Pagamentos", logo: "STR", descricao: "Processamento de pagamentos online" },
   { id: "slack", nome: "Slack", categoria: "Comunicação", logo: "SLK", descricao: "Comunicação em tempo real" },
   { id: "jira", nome: "Jira", categoria: "Projeto", logo: "JRA", descricao: "Gerenciamento de projetos ágeis" },
@@ -45,7 +48,7 @@ const CONNECTORS = [
   { id: "csv", nome: "CSV/Excel", categoria: "Arquivo", logo: "CSV", descricao: "Upload de arquivos CSV ou Excel" },
 ];
 
-const CATEGORIAS = ["Todos", "CRM", "ERP", "Analytics", "BI", "Marketing", "Pagamentos", "Comunicação", "Projeto", "Cloud", "Arquivo"];
+const CATEGORIAS = ["Todos", "CRM", "ERP", "Analytics", "BI", "Pagamentos", "Comunicação", "Projeto", "Cloud", "Arquivo"];
 
 interface ConnectorStatus {
   connectorId: string;
@@ -76,6 +79,28 @@ export default function MeusDados() {
   const [syncAlerts, setSyncAlerts] = useState<SyncAlert[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [stats, setStats] = useState({ totalConnectors: 0, connectedConnectors: 0, totalRecordsSynced: 0 });
+  
+  // Modal de conexão
+  const [selectedConnector, setSelectedConnector] = useState<{ id: string; name: string } | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [showHistory, setShowHistory] = useState<string | null>(null);
+
+  const {
+    connectors,
+    syncLogs,
+    loading,
+    error,
+    fetchConnectors,
+    connectConnector,
+    syncConnector,
+    fetchSyncLogs,
+  } = useConnectorManager();
+
+  // Carregar status dos conectores
+  useEffect(() => {
+    fetchConnectors();
+    fetchSyncLogs();
+  }, []);
 
   // Carregar status dos conectores
   useEffect(() => {
@@ -107,209 +132,263 @@ export default function MeusDados() {
       }
     };
 
-    const loadStats = async () => {
-      try {
-        const response = await fetch("/api/sync/stats");
-        if (response.ok) {
-          const data = await response.json();
-          setStats(data);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar estatísticas:", error);
-      }
-    };
-
     loadConnectorStatuses();
     loadAlerts();
-    loadStats();
 
-    // Recarregar a cada 30 segundos
+    // Atualizar a cada 30 segundos
     const interval = setInterval(() => {
       loadConnectorStatuses();
       loadAlerts();
-      loadStats();
     }, 30000);
 
     return () => clearInterval(interval);
   }, []);
 
+  // Atualizar stats
+  useEffect(() => {
+    const connectedCount = connectedSources.length;
+    const totalRecords = Array.from(connectorStatuses.values()).reduce(
+      (sum, status) => sum + status.totalRecordsSynced,
+      0
+    );
+
+    setStats({
+      totalConnectors: CONNECTORS.length,
+      connectedConnectors: connectedCount,
+      totalRecordsSynced: totalRecords,
+    });
+  }, [connectedSources, connectorStatuses]);
+
+  // Filtrar conectores
   const filteredConnectors = CONNECTORS.filter((connector) => {
-    const matchSearch = connector.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = connector.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
       connector.descricao.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchCategory = selectedCategory === "Todos" || connector.categoria === selectedCategory;
-    return matchSearch && matchCategory;
+    const matchesCategory = selectedCategory === "Todos" || connector.categoria === selectedCategory;
+    return matchesSearch && matchesCategory;
   });
 
-  const handleConnect = async (connectorId: string) => {
+  // Conectar conector
+  const handleConnectConnector = async (credentials: Record<string, string>) => {
+    if (!selectedConnector) return;
+
     try {
-      if (connectedSources.includes(connectorId)) {
-        setConnectedSources(connectedSources.filter(id => id !== connectorId));
-        toast.success("Desconectado com sucesso!");
-      } else {
-        setConnectedSources([...connectedSources, connectorId]);
-        toast.success("Conectado com sucesso!");
-      }
-    } catch (error) {
-      toast.error("Erro ao conectar/desconectar");
+      await connectConnector(selectedConnector.id, credentials);
+      setConnectedSources([...connectedSources, selectedConnector.id]);
+      toast.success(`${selectedConnector.name} conectado com sucesso!`);
+      setShowModal(false);
+      setSelectedConnector(null);
+    } catch (err) {
+      toast.error(`Erro ao conectar ${selectedConnector.name}`);
     }
   };
 
-  const handleSync = async (connectorId: string) => {
-    setIsSyncing(true);
+  // Desconectar conector
+  const handleDisconnectConnector = (connectorId: string) => {
+    setConnectedSources(connectedSources.filter((id) => id !== connectorId));
+    toast.success("Conector desconectado");
+  };
+
+  // Sincronizar conector
+  const handleSyncConnector = async (connectorId: string) => {
     try {
-      const response = await fetch(`/api/sync/connector/${connectorId}`, { method: "POST" });
-      if (response.ok) {
-        toast.success("Sincronização iniciada!");
-        // Recarregar status após 2 segundos
-        setTimeout(() => {
-          const loadStatus = async () => {
-            const res = await fetch(`/api/sync/stats/${connectorId}`);
-            if (res.ok) {
-              const data = await res.json();
-              const status = connectorStatuses.get(connectorId);
-              if (status) {
-                setConnectorStatuses(new Map(connectorStatuses.set(connectorId, { ...status, ...data })));
-              }
-            }
-          };
-          loadStatus();
-        }, 2000);
-      }
-    } catch (error) {
+      setIsSyncing(true);
+      await syncConnector(connectorId);
+      toast.success("Sincronização iniciada");
+    } catch (err) {
       toast.error("Erro ao sincronizar");
     } finally {
       setIsSyncing(false);
     }
   };
 
-  const getStatusColor = (status?: string) => {
-    switch (status) {
-      case "success":
-        return "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400";
-      case "error":
-        return "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400";
-      default:
-        return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400";
-    }
+  // Obter status do conector
+  const getConnectorStatus = (connectorId: string) => {
+    return connectorStatuses.get(connectorId);
   };
 
-  const getStatusIcon = (status?: string) => {
-    switch (status) {
-      case "success":
-        return <CheckCircle2 className="w-4 h-4" />;
-      case "error":
-        return <AlertCircle className="w-4 h-4" />;
-      default:
-        return <Clock className="w-4 h-4" />;
-    }
+  // Renderizar card de conector
+  const renderConnectorCard = (connector: any) => {
+    const isConnected = connectedSources.includes(connector.id);
+    const status = getConnectorStatus(connector.id);
+
+    return (
+      <div
+        key={connector.id}
+        className={`p-4 rounded-lg border-2 transition-all ${
+          isConnected
+            ? "border-indigo-200 bg-indigo-50"
+            : "border-gray-200 bg-white hover:border-gray-300"
+        }`}
+      >
+        {/* Logo */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+            {connector.logo}
+          </div>
+          {isConnected && <CheckCircle2 className="w-5 h-5 text-green-600" />}
+        </div>
+
+        {/* Nome e descrição */}
+        <h3 className="font-semibold text-sm mb-1">{connector.nome}</h3>
+        <p className="text-xs text-muted-foreground mb-3">{connector.descricao}</p>
+
+        {/* Status */}
+        {isConnected && status && (
+          <div className="mb-3 p-2 bg-white rounded text-xs space-y-1">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Última sincronização:</span>
+              <span className="font-medium">
+                {status.lastSyncAt
+                  ? new Date(status.lastSyncAt).toLocaleDateString("pt-BR")
+                  : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Registros:</span>
+              <span className="font-medium">{status.totalRecordsSynced}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Ações */}
+        <div className="flex gap-2">
+          {!isConnected ? (
+            <Button
+              size="sm"
+              className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+              onClick={() => {
+                setSelectedConnector({ id: connector.id, name: connector.nome });
+                setShowModal(true);
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Conectar
+            </Button>
+          ) : (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1"
+                onClick={() => handleSyncConnector(connector.id)}
+                disabled={isSyncing}
+              >
+                <RefreshCw className="w-4 h-4 mr-1" />
+                Sincronizar
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="outline">
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setShowHistory(connector.id)}>
+                    <Activity className="w-4 h-4 mr-2" />
+                    Ver Histórico
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleDisconnectConnector(connector.id)}
+                    className="text-red-600"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Desconectar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
+        </div>
+      </div>
+    );
   };
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 p-8">
-        <div className="max-w-7xl mx-auto space-y-8">
-          {/* Header */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
-                <Database className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Meus Dados</h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-1">Conecte suas fontes de dados em segundos</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* HEADER */}
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-slate-900 mb-2">Meus Dados</h1>
+            <p className="text-slate-600">Gerencie suas integrações e sincronizações de dados</p>
+          </div>
+
+          {/* STATS */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-white rounded-lg p-4 border border-slate-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600">Conectores Disponíveis</p>
+                  <p className="text-2xl font-bold text-slate-900">{stats.totalConnectors}</p>
+                </div>
+                <Database className="w-8 h-8 text-indigo-600 opacity-20" />
               </div>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 max-w-2xl">
-              Integre com as principais plataformas de dados do mercado. Sincronize automaticamente e mantenha seus dados sempre atualizados.
-            </p>
+
+            <div className="bg-white rounded-lg p-4 border border-slate-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600">Conectados</p>
+                  <p className="text-2xl font-bold text-green-600">{stats.connectedConnectors}</p>
+                </div>
+                <CheckCircle2 className="w-8 h-8 text-green-600 opacity-20" />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg p-4 border border-slate-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600">Registros Sincronizados</p>
+                  <p className="text-2xl font-bold text-slate-900">{stats.totalRecordsSynced.toLocaleString()}</p>
+                </div>
+                <TrendingUp className="w-8 h-8 text-purple-600 opacity-20" />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg p-4 border border-slate-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600">Alertas</p>
+                  <p className="text-2xl font-bold text-orange-600">{syncAlerts.filter((a) => !a.isResolved).length}</p>
+                </div>
+                <AlertCircle className="w-8 h-8 text-orange-600 opacity-20" />
+              </div>
+            </div>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Fontes Conectadas</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{connectedSources.length}</p>
-                </div>
-                <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                  <CheckCircle2 className="w-6 h-6 text-green-600" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Disponíveis</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{CONNECTORS.length}</p>
-                </div>
-                <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                  <Zap className="w-6 h-6 text-blue-600" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Registros Sincronizados</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.totalRecordsSynced.toLocaleString()}</p>
-                </div>
-                <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                  <TrendingUp className="w-6 h-6 text-purple-600" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Última Sincronização</p>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white mt-2">Agora</p>
-                </div>
-                <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-                  <Activity className="w-6 h-6 text-orange-600" />
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Alertas */}
-          {syncAlerts.length > 0 && (
-            <div className="space-y-2">
-              {syncAlerts.slice(0, 3).map((alert) => (
-                <div key={alert.id} className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-red-900 dark:text-red-200">{alert.title}</h3>
-                    <p className="text-sm text-red-700 dark:text-red-300">{alert.message}</p>
+          {/* ALERTAS */}
+          {syncAlerts.filter((a) => !a.isResolved).length > 0 && (
+            <div className="mb-6 space-y-2">
+              {syncAlerts
+                .filter((a) => !a.isResolved)
+                .slice(0, 3)
+                .map((alert) => (
+                  <div
+                    key={alert.id}
+                    className="bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-start gap-3"
+                  >
+                    <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-medium text-sm text-orange-900">{alert.title}</p>
+                      <p className="text-xs text-orange-800">{alert.message}</p>
+                    </div>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => {
-                    setSyncAlerts(syncAlerts.filter(a => a.id !== alert.id));
-                    toast.success("Alerta descartado");
-                  }}>
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
+                ))}
             </div>
           )}
 
-          {/* Filtros e Busca */}
-          <div className="space-y-4">
-            <div className="flex gap-4 items-center flex-wrap">
-              <div className="flex-1 min-w-64">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Buscar conectores..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-500"
-                  />
-                </div>
+          {/* BUSCA E FILTROS */}
+          <div className="bg-white rounded-lg p-4 border border-slate-200 mb-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Buscar conectores..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
               </div>
 
               <div className="flex gap-2">
@@ -330,13 +409,15 @@ export default function MeusDados() {
               </div>
             </div>
 
-            <div className="flex gap-2 flex-wrap">
+            {/* CATEGORIAS */}
+            <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
               {CATEGORIAS.map((categoria) => (
                 <Button
                   key={categoria}
                   variant={selectedCategory === categoria ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(categoria)}
+                  className="whitespace-nowrap"
                 >
                   {categoria}
                 </Button>
@@ -344,114 +425,38 @@ export default function MeusDados() {
             </div>
           </div>
 
-          {/* Conectores Grid/List */}
-          <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-3"}>
-            {filteredConnectors.map((connector) => {
-              const status = connectorStatuses.get(connector.id);
-              const isConnected = connectedSources.includes(connector.id);
-
-              return (
-                <Card
-                  key={connector.id}
-                  className={`border-2 transition-all ${
-                    isConnected
-                      ? "border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-900/20"
-                      : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
-                  } p-6 hover:shadow-lg`}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-800 flex items-center justify-center font-bold text-gray-700 dark:text-gray-300 text-sm">
-                        {connector.logo}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">{connector.nome}</h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{connector.categoria}</p>
-                      </div>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleSync(connector.id)} disabled={isSyncing}>
-                          <RefreshCw className="w-4 h-4 mr-2" />
-                          Sincronizar Agora
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <AlertCircle className="w-4 h-4 mr-2" />
-                          Ver Histórico
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{connector.descricao}</p>
-
-                  {status && (
-                    <div className="space-y-2 mb-4 text-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Status:</span>
-                        <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${getStatusColor(status.lastSyncStatus)}`}>
-                          {getStatusIcon(status.lastSyncStatus)}
-                          <span className="text-xs font-semibold">
-                            {status.lastSyncStatus === "success" ? "Sincronizado" : status.lastSyncStatus === "error" ? "Erro" : "Pendente"}
-                          </span>
-                        </div>
-                      </div>
-                      {status.lastSyncAt && (
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-600 dark:text-gray-400">Última sync:</span>
-                          <span className="text-gray-900 dark:text-white">
-                            {new Date(status.lastSyncAt).toLocaleDateString("pt-BR")}
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-600 dark:text-gray-400">Registros:</span>
-                        <span className="text-gray-900 dark:text-white">{status.totalRecordsSynced.toLocaleString()}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex gap-2">
-                    <Button
-                      variant={isConnected ? "default" : "outline"}
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => handleConnect(connector.id)}
-                    >
-                      {isConnected ? (
-                        <>
-                          <CheckCircle2 className="w-4 h-4 mr-2" />
-                          Conectado
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="w-4 h-4 mr-2" />
-                          Conectar
-                        </>
-                      )}
-                    </Button>
-                    {isConnected && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleSync(connector.id)}
-                        disabled={isSyncing}
-                      >
-                        <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`} />
-                      </Button>
-                    )}
-                  </div>
-                </Card>
-              );
-            })}
+          {/* CONECTORES */}
+          <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
+            {filteredConnectors.map((connector) => renderConnectorCard(connector))}
           </div>
+
+          {/* HISTÓRICO DE SINCRONIZAÇÃO */}
+          {showHistory && (
+            <div className="mt-8">
+              <SyncHistoryPanel
+                connectorId={showHistory}
+                connectorName={CONNECTORS.find((c) => c.id === showHistory)?.nome || ""}
+                logs={syncLogs}
+                onRetry={handleSyncConnector}
+              />
+            </div>
+          )}
         </div>
       </div>
+
+      {/* MODAL DE CONEXÃO */}
+      {selectedConnector && (
+        <ConnectorModal
+          isOpen={showModal}
+          connectorId={selectedConnector.id}
+          connectorName={selectedConnector.name}
+          onClose={() => {
+            setShowModal(false);
+            setSelectedConnector(null);
+          }}
+          onConnect={handleConnectConnector}
+        />
+      )}
     </PageTransition>
   );
 }
